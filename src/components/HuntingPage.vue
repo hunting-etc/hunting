@@ -15,3 +15,9 @@ export default defineComponent({
   name: "HuntingPage",
 });
 </script>
+
+<style>
+h1{
+  text-align: center;
+}
+</style>

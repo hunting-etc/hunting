@@ -32,6 +32,10 @@ const router = useRouter();
         <RouterLink to="/news">
           <Button label="Новости" class="p-button-success" />
         </RouterLink>
+        <RouterLink to="/test">
+          <Button label="Test" class="p-button-success" />
+        </RouterLink>
+
 
       </div>
       <!-- Правая область для отображения содержимого -->

@@ -1,23 +1,32 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../components/Home.vue'
+import LoginForm from '../components/LoginForm.vue'
 import HuntingPage from '../components/HuntingPage.vue'
-import DriveHunt from '../pages/DriveHunt.vue'
-import CoralHunt from '../pages/CoralHunt.vue'
-import Fishing from '../components/Fishing.vue'
-import ActiveRecreation from '../components/ActiveRecreation.vue'
-import EcoTourism from '../components/EcoTourism.vue'
-import Services from '../components/Services.vue'
-import About from '../components/About.vue'
-import News from '../components/News.vue'
+import DriveHunt from '../pages/peges2/DriveHunt.vue'
+import CoralHunt from '../pages/peges2/CoralHunt.vue'
+import Fishing from '../pages/Fishing.vue'
+import Ecotourism from '../pages/Ecotourism.vue'
+import Services from '../pages/Services.vue'
+import HuntingOrganization from '../pages/peges2/HuntingOrganization.vue'
+import About from '../pages/About.vue'
+import News from '../pages/News.vue'
+import ActiveRecreation from '../pages/ActiveRecreation.vue'
+import Test from '../components/Test.vue'
+
 
 
 export default createRouter(
     {
         history: createWebHistory(),
         routes: [
+          {
+            name: 'LoginForm',
+            path: '/',
+            component: LoginForm,
+          },
             {
                 name: 'Home',
-                path: '/',
+                path: '/home',
                 component: Home,
             children: [
             {
@@ -33,7 +42,7 @@ export default createRouter(
                     {
                       name: 'CoralHunt',
                       path: 'coralHunt',
-                      component: CoralHunt
+                      component: CoralHunt,
                     }
                 ],       
               },
@@ -50,12 +59,19 @@ export default createRouter(
                 {
                   name: 'EcoTourism',
                   path: '/ecotourism',
-                  component: EcoTourism,
+                  component: Ecotourism,
                 },
                 {
                   name: 'Services',
                   path: '/services',
                   component: Services,
+                  children: [
+                    {
+                      name: 'HuntingOrganization',
+                      path: 'huntingOrganization',
+                      component: HuntingOrganization,
+                    }
+                  ]
                 },
                 {
                   name: 'About',
@@ -66,6 +82,11 @@ export default createRouter(
                   name: 'News',
                   path: '/news',
                   component: News,
+                },
+                {
+                  name: 'Test',
+                  path: '/test',
+                  component: Test,
                 }
             ]
           }
