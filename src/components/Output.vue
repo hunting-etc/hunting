@@ -1,50 +1,48 @@
 <template>
+  <div>
+    <h1>Posts</h1>
     <div>
-      <h1>Posts</h1>
-      <DataTable :value="posts" tableStyle="min-width: 50rem">
-        <Column field="id" header="ID"></Column>
-        <Column field="title" header="Title"></Column>
-        <Column field="content" header="Content"></Column>
-      </DataTable>
+      <button
+        v-for="post in posts"
+        :key="post.id"
+        @click="handleClick(post)"
+        class="post-button"
+      >
+        {{ post.title }}
+      </button>
     </div>
-  </template>
-  
-  <script>
-  import DataTable from 'primevue/datatable';
-  import Column from 'primevue/column';
-  import ColumnGroup from 'primevue/columngroup';   // optional
-  import Row from 'primevue/row';                   // optional
-  
-  import { PostService } from "../api/service.ts";
-  import { onMounted } from "vue";
-  
-  const service = new PostService();
-  
-  export default {
-    components: {
-      DataTable,
-      Column,
+  </div>
+</template>
+
+<script>
+import { PostService } from "../api/service.ts";
+
+export default {
+  data() {
+    return {
+      posts: [], // Инициализируем как пустой массив
+    };
+  },
+  mounted() {
+    this.loadPosts("admin");
+  },
+  methods: {
+    async loadPosts(prefix) {
+      try {
+        const service = new PostService();
+        const posts = await service.getAll(prefix);
+        this.posts = posts;
+      } catch (error) {
+        console.error("Ошибка загрузки постов:", error);
+      }
     },
-    data() {
-      return {
-        posts: [],  // Инициализируйте как пустой массив
-      };
+    handleClick(post) {
+      alert(`Вы нажали на пост с ID: ${post.id} и названием: ${post.title}`);
     },
-    mounted() {
-      this.loadPosts("admin");
-    },
-    methods: {
-      async loadPosts(prefix) {
-        try {
-          const posts = await service.getAll(prefix); 
-          this.posts = posts; 
-        } catch (error) {
-          console.error("Ошибка загрузки постов:", error);
-        }
-      },
-    },
-  };
-  </script>
-  <style scoped>
-  
-  </style>
+  },
+};
+</script>
+
+<style scoped>
+
+</style>

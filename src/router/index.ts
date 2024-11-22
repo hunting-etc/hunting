@@ -12,6 +12,7 @@ import About from '../pages/About.vue'
 import News from '../pages/News.vue'
 import ActiveRecreation from '../pages/ActiveRecreation.vue'
 import Test from '../components/Test.vue'
+import Output from '../components/Output.vue'
 
 
 
@@ -29,6 +30,11 @@ export default createRouter(
                 path: '/home',
                 component: Home,
             children: [
+              {
+                name: 'Output',
+                path: '/output',
+                component: Output,
+              },
             {
                 name: 'hunting',
                 path: '/hunting',

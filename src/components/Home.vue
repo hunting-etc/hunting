@@ -1,8 +1,37 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import Button from "primevue/button";
-import { RouterLink, RouterView, useRouter } from "vue-router";
-const router = useRouter();
+import { PostService } from "../api/service.ts";
+
+// Интерфейс для типизации постов
+interface Post {
+  id: string;
+  title: string;
+  content?: string; // Поле content может быть необязательным
+}
+
+// Массив постов
+const posts = ref<Post[]>([]); // Типизированный массив постов
+
+// Выбранный пост
+const selectedPost = ref<Post | null>(null); // Один пост или null
+
+// Загружаем данные при монтировании
+const loadPosts = async () => {
+  try {
+    const service = new PostService();
+    posts.value = await service.getAll("admin"); // Типизированный результат
+  } catch (error) {
+    console.error("Ошибка загрузки постов:", error);
+  }
+};
+
+// Загружаем данные при старте
+loadPosts();
+
+// Обработчик нажатия на кнопку
+const handleClick = (post: Post) => {
+  selectedPost.value = post; // Устанавливаем выбранный пост
+};
 </script>
 
 <template>
@@ -11,36 +40,25 @@ const router = useRouter();
       <!-- Левая панель с кнопками -->
       <div class="sidebar">
         <h1 class="welcome__text">Admin panel</h1>
-        <RouterLink to="/hunting">
-          <Button label="Охота" class="p-button-success" />
-        </RouterLink>
-        <RouterLink to="/fishing">
-          <Button label="Рыбалка" class="p-button-success" />
-        </RouterLink>
-        <RouterLink to="/activeRecreation">
-          <Button label="Активный отдых" class="p-button-success" />
-        </RouterLink>
-        <RouterLink to="/ecotourism">
-          <Button label="Экотуризм" class="p-button-success" />
-        </RouterLink>
-        <RouterLink to="/services">
-          <Button label="Услуги" class="p-button-success" />
-        </RouterLink>
-        <RouterLink to="/about">
-          <Button label="О компании" class="p-button-success" />
-        </RouterLink>
-        <RouterLink to="/news">
-          <Button label="Новости" class="p-button-success" />
-        </RouterLink>
-        <RouterLink to="/test">
-          <Button label="Test" class="p-button-success" />
-        </RouterLink>
-
-
+        <div v-for="post in posts" :key="post.id">
+          <button
+            @click="handleClick(post)"
+            class="post-button"
+          >
+            {{ post.title }}
+          </button>
+        </div>
       </div>
+
       <!-- Правая область для отображения содержимого -->
       <div class="content">
-        <RouterView />
+        <h2 v-if="selectedPost">Информация о посте</h2>
+        <div v-if="selectedPost">
+          <p><strong>ID:</strong> {{ selectedPost.id }}</p>
+          <p><strong>Название:</strong> {{ selectedPost.title }}</p>
+          <p><strong>Содержимое:</strong> {{ selectedPost.content || 'Нет данных' }}</p>
+        </div>
+        <p v-else>Выберите пост, чтобы увидеть подробности</p>
       </div>
     </div>
   </div>
