@@ -26,8 +26,19 @@ export class ApiService<T> {
     }
 }
 
-export interface Post extends BaseUUIDSchema {
-    title: string
+export interface Parent extends BaseUUIDSchema {
+    title: string;
 }
 
-export class PostService extends ApiService<Post> {}
+export interface Child extends BaseUUIDSchema {
+    title: string;
+    parentId: string;
+}
+
+export interface Info extends BaseUUIDSchema {
+    description: string;
+}
+
+export class ParentService extends ApiService<Parent> {}
+export class ChildService extends ApiService<Child> {}
+export class InfoService extends ApiService<Info> {}

@@ -20,10 +20,10 @@
   import ColumnGroup from 'primevue/columngroup';   // optional
   import Row from 'primevue/row';                   // optional
   
-  import { PostService } from "../api/service.ts";
+  import { ParentService } from "../api/service.ts";
   import { onMounted } from "vue";
   
-  const service = new PostService();
+  const service = new ParentService();
   
   export default {
     components: {

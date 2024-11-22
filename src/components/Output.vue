@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { PostService } from "../api/service.ts";
+import { ParentService } from "../api/service.ts";
 
 export default {
   data() {
@@ -29,7 +29,7 @@ export default {
   methods: {
     async loadPosts(prefix) {
       try {
-        const service = new PostService();
+        const service = new ParentService();
         const posts = await service.getAll(prefix);
         this.posts = posts;
       } catch (error) {

@@ -30,11 +30,6 @@ export default createRouter(
                 path: '/home',
                 component: Home,
             children: [
-              {
-                name: 'Output',
-                path: '/output',
-                component: Output,
-              },
             {
                 name: 'hunting',
                 path: '/hunting',

@@ -1,64 +1,103 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { PostService } from "../api/service.ts";
+import { ParentService, ChildService, InfoService } from "../api/service.ts";
 
-// Интерфейс для типизации постов
-interface Post {
+// Интерфейсы для типизации данных
+interface Parent {
   id: string;
   title: string;
-  content?: string; // Поле content может быть необязательным
 }
 
-// Массив постов
-const posts = ref<Post[]>([]); // Типизированный массив постов
+interface Child {
+  id: string;
+  title: string;
+  parentId: string;
+}
 
-// Выбранный пост
-const selectedPost = ref<Post | null>(null); // Один пост или null
+interface Info {
+  id: string;
+  description: string;
+}
 
-// Загружаем данные при монтировании
-const loadPosts = async () => {
+// Массив данных для левой панели
+const parents = ref<Parent[]>([]); 
+
+// Данные для правой панели
+const childs = ref<Child[]>([]); 
+const infos = ref<Info[]>([]);
+
+// Управление отображением правой панели
+const selectedParentId = ref<string | null>(null);
+const showChild = ref(true); // Показывать дочерние данные
+
+// Сервисы для загрузки данных
+const parentService = new ParentService();
+const childService = new ChildService();
+const infoService = new InfoService();
+
+// Загрузка данных для левой панели
+const loadParent = async () => {
   try {
-    const service = new PostService();
-    posts.value = await service.getAll("admin"); // Типизированный результат
+    parents.value = await parentService.getAll("admin");
   } catch (error) {
     console.error("Ошибка загрузки постов:", error);
   }
 };
 
-// Загружаем данные при старте
-loadPosts();
-
-// Обработчик нажатия на кнопку
-const handleClick = (post: Post) => {
-  selectedPost.value = post; // Устанавливаем выбранный пост
+// Загрузка данных для правой панели
+const loadChild = async (parentId: string) => {
+  try {
+    selectedParentId.value = parentId;
+    childs.value = await childService.getAll(`admin/${parentId}/Child`);
+    infos.value = []; // Очищаем данные 3 уровня
+    showChild.value = true;
+  } catch (error) {
+    console.error("Ошибка загрузки дочерних постов:", error);
+  }
 };
+
+const loadInfo = async (childId: string) => {
+  try {
+    infos.value = await infoService.getAll(`admin/${childId}/info`);
+    showChild.value = false; // Переход на 3 уровень
+  } catch (error) {
+    console.error("Ошибка загрузки деталей:", error);
+  }
+};
+
+// Загружаем посты при старте
+loadParent();
 </script>
 
 <template>
   <div class="main__menu">
     <div class="container">
-      <!-- Левая панель с кнопками -->
+      <!-- Левая панель -->
       <div class="sidebar">
         <h1 class="welcome__text">Admin panel</h1>
-        <div v-for="post in posts" :key="post.id">
-          <button
-            @click="handleClick(post)"
-            class="post-button"
-          >
+        <div v-for="post in parents" :key="post.id">
+          <button @click="loadChild(post.id)" class="post-button">
             {{ post.title }}
           </button>
         </div>
       </div>
 
-      <!-- Правая область для отображения содержимого -->
+      <!-- Правая панель -->
       <div class="content">
-        <h2 v-if="selectedPost">Информация о посте</h2>
-        <div v-if="selectedPost">
-          <p><strong>ID:</strong> {{ selectedPost.id }}</p>
-          <p><strong>Название:</strong> {{ selectedPost.title }}</p>
-          <p><strong>Содержимое:</strong> {{ selectedPost.content || 'Нет данных' }}</p>
+        <div v-if="showChild">
+          <div v-for="subPost in childs" :key="subPost.id">
+            <button @click="loadInfo(subPost.id)" class="subpost-button">
+              {{ subPost.title }}
+            </button>
+          </div>
         </div>
-        <p v-else>Выберите пост, чтобы увидеть подробности</p>
+        <div v-else>
+          <ul>
+            <li v-for="detail in infos" :key="detail.id">
+              {{ detail.description }}
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
