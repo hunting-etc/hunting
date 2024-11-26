@@ -12,7 +12,6 @@ import About from '../pages/About.vue'
 import News from '../pages/News.vue'
 import ActiveRecreation from '../pages/ActiveRecreation.vue'
 import Test from '../components/Test.vue'
-import Output from '../components/Output.vue'
 
 
 

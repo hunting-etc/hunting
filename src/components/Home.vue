@@ -1,103 +1,151 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { ParentService, ChildService, InfoService } from "../api/service.ts";
+import { useRouter } from "vue-router";
+import Dropdown from "primevue/dropdown";
+import { ParentService, ChildService, InfoService, Parent, Info, Child } from "../api/service.ts";
 
-// Интерфейсы для типизации данных
-interface Parent {
-  id: string;
-  title: string;
+// Определяем тип элемента меню
+interface MenuItem {
+  label: string;
+  path: string;
 }
 
-interface Child {
-  id: string;
-  title: string;
-  parentId: string;
-}
+const router = useRouter();
 
-interface Info {
-  id: string;
-  description: string;
-}
+// Определяем элементы для выпадающего списка
+const menuItems: MenuItem[] = [
+  { label: "Категории", path: "/categories" },
+  { label: "Информационные страницы", path: "/info-pages" },
+];
 
-// Массив данных для левой панели
-const parents = ref<Parent[]>([]); 
+// Храним выбранные элементы для каждого раздела
+const huntingSelection = ref<MenuItem | null>(null);
+const fishingSelection = ref<MenuItem | null>(null);
+const activeRecreationSelection = ref<MenuItem | null>(null);
+const ecotourismSelection = ref<MenuItem | null>(null);
+const servicesSelection = ref<MenuItem | null>(null);
+const newsSelection = ref<MenuItem | null>(null);
 
 // Данные для правой панели
-const childs = ref<Child[]>([]); 
 const infos = ref<Info[]>([]);
-
-// Управление отображением правой панели
-const selectedParentId = ref<string | null>(null);
-const showChild = ref(true); // Показывать дочерние данные
+const currentContent = ref<string>("");
 
 // Сервисы для загрузки данных
-const parentService = new ParentService();
-const childService = new ChildService();
 const infoService = new InfoService();
 
-// Загрузка данных для левой панели
-const loadParent = async () => {
+// Загрузка данных для категорий
+const loadCategoriesData = async (context: string) => {
   try {
-    parents.value = await parentService.getAll("admin");
+    const response = await infoService.getAll(`admin/${context}/categories`); // Подразумевается, что у вас есть API для получения категорий
+    infos.value = response;
+    currentContent.value = "Категории"; // Устанавливаем заголовок
   } catch (error) {
-    console.error("Ошибка загрузки постов:", error);
+    console.error("Ошибка загрузки категорий:", error);
   }
 };
 
-// Загрузка данных для правой панели
-const loadChild = async (parentId: string) => {
-  try {
-    selectedParentId.value = parentId;
-    childs.value = await childService.getAll(`admin/${parentId}/Child`);
-    infos.value = []; // Очищаем данные 3 уровня
-    showChild.value = true;
-  } catch (error) {
-    console.error("Ошибка загрузки дочерних постов:", error);
+// Обработчик навигации
+const navigate = (selection: MenuItem | null, context: string) => {
+  if (selection) {
+    // Если выбраны категории, загружаем данные
+    if (selection.label === "Категории") {
+      loadCategoriesData(context);
+    } else if (selection.path) {
+      router.push(selection.path); // Переход по маршруту
+      currentContent.value = selection.label; // Обновляем заголовок
+    }
   }
 };
-
-const loadInfo = async (childId: string) => {
-  try {
-    infos.value = await infoService.getAll(`admin/${childId}/info`);
-    showChild.value = false; // Переход на 3 уровень
-  } catch (error) {
-    console.error("Ошибка загрузки деталей:", error);
-  }
-};
-
-// Загружаем посты при старте
-loadParent();
 </script>
 
 <template>
   <div class="main__menu">
     <div class="container">
-      <!-- Левая панель -->
       <div class="sidebar">
         <h1 class="welcome__text">Admin panel</h1>
-        <div v-for="post in parents" :key="post.id">
-          <button @click="loadChild(post.id)" class="post-button">
-            {{ post.title }}
-          </button>
+
+        <div class="menu-block">
+          <Dropdown
+            v-model="huntingSelection"
+            :options="menuItems"
+            optionLabel="label"
+            placeholder="Охота"
+            appendTo="self"
+            class="dropdown"
+            @change="(event) => navigate(event.value, 'hunting')"
+          />
+        </div>
+
+        <div class="menu-block">
+          <Dropdown
+            v-model="fishingSelection"
+            :options="menuItems"
+            optionLabel="label"
+            placeholder="Рыбалка"
+            appendTo="self"
+            @change="(event) => navigate(event.value, 'fishing')"
+            class="dropdown"
+          />
+        </div>
+
+        <div class="menu-block">
+          <Dropdown
+            v-model="activeRecreationSelection"
+            :options="menuItems"
+            optionLabel="label"
+            placeholder="Активный отдых"
+            appendTo="self"
+            @change="(event) => navigate(event.value, 'activeRecreation')"
+            class="dropdown"
+          />
+        </div>
+
+        <div class="menu-block">
+          <Dropdown
+            v-model="ecotourismSelection"
+            :options="menuItems"
+            optionLabel="label"
+            placeholder="Экотуризм"
+            appendTo="self"
+            @change="(event) => navigate(event.value, 'ecotourism')"
+            class="dropdown"
+          />
+        </div>
+
+        <div class="menu-block">
+          <Dropdown
+            v-model="servicesSelection"
+            :options="menuItems"
+            optionLabel="label"
+            placeholder="Услуги"
+            appendTo="self"
+            @change="(event) => navigate(event.value, 'services')"
+            class="dropdown"
+          />
+        </div>
+
+        <RouterLink to="/about">
+          <Button label="О компании" class="p-button-success" />
+        </RouterLink>
+
+        <div class="menu-block">
+          <Dropdown
+            v-model="newsSelection"
+            :options="menuItems"
+            optionLabel="label"
+            placeholder="Новости"
+            appendTo="self"
+            @change="(event) => navigate(event.value, 'news')"
+            class="dropdown"
+          />
         </div>
       </div>
 
-      <!-- Правая панель -->
       <div class="content">
-        <div v-if="showChild">
-          <div v-for="subPost in childs" :key="subPost.id">
-            <button @click="loadInfo(subPost.id)" class="subpost-button">
-              {{ subPost.title }}
-            </button>
-          </div>
-        </div>
-        <div v-else>
-          <ul>
-            <li v-for="detail in infos" :key="detail.id">
-              {{ detail.description }}
-            </li>
-          </ul>
-        </div>
+        <h2>{{ currentContent }}</h2>
+        <ul>
+          <li v-for="info in infos" :key="info.id">{{ info.description }}</li>
+        </ul>
       </div>
     </div>
   </div>
@@ -110,8 +158,8 @@ loadParent();
   margin: 0px;
   padding: 15px;
   text-align: center;
-  
 }
+
 /* Основной контейнер */
 .container {
   display: flex;
@@ -123,42 +171,62 @@ loadParent();
 
 /* Левая панель */
 .sidebar {
-  width: 20%; /* Занимает 30% ширины */
+  width: 20%; /* Занимает 20% ширины */
   background-color: #f4f4f4; /* Светлый фон */
   padding: 20px;
   display: flex;
   flex-direction: column; /* Кнопки располагаются вертикально */
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  align-items:stretch;
+  align-items: stretch;
   gap: 10px;
 }
 
 /* Правая область */
 .content {
-  width: 80%; /* Занимает 70% ширины */
+  width: 80%; /* Занимает 80% ширины */
   padding: 20px;
   overflow-y: auto; /* Скроллинг, если контент слишком длинный */
   background-color: #fff;
 }
-h1{
+
+.menu-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative; /* Локальное позиционирование */
+}
+
+h1 {
   margin: 0;
   padding: 0;
 }
-.p-button-success{
+
+.dropdown {
   width: 100%;
   box-sizing: border-box;
   background-color: #1dc439;
   border: none;
-  color: white;
-  border-radius: 10px;
+  color: black;
   font-size: 18px;
   padding: 10px 20px;
   transition: background-color 0.3s ease;
 }
-.p-button-success:hover{
+
+.p-dropdown .p-dropdown-label {
+  color: black !important; /* Черный цвет */
+  font-weight: bold !important; /* Жирный шрифт */
+}
+
+.p-dropdown-panel {
+  position: relative !important;
+  z-index: auto;
+}
+
+.dropdown:hover {
   background-color: #187d29;
 }
-.p-button-success:active {
+
+.dropdown:active {
   background-color: #12631f; /* Еще темнее при нажатии */
   transform: scale(1.02); /* Легкий эффект сжатия */
 }
