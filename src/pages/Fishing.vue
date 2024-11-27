@@ -1,14 +1,21 @@
 <template>
-    <div> 
+    <div>
         <h1>Рыбалка</h1>
-
     </div>
     </template>
     
-    <script lang="ts">
-    import { defineComponent } from "vue";
+    <script setup lang="ts">
     
-    export default defineComponent({
-      name: "Fishing",
-    });
+   
     </script>
+   <style>
+   h1{
+     text-align: center;
+   }
+   p{
+     font-size: 12px;
+     text-align: center;
+     top:50%;
+     left: 50%;
+   }
+   </style>

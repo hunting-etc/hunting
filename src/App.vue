@@ -5,7 +5,7 @@ import Button from 'primevue/button';
 import {ref} from 'vue'
 import { useRouter } from 'vue-router';
 const router = useRouter();
-router.replace('/');
+router.replace('/admin');
 </script>
 
 <template>
@@ -14,7 +14,7 @@ router.replace('/');
   </div>
 </template>
 
-<style scoped>
+<style>
 .p-button {
   background-color: #1dc439;
   border: none;
