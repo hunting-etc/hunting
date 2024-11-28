@@ -40,11 +40,6 @@ export default createRouter({
           component: Fishing,
         },
         {
-          name: "Hunting",
-          path: "hunting",
-          component: HuntingPage,
-        },
-        {
           name: "ActiveRecreation",
           path: "activeRecreation",
           component: ActiveRecreation,
