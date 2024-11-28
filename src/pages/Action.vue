@@ -17,91 +17,135 @@
             <InputText id="content" v-model="content"/>
         </div>
       </Panel>
-      <Button label="Сохранить" @click="save"/>
+      <Button label="Сохранить" class="p-button" @click="save"/>
   </template>
-  
+
   <script lang="ts">
-  import { defineComponent, onMounted, ref } from 'vue';
-  import { useRoute } from 'vue-router';
-  import { ChildService, Child } from '../api/service'; // Импортируйте ваш сервис и интерфейс Child
-  import Panel from 'primevue/panel';
-  import InputText from 'primevue/inputtext';
-  import Divider from 'primevue/divider';
-  import { useToast } from 'primevue/usetoast';
+import { defineComponent, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { ChildService, Child } from '../api/service';
+import { Panel } from 'primevue';
+import InputText from 'primevue';
+import Divider from 'primevue';
+import Button from 'primevue';
 
-  export default defineComponent({
-    name: 'Action',
-    setup() {
-      const route = useRoute();
-      const id = route.query.id; // Получаем ID из query
-      const h1 = ref('');
-      const title = ref(''); // Реф для заголовка
-      const description = ref(''); // Реф для описания
-      const name = ref('');
-      const content = ref('');
-      const childService = new ChildService(); // Экземпляр сервиса
-      const toast = useToast();
-  
-      // Запрос данных при монтировании
-      onMounted(async () => {
-        if (id) {
-          try {
-            const data: Child[] = await childService.getAll('/test/categories'); // Получаем массив данных
-            const item = data.find(child => child.id === id); // Находим элемент с соответствующим ID
-            if (item) {
-                h1.value = item.h1;
-                title.value = item.title; // Устанавливаем заголовок
-                description.value = item.description; // Устанавливаем описание
-                name.value = item.name;
-                content.value = item.content;
-            } else {
-              console.error("Элемент с таким ID не найден");
-            }
-          } catch (error) {
-            console.error("Ошибка при получении данных:", error);
+export default defineComponent({
+  name: 'Action',
+  setup() {
+    const route = useRoute();
+    const id = route.query.id as string; // Указываем тип id
+    const h1 = ref('');
+    const title = ref('');
+    const description = ref('');
+    const name = ref('');
+    const content = ref('');
+    const childService = new ChildService();
+
+    onMounted(async () => {
+      if (id) {
+        try {
+          const data: Child[] = await childService.getAll('/test/categories');
+          const item = data.find(child => child.id === id);
+          if (item) {
+            h1.value = item.h1;
+            title.value = item.title;
+            description.value = item.description;
+            name.value = item.name;
+            content.value = item.content;
+          } else {
+            console.error("Элемент с таким ID не найден");
           }
+        } catch (error) {
+          console.error("Ошибка при получении данных:", error);
         }
-      });
-
-  
-      const save = async () => {
-      const data: Child = {
-        id: id as string, // или создайте новый ID, если это новый элемент
-        h1: h1.value,
-        title: title.value,
-        description: description.value,
-        name: name.value,
-        content: content.value,
-      };
-
-      try {
-        const result = await childService.create(data, '/test/categories');
-        if (result) {
-          toast.add({ severity: 'error', summary: 'Ошибка', detail: result.error });
-        } else {
-          toast.add({ severity: 'success', summary: 'Успех', detail: 'Данные сохранены!' });
-        }
-      } catch (error) {
-        console.error("Ошибка при сохранении данных:", error);
-        toast.add({ severity: 'error', summary: 'Ошибка', detail: 'Не удалось сохранить данные.' });
       }
-    };
+    });
 
+    const save = async () => {
+  const data: Child = {
+    id: id,
+    h1: h1.value,
+    title: title.value,
+    description: description.value,
+    name: name.value,
+    content: content.value,
+  };
 
-      // Возвращаем все данные, которые хотим использовать в шаблоне
-      return {
-        id,
-        h1,
-        title,
-        description,
-        name,
-        content,
-        save
-      };
+  try {
+    const result = await childService.create(data, '/test/categories');
+    if (result) {
+      // Здесь вместо toast можно просто вывести сообщение в консоль
+      console.error('Ошибка:', result.error);
+    } else {
+      console.log('Успех: Данные сохранены!'); // Выводим сообщение об успехе
     }
-  });
-  </script>
+  } catch (error) {
+    console.error("Ошибка при сохранении данных:", error);
+  }
+};
+
+    return {
+      id,
+      h1,
+      title,
+      description,
+      name,
+      content,
+      save
+    };
+  }
+});
+</script>
   
   <style>
-  /* Ваши стили */
+ .panel {
+    width: 80%;
+  padding: 20px;
+  background-color: #f9f9f9; /* Светлый фон панели */
+  border-radius: 8px; /* Закругленные углы */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Лёгкая тень */
+}
+
+/* Стили для заголовка панели */
+.p-panel-header {
+  background-color: #4CAF50; /* Цвет фона заголовка */
+  color: white; /* Цвет текста заголовка */
+  font-weight: bold; /* Жирный шрифт */
+  padding: 10px; /* Отступы */
+  border-top-left-radius: 8px; /* Закругление верхних углов */
+  border-top-right-radius: 8px; /* Закругление верхних углов */
+}
+
+/* Стили для элементов ввода */
+input.p-inputtext {
+  width: 100%; /* Ширина на 100% */
+  padding: 10px; /* Отступы */
+  border: 1px solid #ccc; /* Светло-серая граница */
+  border-radius: 4px; /* Закругленные углы */
+  margin-bottom: 15px; /* Отступ между элементами */
+  transition: border 0.3s; /* Плавный переход при изменении границы */
+}
+
+/* Эффект при наведении на элементы ввода */
+input.p-inputtext:focus {
+  border-color: #4CAF50; /* Цвет границы при фокусе */
+  outline: none; /* Убираем стандартный обвод */
+}
+
+/* Стили для кнопок */
+.p-button {
+  background-color: #2196F3; /* Синий фон */
+  color: white; /* Белый текст */
+  border: none; /* Без границы */
+  padding: 5px 10px; /* Отступы */
+  cursor: pointer; /* Указатель при наведении */
+  border-radius: 4px; /* Закругленные углы */
+}
+
+/* Эффект при наведении на кнопку */
+.p-button:hover {
+  background-color: #1976D2; /* Темнее при наведении */
+}
   </style>
+
+

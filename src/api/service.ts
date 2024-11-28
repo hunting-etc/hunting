@@ -15,7 +15,7 @@ export class ApiService<T> {
         return jsonData as T[]
     }
 
-    public async create(data: T, prefix: string): Promise<void | Error> {
+    /* public async create(data: T, prefix: string): Promise<void | Error> {
         const response = await fetch(`${this.baseUrl}/${prefix}`, {
             body: JSON.stringify(data)
         });
@@ -23,7 +23,24 @@ export class ApiService<T> {
             return await response.json() as Error
         }
         return
-    }
+    } */
+
+    async create(data: Child, endpoint: string) {
+        const response = await fetch(`${this.baseUrl}/${endpoint}`, {
+          method: 'POST', // Измените на POST
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data), // Добавьте данные в теле запроса
+        });
+    
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Ошибка при сохранении данных');
+        }
+    
+        return await response.json();
+      }
 }
 
 export interface Child extends BaseUUIDSchema {

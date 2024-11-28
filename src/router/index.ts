@@ -27,12 +27,11 @@ export default createRouter({
           name: "Hunting",
           path: "hunting",
           component: HuntingPage,
-          children: [ {
-            name: "Action",
-            path: "action",
-            component: Action,
-          }
-          ]
+        },
+        {
+          name: "Action",
+          path: "action",
+          component: Action,
         },
         {
           name: "Fishing",

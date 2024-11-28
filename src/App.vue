@@ -1,18 +1,15 @@
-<script setup lang="ts">
-
-import InputText from 'primevue/inputtext';
-import Button from 'primevue/button';
-import {ref} from 'vue'
-import { useRouter } from 'vue-router';
-const router = useRouter();
-router.replace('/admin');
-</script>
-
 <template>
   <div class="main__menu">
     <router-view></router-view>  
   </div>
 </template>
+
+<script setup lang="ts">
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+router.replace('/admin');
+</script>
 
 <style>
 .p-button {
