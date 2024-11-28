@@ -2,36 +2,56 @@
 <div> 
     <h1>Охота</h1>
     <p>Информация о категориях охоты.</p>
-    <ul>
-      <li v-for="item in childList" :key="item.id">{{ item.title }}</li>
-    </ul>
+    <Datatable :value="childList" showGridlines tableStyle="min-width: 50rem">
+      <Column field="name" header="Название"></Column>
+      <Column field="" header=""></Column>
+      <Column header="Изменить">
+        <template #body="{ data }">
+          <Button label="Изменить" @click="goToAction(data)" />
+        </template></Column>
+    </Datatable>
 </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from "vue";
-import { Child, ChildService } from "../api/service";
+import { useRouter } from 'vue-router'; // Импорт useRouter
+import { ChildService, Child } from "../api/service"; // Импортируем ChildService и интерфейс Child
+import { DataTable, Column } from 'primevue'; // Импортируем необходимые компоненты
+import Button from 'primevue/button'; // Импортируем компонент Button
 
 export default defineComponent({
-  name: "hunting",
+  name: "HuntingPage",
+  components: {
+    DataTable,
+    Column,
+    Button
+  },
   setup() {
-    const childList = ref<Child[]>([]); // Указываем тип для childList
+    const router = useRouter(); // Инициализация роутера
+    const childList = ref<Child[]>([]); // Типизация childList
     const childService = new ChildService();
 
     const fetchData = async () => {
       try {
-        childList.value = await childService.getAll('children'); // 'children' - это префикс для API
+        childList.value = await childService.getAll('children');
       } catch (error) {
         console.error("Ошибка при получении данных:", error);
       }
     };
 
+    const goToAction = (data: Child) => {
+      // Переход на Action.vue с передачей данных
+      router.push({ name: 'Action', query: { id: data.id } });
+    };
+
     onMounted(() => {
-      fetchData();
+      fetchData(); // Загружаем данные при монтировании компонента
     });
 
     return {
-      childList
+      childList,
+      goToAction // Возвращаем функцию перехода
     };
   }
 });

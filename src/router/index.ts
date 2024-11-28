@@ -8,6 +8,7 @@ import Services from "../pages/Services.vue";
 import About from "../pages/About.vue";
 import News from "../pages/News.vue";
 import ActiveRecreation from "../pages/ActiveRecreation.vue";
+import Action from "../pages/Action.vue";
 
 export default createRouter({
   history: createWebHistory(),
@@ -22,6 +23,17 @@ export default createRouter({
       path: "/home",
       component: Home,
       children: [
+        {
+          name: "Hunting",
+          path: "hunting",
+          component: HuntingPage,
+          children: [ {
+            name: "Action",
+            path: "action",
+            component: Action,
+          }
+          ]
+        },
         {
           name: "Fishing",
           path: "fishing", // Относительный путь

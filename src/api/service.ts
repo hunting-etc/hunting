@@ -27,8 +27,12 @@ export class ApiService<T> {
 }
 
 export interface Child extends BaseUUIDSchema {
+    h1:string;
     title: string;
-    parentId: string;
+    description:string
+    name:string
+    content:null
+    // parentId: string;
 }
 
 export interface Info extends BaseUUIDSchema {
