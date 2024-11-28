@@ -8,9 +8,12 @@
       <Column header="Изменить">
         <template #body="{ data }">
           <Button label="Изменить" @click="goToAction(data)" />
+          <Button label="Удалить" @click="deleteItem(data.id)" />
         </template>
       </Column>
     </DataTable>
+
+
   </div>
 </template>
 
@@ -46,13 +49,27 @@ export default defineComponent({
       router.push({ name: 'Action', query: { id: data.id } });
     };
 
+    const deleteItem = async (id: string) => {
+      const confirmDelete = confirm("Вы уверены, что хотите удалить этот элемент?");
+      if (confirmDelete) {
+        try {
+          await childService.delete('/test/categories', id, 'admin'); // Убедитесь, что указали правильный baseAdmin
+          fetchData(); // Перезагружаем данные после удаления
+        } catch (error) {
+          console.error("Ошибка при удалении данных:", error);
+        }
+      }
+    };
+
+
     onMounted(() => {
       fetchData(); // Загружаем данные при монтировании компонента
     });
 
     return {
       childList,
-      goToAction // Возвращаем функцию перехода
+      goToAction, // Возвращаем функцию перехода
+      deleteItem 
     };
   }
 });

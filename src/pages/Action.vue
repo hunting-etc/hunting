@@ -78,7 +78,7 @@ export default defineComponent({
       };
 
       try {
-        const result = await childService.update(id, data, '/test/categories');
+        const result = await childService.update(id, data, 'test/categories');
         if (result) {
           console.log('Успех: Данные сохранены!'); // Выводим сообщение об успехе
         }

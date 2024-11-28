@@ -16,7 +16,7 @@ export default createRouter({
     {
       name: "LoginForm",
       path: "/admin",
-      component: Action,
+      component: LoginForm,
     },
     {
       name: "Home",

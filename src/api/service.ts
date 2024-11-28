@@ -42,21 +42,57 @@ export class ApiService<T> {
         return await response.json();
       }
       
-      async update(id: string, data: Partial<T>, endpoint: string) {
+
+
+      async update(id: string, newData: Partial<T>, endpoint: string) {
+        // Получаем текущие данные с сервера
+        const currentResponse = await fetch(`${this.baseUrl}/${endpoint}/${id}`);
+        if (!currentResponse.ok) {
+            const errorData = await currentResponse.json();
+            throw new Error(errorData.message || 'Ошибка при получении текущих данных');
+        }
+        
+        const currentData: T = await currentResponse.json();
+    
+        // Определяем измененные поля
+        const updatedData: Partial<T> = {};
+        for (const key in newData) {
+            if (newData[key] !== currentData[key]) {
+                updatedData[key] = newData[key];
+            }
+        }
+    
+        // Если нет изменений, не отправляем запрос
+        if (Object.keys(updatedData).length === 0) {
+            console.log('Нет изменений для отправки.');
+            return;
+        }
+    
+        // Отправляем только измененные данные
         const response = await fetch(`${this.baseUrl}/${endpoint}/${id}`, {
-            method: 'PATCH', // Метод для обновления
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(data), // Добавьте данные для обновления
+            body: JSON.stringify(updatedData),
         });
-
+    
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.message || 'Ошибка при обновлении данных');
         }
-
+    
         return await response.json();
+    }
+
+    public async delete(prefix: string,id: string, baseAdmin:string):Promise<void>{
+        const response = await fetch(`${this.baseUrl}/${baseAdmin}/${prefix}/${id}`,{
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json', // Указание типа контента
+            },
+            
+        });
     }
 }
 
