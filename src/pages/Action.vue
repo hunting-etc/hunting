@@ -69,27 +69,23 @@ export default defineComponent({
     });
 
     const save = async () => {
-  const data: Child = {
-    id: id,
-    h1: h1.value,
-    title: title.value,
-    description: description.value,
-    name: name.value,
-    content: content.value,
-  };
+      const data: Partial<Child> = {
+        h1: h1.value,
+        title: title.value,
+        description: description.value,
+        name: name.value,
+        content: content.value,
+      };
 
-  try {
-    const result = await childService.create(data, '/test/categories');
-    if (result) {
-      // Здесь вместо toast можно просто вывести сообщение в консоль
-      console.error('Ошибка:', result.error);
-    } else {
-      console.log('Успех: Данные сохранены!'); // Выводим сообщение об успехе
-    }
-  } catch (error) {
-    console.error("Ошибка при сохранении данных:", error);
-  }
-};
+      try {
+        const result = await childService.update(id, data, '/test/categories');
+        if (result) {
+          console.log('Успех: Данные сохранены!'); // Выводим сообщение об успехе
+        }
+      } catch (error) {
+        console.error("Ошибка при сохранении данных:", error);
+      }
+    };
 
     return {
       id,

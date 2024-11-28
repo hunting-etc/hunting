@@ -41,7 +41,25 @@ export class ApiService<T> {
     
         return await response.json();
       }
+      
+      async update(id: string, data: Partial<T>, endpoint: string) {
+        const response = await fetch(`${this.baseUrl}/${endpoint}/${id}`, {
+            method: 'PATCH', // Метод для обновления
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data), // Добавьте данные для обновления
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Ошибка при обновлении данных');
+        }
+
+        return await response.json();
+    }
 }
+
 
 export interface Child extends BaseUUIDSchema {
     h1:string;
