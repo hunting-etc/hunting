@@ -7,13 +7,13 @@
             <label for="title">Title</label>
             <InputText id="title" v-model="title"/>
             <Divider />
-            <label for="description">description</label>
+            <label for="description">Description</label>
             <InputText id="description" v-model="description"/>
             <Divider />
-            <label for="name">name</label>
+            <label for="name">Name</label>
             <InputText id="name" v-model="name"/>
             <Divider />
-            <label for="content">content</label>
+            <label for="content">Content</label>
             <InputText id="content" v-model="content"/>
         </div>
       </Panel>
@@ -24,13 +24,20 @@
 import { defineComponent, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { ChildService, Child } from '../api/service';
-import { Panel } from 'primevue';
-import InputText from 'primevue';
-import Divider from 'primevue';
-import Button from 'primevue';
+import Panel from 'primevue/panel';
+import InputText from 'primevue/inputtext';
+import Divider from 'primevue/divider';
+import Button from 'primevue/button';
+
 
 export default defineComponent({
   name: 'Action',
+  components: {
+    Panel,
+    InputText,
+    Divider,
+    Button
+  },
   setup() {
     const route = useRoute();
     const id = route.query.id as string; // Указываем тип id
@@ -99,7 +106,7 @@ export default defineComponent({
   
   <style>
  .panel {
-    width: 80%;
+    width: 99%;
   padding: 20px;
   background-color: #f9f9f9; /* Светлый фон панели */
   border-radius: 8px; /* Закругленные углы */
