@@ -53,21 +53,22 @@ export default defineComponent({
     const description = ref('');
     const name = ref('');
     const content = ref('');
-    const sortOrder = ref<number | null>(null); // Подходящий тип
+    const sortOrder = ref<number | null>(null);
+
     const childService = new ChildService();
 
     onMounted(async () => {
       if (id && id !== 'null') {
         try {
-          const data: Child[] = await childService.getAll('/test/categories');
+          const data: Child[] = await childService.getAll('test/categories');
           const item = data.find(child => child.id === id);
           if (item) {
-            h1.value = item.h1;
-            title.value = item.title;
-            description.value = item.description;
-            name.value = item.name;
-            content.value = item.content;
-            sortOrder.value = item.sortOrder; // Убедитесь, что это number или null
+            h1.value = item.h1 || '';
+            title.value = item.title || '';
+            description.value = item.description || '';
+            name.value = item.name || '';
+            content.value = item.content || '';
+            sortOrder.value = item.sortOrder || null;
           } else {
             console.error("Элемент с таким ID не найден");
           }
@@ -78,9 +79,10 @@ export default defineComponent({
     });
 
     const updateSortOrder = (event: Event) => {
-      const value = (event.target as HTMLInputElement).value;
-      sortOrder.value = value ? Number(value) : null; // Преобразуем строку в число или в null
-    };
+  const value = (event.target as HTMLInputElement).value;
+  sortOrder.value = value ? Number(value) : null;
+};
+
 
     const save = async () => {
       const data: Partial<Child> = {
@@ -170,3 +172,5 @@ input.p-inputtext:focus {
   background-color: #166f1a; /* Темнее при наведении */
 }
   </style>
+
+  

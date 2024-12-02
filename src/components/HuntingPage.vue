@@ -48,18 +48,19 @@ export default defineComponent({
     };
 
     const goToAction = (data?: Child) => {
-      if (data) {
-        router.push({ name: 'Action', query: { id: data.id } });
-      } else {
-        router.push({ name: 'Action', query: { id: null } });
-      }
-    };
+  if (data) {
+    router.push({ name: 'Action', query: { ...data } });
+  } else {
+    router.push({ name: 'Action', query: { id: null } });
+  }
+};
+
 
     const deleteItem = async (id: string) => {
       const confirmDelete = confirm("Вы уверены, что хотите удалить этот элемент?");
       if (confirmDelete) {
         try {
-          await childService.delete('/test/categories', id, 'admin');
+          await childService.delete('test/categories', id, '');
           fetchData();
         } catch (error) {
           console.error("Ошибка при удалении данных:", error);
@@ -139,11 +140,12 @@ p{
   margin-right: -1px; /* Убираем границу между кнопкой и таблицей */
   z-index: 1;
 }
-.deleteButton{
-  background-color: #901010;
-  left: 20%;
+.deleteButton {
+  background-color: #901010 !important; /* Красный цвет */
+  color: white; /* Белый текст */
+  left: 10%;
 }
 .deleteButton:hover {
-  background-color: #621313;
+  background-color: #621313 !important; /* Темнее при наведении */
 }
 </style>

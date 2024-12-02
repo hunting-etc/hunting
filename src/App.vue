@@ -11,7 +11,7 @@ const router = useRouter();
 router.replace('/admin');
 </script>
 
-<style>
+<!-- <style>
 .p-button {
   background-color: #1dc439;
   border: none;
@@ -28,4 +28,4 @@ router.replace('/admin');
   background-color: #12631f; /* Еще темнее при нажатии */
   transform: scale(1.02); /* Легкий эффект сжатия */
 }
-</style>
+</style> -->
