@@ -1,34 +1,40 @@
 <template>
-      <Panel header="Изменение категории">
-        <div class="panel">
-            <label for="h1">h1</label>
-            <InputText id="h1" v-model="h1"/>
-            <Divider />
-            <label for="title">Title</label>
-            <InputText id="title" v-model="title"/>
-            <Divider />
-            <label for="description">Description</label>
-            <InputText id="description" v-model="description"/>
-            <Divider />
-            <label for="name">Name</label>
-            <InputText id="name" v-model="name"/>
-            <Divider />
-            <label for="content">Content</label>
-            <InputText id="content" v-model="content"/>
-        </div>
-      </Panel>
-      <Button label="Сохранить" class="p-button" @click="save"/>
-  </template>
+  <Panel header="Изменение категории">
+    <div class="panel">
+      <label for="h1">h1</label>
+      <InputText id="h1" v-model="h1"/>
+      <Divider />
+      <label for="title">Title</label>
+      <InputText id="title" v-model="title"/>
+      <Divider />
+      <label for="description">Description</label>
+      <InputText id="description" v-model="description"/>
+      <Divider />
+      <label for="name">Name</label>
+      <InputText id="name" v-model="name"/>
+      <Divider />
+      <label for="content">Content</label>
+      <InputText id="content" v-model="content"/>
+      <label for="sortOrder">Сортировка</label>
+      <InputText 
+        id="sortOrder" 
+        :value="sortOrder !== null ? sortOrder.toString() : ''" 
+        @input="updateSortOrder" 
+        type="number"
+      />
+    </div>
+    <Button label="Сохранить" class="p-button" @click="save"/>
+  </Panel>
+</template>
 
-  <script lang="ts">
+<script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { ChildService, Child } from '../api/service';
 import Panel from 'primevue/panel';
 import InputText from 'primevue/inputtext';
 import Divider from 'primevue/divider';
 import Button from 'primevue/button';
-
 
 export default defineComponent({
   name: 'Action',
@@ -40,16 +46,18 @@ export default defineComponent({
   },
   setup() {
     const route = useRoute();
-    const id = route.query.id as string; // Указываем тип id
+    const router = useRouter();
+    const id = route.query.id as string; 
     const h1 = ref('');
     const title = ref('');
     const description = ref('');
     const name = ref('');
     const content = ref('');
+    const sortOrder = ref<number | null>(null); // Подходящий тип
     const childService = new ChildService();
 
     onMounted(async () => {
-      if (id) {
+      if (id && id !== 'null') {
         try {
           const data: Child[] = await childService.getAll('/test/categories');
           const item = data.find(child => child.id === id);
@@ -59,6 +67,7 @@ export default defineComponent({
             description.value = item.description;
             name.value = item.name;
             content.value = item.content;
+            sortOrder.value = item.sortOrder; // Убедитесь, что это number или null
           } else {
             console.error("Элемент с таким ID не найден");
           }
@@ -68,6 +77,11 @@ export default defineComponent({
       }
     });
 
+    const updateSortOrder = (event: Event) => {
+      const value = (event.target as HTMLInputElement).value;
+      sortOrder.value = value ? Number(value) : null; // Преобразуем строку в число или в null
+    };
+
     const save = async () => {
       const data: Partial<Child> = {
         h1: h1.value,
@@ -75,25 +89,30 @@ export default defineComponent({
         description: description.value,
         name: name.value,
         content: content.value,
+        sortOrder: sortOrder.value, // Передаем как number | null
       };
 
       try {
-        const result = await childService.update(id, data, 'test/categories');
-        if (result) {
-          console.log('Успех: Данные сохранены!'); // Выводим сообщение об успехе
+        if (id && id !== 'null') {
+          await childService.update(id, data, 'test/categories');
+        } else {
+          await childService.create(data as Child, 'test/categories');
         }
+        console.log('Успех: Данные сохранены!');
+        router.push({ name: 'HuntingPage' });
       } catch (error) {
         console.error("Ошибка при сохранении данных:", error);
       }
     };
 
     return {
-      id,
       h1,
       title,
       description,
       name,
       content,
+      sortOrder,
+      updateSortOrder,
       save
     };
   }
@@ -137,18 +156,17 @@ input.p-inputtext:focus {
 
 /* Стили для кнопок */
 .p-button {
-  background-color: #2196F3; /* Синий фон */
+  background-color: #269e2a;
   color: white; /* Белый текст */
   border: none; /* Без границы */
   padding: 5px 10px; /* Отступы */
   cursor: pointer; /* Указатель при наведении */
   border-radius: 4px; /* Закругленные углы */
+  margin-top: 20px;
 }
 
 /* Эффект при наведении на кнопку */
 .p-button:hover {
-  background-color: #1976D2; /* Темнее при наведении */
+  background-color: #166f1a; /* Темнее при наведении */
 }
   </style>
-
-

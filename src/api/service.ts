@@ -98,12 +98,12 @@ export class ApiService<T> {
 
 
 export interface Child extends BaseUUIDSchema {
-    h1:string;
+    h1: string;
     title: string;
-    description:string;
-    name:string;
-    content:string;
-    // parentId: string;
+    description: string;
+    name: string;
+    content: string;
+    sortOrder: number | null;
 }
 
 export interface Info extends BaseUUIDSchema {

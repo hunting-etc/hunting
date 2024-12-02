@@ -2,27 +2,28 @@
   <div>
     <h1>Охота</h1>
     <p>Информация о категориях охоты.</p>
+    <div class="header-container">
+      <Button label="+" class="createButton" @click="goToAction()"/>
+    </div>
     <DataTable :value="childList" showGridlines tableStyle="min-width: 50rem">
       <Column field="title" header="Название"></Column>
-      <Column header=""></Column>
+      <Column field="sortOrder" header="Сортировка"></Column>
       <Column header="Изменить">
         <template #body="{ data }">
           <Button label="Изменить" @click="goToAction(data)" />
-          <Button label="Удалить" @click="deleteItem(data.id)" />
+          <Button label="Удалить" class="deleteButton" @click="deleteItem(data.id)" />
         </template>
       </Column>
     </DataTable>
-
-
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from "vue";
-import { useRouter } from 'vue-router'; // Импорт useRouter
-import { ChildService, Child } from "../api/service"; // Импортируем ChildService и интерфейс Child
-import { DataTable, Column } from 'primevue'; // Импортируем необходимые компоненты
-import Button from 'primevue/button'; // Импортируем компонент Button
+import { useRouter } from 'vue-router';
+import { ChildService, Child } from "../api/service";
+import { DataTable, Column } from 'primevue';
+import Button from 'primevue/button';
 
 export default defineComponent({
   name: "HuntingPage",
@@ -32,43 +33,47 @@ export default defineComponent({
     Button
   },
   setup() {
-    const router = useRouter(); // Инициализация роутера
-    const childList = ref<Child[]>([]); // Типизация childList
+    const router = useRouter();
+    const childList = ref<Child[]>([]);
     const childService = new ChildService();
 
     const fetchData = async () => {
       try {
         childList.value = await childService.getAll('/test/categories');
+        // Сортируем массив по полю sortOrder
+        childList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
       } catch (error) {
         console.error("Ошибка при получении данных:", error);
       }
     };
 
-    const goToAction = (data: Child) => {
-      // Переход на Action.vue с передачей данных
-      router.push({ name: 'Action', query: { id: data.id } });
+    const goToAction = (data?: Child) => {
+      if (data) {
+        router.push({ name: 'Action', query: { id: data.id } });
+      } else {
+        router.push({ name: 'Action', query: { id: null } });
+      }
     };
 
     const deleteItem = async (id: string) => {
       const confirmDelete = confirm("Вы уверены, что хотите удалить этот элемент?");
       if (confirmDelete) {
         try {
-          await childService.delete('/test/categories', id, 'admin'); // Убедитесь, что указали правильный baseAdmin
-          fetchData(); // Перезагружаем данные после удаления
+          await childService.delete('/test/categories', id, 'admin');
+          fetchData();
         } catch (error) {
           console.error("Ошибка при удалении данных:", error);
         }
       }
     };
 
-
     onMounted(() => {
-      fetchData(); // Загружаем данные при монтировании компонента
+      fetchData();
     });
 
     return {
       childList,
-      goToAction, // Возвращаем функцию перехода
+      goToAction,
       deleteItem 
     };
   }
@@ -112,7 +117,7 @@ p{
 
 /* Стили для кнопок */
 .p-button {
-  background-color: #2196F3; /* Синий фон */
+  background-color: #269e2a;
   color: white; /* Белый текст */
   border: none; /* Без границы */
   padding: 5px 10px; /* Отступы */
@@ -122,6 +127,23 @@ p{
 
 /* Эффект при наведении на кнопку */
 .p-button:hover {
-  background-color: #1976D2; /* Темнее при наведении */
+  background-color: #166f1a; /* Темнее при наведении */
+}
+.header-container {
+  display: flex;
+  justify-content: flex-end; /* Выравнивание содержимого вправо */
+  margin-bottom: 10px; /* Отступ между кнопкой и таблицей */
+}
+
+.createButton {
+  margin-right: -1px; /* Убираем границу между кнопкой и таблицей */
+  z-index: 1;
+}
+.deleteButton{
+  background-color: #901010;
+  left: 20%;
+}
+.deleteButton:hover {
+  background-color: #621313;
 }
 </style>
