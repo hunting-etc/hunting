@@ -1,35 +1,34 @@
 <template>
-  <Panel header="Изменение категории">
-    <div class="panel">
-      <label for="h1">h1</label>
-      <InputText id="h1" v-model="h1"/>
-      <Divider />
-      <label for="title">Title</label>
-      <InputText id="title" v-model="title"/>
-      <Divider />
-      <label for="description">Description</label>
-      <InputText id="description" v-model="description"/>
-      <Divider />
-      <label for="name">Name</label>
-      <InputText id="name" v-model="name"/>
-      <Divider />
-      <label for="content">Content</label>
-      <InputText id="content" v-model="content"/>
-      <label for="sortOrder">Сортировка</label>
-      <InputText 
-        id="sortOrder" 
-        :value="sortOrder !== null ? sortOrder.toString() : ''" 
-        @input="updateSortOrder" 
-        type="number"
-      />
-    </div>
-    <Button label="Сохранить" class="p-button" @click="save"/>
-  </Panel>
+  <div class="panel">
+    <label for="h1">H1</label>
+    <InputText id="h1" v-model="h1" />
+    <Divider />
+    <label for="title">Title</label>
+    <InputText id="title" v-model="title" />
+    <Divider />
+    <label for="description">Description</label>
+    <InputText id="description" v-model="description" />
+    <Divider />
+    <label for="name">Название</label>
+    <InputText id="name" v-model="name" />
+    <Divider />
+    <label for="content">Content</label>
+    <InputText id="content" v-model="content" />
+    <Divider />
+    <label for="sortOrder">Сортировка</label>
+    <InputText 
+      id="sortOrder" 
+      :value="sortOrder !== null ? sortOrder.toString() : ''" 
+      @input="updateSortOrder" 
+      type="number"
+    />
+  </div>
+  <Button label="Сохранить" class="p-button" @click="save" />
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { defineComponent, onMounted, ref, defineEmits } from 'vue';
+import { useRoute } from 'vue-router';
 import { ChildService, Child } from '../api/service';
 import Panel from 'primevue/panel';
 import InputText from 'primevue/inputtext';
@@ -44,21 +43,33 @@ export default defineComponent({
     Divider,
     Button
   },
-  setup() {
+  props: {
+    initialData: {
+      type: Object as () => Child | null,
+      default: null
+    },
+    categoryType: {
+      type: String, // Пропс для типа категории
+      required: true
+    }
+  },
+  setup(props) {
+    const emit = defineEmits(); // Определяем emit
+
     const route = useRoute();
-    const router = useRouter();
     const id = route.query.id as string; 
-    const h1 = ref('');
-    const title = ref('');
-    const description = ref('');
-    const name = ref('');
-    const content = ref('');
-    const sortOrder = ref<number | null>(null);
+    const h1 = ref(props.initialData ? props.initialData.h1 : '');
+    const title = ref(props.initialData ? props.initialData.title : '');
+    const description = ref(props.initialData ? props.initialData.description : '');
+    const name = ref(props.initialData ? props.initialData.name : ''); // Название категории
+    const category = ref(props.categoryType); // Используем categoryType для сортировки
+    const content = ref(props.initialData ? props.initialData.content : '');
+    const sortOrder = ref<number | null>(props.initialData ? props.initialData.sortOrder : null);
 
     const childService = new ChildService();
 
     onMounted(async () => {
-      if (id && id !== 'null') {
+      if (id && id !== 'null' && !props.initialData) {
         try {
           const data: Child[] = await childService.getAll('test/categories');
           const item = data.find(child => child.id === id);
@@ -66,7 +77,7 @@ export default defineComponent({
             h1.value = item.h1 || '';
             title.value = item.title || '';
             description.value = item.description || '';
-            name.value = item.name || '';
+            name.value = item.name || ''; // Устанавливаем значение name
             content.value = item.content || '';
             sortOrder.value = item.sortOrder || null;
           } else {
@@ -79,19 +90,19 @@ export default defineComponent({
     });
 
     const updateSortOrder = (event: Event) => {
-  const value = (event.target as HTMLInputElement).value;
-  sortOrder.value = value ? Number(value) : null;
-};
-
+      const value = (event.target as HTMLInputElement).value;
+      sortOrder.value = value ? Number(value) : null;
+    };
 
     const save = async () => {
       const data: Partial<Child> = {
         h1: h1.value,
         title: title.value,
         description: description.value,
-        name: name.value,
+        name: name.value, // Используем name для названия категории
+        category: category.value, // Используем category для сортировки
         content: content.value,
-        sortOrder: sortOrder.value, // Передаем как number | null
+        sortOrder: sortOrder.value,
       };
 
       try {
@@ -101,7 +112,7 @@ export default defineComponent({
           await childService.create(data as Child, 'test/categories');
         }
         console.log('Успех: Данные сохранены!');
-        router.push({ name: 'HuntingPage' });
+        emit('close'); // Закрытие диалога
       } catch (error) {
         console.error("Ошибка при сохранении данных:", error);
       }
@@ -111,7 +122,8 @@ export default defineComponent({
       h1,
       title,
       description,
-      name,
+      name, // Возвращаем name для использования в шаблоне
+      category, // Возвращаем category для использования в шаблоне
       content,
       sortOrder,
       updateSortOrder,
@@ -122,14 +134,6 @@ export default defineComponent({
 </script>
   
   <style>
- .panel {
-    width: 99%;
-  padding: 20px;
-  background-color: #f9f9f9; /* Светлый фон панели */
-  border-radius: 8px; /* Закругленные углы */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Лёгкая тень */
-}
-
 /* Стили для заголовка панели */
 .p-panel-header {
   background-color: #4CAF50; /* Цвет фона заголовка */

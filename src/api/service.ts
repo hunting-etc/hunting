@@ -15,6 +15,25 @@ export class ApiService<T> {
         return jsonData as T[]
     }
 
+    public async getByName(prefix: string, anme: string): Promise<T[]> {
+        const response = await fetch(`${this.baseUrl}/${prefix}?name=${name}`);
+        if (!response.ok) {
+            throw new Error(`Ошибка при получении данных: ${response.statusText}`);
+        }
+        const jsonData = await response.json();
+        return jsonData as T[];
+    }
+
+
+    public async getById(prefix: string, id: string): Promise<T> {
+        const response = await fetch(`${this.baseUrl}/${prefix}/${id}`);
+        if (!response.ok) {
+            throw new Error(`Ошибка при получении данных: ${response.statusText}`);
+        }
+        const jsonData = await response.json();
+        return jsonData as T;
+    }
+
     /* public async create(data: T, prefix: string): Promise<void | Error> {
         const response = await fetch(`${this.baseUrl}/${prefix}`, {
             body: JSON.stringify(data)
@@ -102,8 +121,10 @@ export interface Child extends BaseUUIDSchema {
     title: string;
     description: string;
     name: string;
+    image: string | File | null;
     content: string;
     sortOrder: number | null;
+    category: string;
 }
 
 export interface Info extends BaseUUIDSchema {
@@ -112,3 +133,5 @@ export interface Info extends BaseUUIDSchema {
 
 export class ChildService extends ApiService<Child> {}
 export class InfoService extends ApiService<Info> {}
+
+

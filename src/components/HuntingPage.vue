@@ -3,18 +3,22 @@
     <h1>Охота</h1>
     <p>Информация о категориях охоты.</p>
     <div class="header-container">
-      <Button label="+" class="createButton" @click="goToAction()"/>
+      <Button label="+" class="createButton" @click="openDialog()" />
     </div>
     <DataTable :value="childList" showGridlines tableStyle="min-width: 50rem">
-      <Column field="title" header="Название"></Column>
+      <Column field="name" header="Название"></Column>
       <Column field="sortOrder" header="Сортировка"></Column>
-      <Column header="Изменить">
+      <Column header="Действия">
         <template #body="{ data }">
-          <Button label="Изменить" @click="goToAction(data)" />
+          <Button label="Изменить" @click="loadDataAndOpenDialog(data.id)" />
           <Button label="Удалить" class="deleteButton" @click="deleteItem(data.id)" />
         </template>
       </Column>
     </DataTable>
+
+    <Dialog v-model:visible="dialogVisible" modal header="Изменение категории" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+      <Action :initialData="selectedItem" @close="dialogVisible = false" categoryType="Охота" />
+    </Dialog>
   </div>
 </template>
 
@@ -24,37 +28,49 @@ import { useRouter } from 'vue-router';
 import { ChildService, Child } from "../api/service";
 import { DataTable, Column } from 'primevue';
 import Button from 'primevue/button';
+import Dialog from 'primevue/dialog';
+import Action from "../pages/Action.vue";
 
 export default defineComponent({
   name: "HuntingPage",
   components: {
     DataTable,
     Column,
-    Button
+    Button,
+    Dialog,
+    Action
   },
   setup() {
     const router = useRouter();
     const childList = ref<Child[]>([]);
     const childService = new ChildService();
+    const dialogVisible = ref(false);
+    const selectedItem = ref<Child | null>(null);
 
     const fetchData = async () => {
       try {
-        childList.value = await childService.getAll('/test/categories');
-        // Сортируем массив по полю sortOrder
+        // Получение данных по имени категории "Охота"
+        childList.value = await childService.getByName('test/categories', 'Охота');
         childList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
       } catch (error) {
         console.error("Ошибка при получении данных:", error);
       }
     };
 
-    const goToAction = (data?: Child) => {
-  if (data) {
-    router.push({ name: 'Action', query: { ...data } });
-  } else {
-    router.push({ name: 'Action', query: { id: null } });
-  }
-};
+    const openDialog = () => {
+      selectedItem.value = null; // Очищаем выбранный элемент для создания новой категории
+      dialogVisible.value = true; // Открываем диалог
+    };
 
+    const loadDataAndOpenDialog = async (id: string) => {
+      try {
+        const data: Child = await childService.getById('test/categories', id);
+        selectedItem.value = data; // Устанавливаем полученные данные
+        dialogVisible.value = true; // Открываем диалог
+      } catch (error) {
+        console.error("Ошибка при загрузке данных:", error);
+      }
+    };
 
     const deleteItem = async (id: string) => {
       const confirmDelete = confirm("Вы уверены, что хотите удалить этот элемент?");
@@ -74,21 +90,24 @@ export default defineComponent({
 
     return {
       childList,
-      goToAction,
-      deleteItem 
+      openDialog,
+      loadDataAndOpenDialog,
+      deleteItem,
+      dialogVisible,
+      selectedItem
     };
   }
 });
 </script>
 
 <style>
-h1{
+h1 {
   text-align: center;
 }
-p{
+p {
   font-size: 12px;
   text-align: center;
-  top:50%;
+  top: 50%;
   left: 50%;
 }
 .DataTable {
