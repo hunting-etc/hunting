@@ -53,18 +53,26 @@ export class ApiService<T> {
 
     async create(data: Partial<Child>, endpoint: string = 'test/categories') {
         try {
-          const response = await fetch(endpoint, {
+          // Удаляем поле category из верхнего уровня и переносим его в type
+          const { category, ...restData } = data; 
+      
+          const response = await fetch(`${this.baseUrl}/${endpoint}`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify(data),
+            body: JSON.stringify({
+              ...restData, // Добавляем оставшиеся данные
+              type: {
+                category: category // Переносим category в type
+              }
+            }),
           });
-    
+      
           if (!response.ok) {
             throw new Error(`Ошибка при создании данных: ${response.statusText}`);
           }
-    
+      
           const responseData = await response.json();
           console.log('Данные успешно созданы:', responseData);
           return responseData;
