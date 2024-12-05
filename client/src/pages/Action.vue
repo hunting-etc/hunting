@@ -95,6 +95,7 @@ export default defineComponent({
     });
 
     const save = async () => {
+      console.log('Начало сохранения...');
   // Создаем объект с новыми значениями полей
   const data: Partial<Child> = {
     h1: h1.value,
@@ -127,6 +128,7 @@ export default defineComponent({
   }
 
   try {
+    const startTime = performance.now(); // Начало отсчета времени
     // Если ID присутствует, выполняем обновление
     if (id.value && id.value !== 'null') {
       await childService.update(id.value, updatedData, 'test/categories');
@@ -135,6 +137,8 @@ export default defineComponent({
       await childService.create({ ...data, category: category.value });
     }
     console.log('Успех: Данные сохранены!');
+    const endTime = performance.now(); // Конец отсчета времени
+    console.log(`Сохранение завершено за ${endTime - startTime} мс`);
     emit('close');
   } catch (error) {
     console.error('Ошибка при сохранении данных:', error);

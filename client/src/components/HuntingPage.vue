@@ -17,7 +17,7 @@
     </DataTable>
 
     <Dialog v-model:visible="dialogVisible" modal header="Изменение категории" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-      <Action :initialData="selectedItem" :id="selectedItem?.id" @close="dialogVisible = false" categoryType="Hunting" />
+      <Action :initialData="selectedItem" :id="selectedItem?.id" @close="handleDialogClose" categoryType="Hunting" />
     </Dialog>
   </div>
 </template>
@@ -30,6 +30,7 @@ import { DataTable, Column } from 'primevue';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import Action from "../pages/Action.vue";
+import { FileWatcherEventKind } from "typescript";
 
 export default defineComponent({
   name: "HuntingPage",
@@ -80,7 +81,10 @@ export default defineComponent({
     }
 };
 
-
+const handleDialogClose = () => {
+  dialogVisible.value = false;
+  fetchData();
+};
     const deleteItem = async (id: string) => {
       const confirmDelete = confirm("Вы уверены, что хотите удалить этот элемент?");
       if (confirmDelete) {
@@ -103,7 +107,8 @@ export default defineComponent({
       loadDataAndOpenDialog,
       deleteItem,
       dialogVisible,
-      selectedItem
+      selectedItem,
+      handleDialogClose
     };
   }
 });
