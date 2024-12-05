@@ -30,7 +30,6 @@ import { DataTable, Column } from 'primevue';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import Action from "../pages/Action.vue";
-import { FileWatcherEventKind } from "typescript";
 
 export default defineComponent({
   name: "HuntingPage",

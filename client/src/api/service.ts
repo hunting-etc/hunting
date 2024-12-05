@@ -83,64 +83,77 @@ export class ApiService<T> {
         }
       }
 
-    /* async update(id: string, newData: Partial<T>, endpoint: string) {
-    // Получаем текущие данные с сервера
-    const currentResponse = await fetch(`${this.baseUrl}/${endpoint}/${id}`);
-    if (!currentResponse.ok) {
-        const errorData = await currentResponse.json();
-        throw new Error(errorData.message || 'Ошибка при получении текущих данных');
-    }
+    // async update(id: string, newData: Partial<T>, endpoint: string) {
+
+    //     const { src, ...restData } = newData as { src?: File } & Partial<T>;
+    //     let img= new FormData();
+        
+    //     if (src instanceof File) { // Проверяем, что src является экземпляром File
+    //         img.append("photo", src); // Добавляем файл
+    //     }
+    //     console.log("xyi",img);
+
+    //     const response = await fetch(`${this.baseUrl}/${endpoint}/${id}`, {
+    //         method: 'PATCH',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify(
+    //             {...restData,
+    //             photo:img
+                    
+    //             }
+
+
+    //         ), // Отправляем только измененные данные
+
+    //     });
     
-    const currentData: T = await currentResponse.json();
-
-    // Определяем измененные поля
-    const updatedData: Partial<T> = {};
-    for (const key in newData) {
-        if (newData[key] !== currentData[key]) {
-            updatedData[key] = newData[key];
-        }
-    }
-
-    // Если нет изменений, не отправляем запрос
-    if (Object.keys(updatedData).length === 0) {
-        console.log('Нет изменений для отправки.');
-        return;
-    }
-
-    // Отправка PATCH-запроса с измененными данными
-    const response = await fetch(`${this.baseUrl}/${endpoint}/${id}`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedData),
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Ошибка при сохранении данных');
-    }
-
-    return await response.json();
-} */
+    //     if (!response.ok) {
+    //         const errorData = await response.json();
+    //         throw new Error(errorData.message || 'Ошибка при сохранении данных');
+    //     }
+    
+    //     return await response.json();
+    // }
     async update(id: string, newData: Partial<T>, endpoint: string) {
+        const { src, ...restData } = newData as { src?: File } & Partial<T>;
+        
+        const formData = new FormData();
+    
+        // Добавляем файл, если он существует
+        if (src instanceof File) {
+            formData.append("photo", src); 
+        }
+    
+        // Добавляем остальные данные в FormData
+        Object.entries(restData).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                formData.append(key, value.toString());
+            }
+        });
+    
+        console.log("FormData для отправки:", formData);
+    
         const response = await fetch(`${this.baseUrl}/${endpoint}/${id}`, {
             method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newData), // Отправляем только измененные данные
+            body: formData, // Отправляем FormData напрямую
         });
     
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Ошибка при сохранении данных');
+            throw new Error(`Ошибка: ${response.statusText}`);
         }
     
         return await response.json();
     }
     
-    
+    uploadImage(formData: FormData, id: string, endpoint: string) {
+        return fetch(`${this.baseUrl}/${endpoint}/${id}`, {
+          method: 'PATCH',
+          body: formData
+        });
+      }
+      
 
     public async delete(prefix: string, id: string, baseAdmin: string): Promise<void> {
         const response = await fetch(`${this.baseUrl}/${baseAdmin}/${prefix}/${id}`, {
@@ -163,7 +176,7 @@ export interface Child extends BaseUUIDSchema {
     description: string | null | undefined;
     name: string | null | undefined;
     content: string | null | undefined;
-    image: string | File | null;
+    image: File | File | null;
     sortOrder: number | null;
     category: string;
 }

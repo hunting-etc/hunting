@@ -17,10 +17,8 @@
     <Divider />
 
     <label for="image">Фото</label>
-    <div class="card flex flex-col items-center gap-6">
-      <FileUpload mode="basic" @select="onFileSelect" customUpload auto severity="secondary" class="p-button-outlined" />
-      <img v-if="src" :src="src" alt="Image" class="shadow-md rounded-xl w-full sm:w-64" style="filter: grayscale(100%)" />
-    </div>
+    <FileUpload mode="basic" @select="onFileSelect" customUpload auto severity="secondary" class="p-button-outlined" />
+    <img v-if="src" :src="src" alt="Image" style="filter: grayscale(70%)" />
 
     <label for="content">Content</label>
     <InputText id="content" v-model="content" />
@@ -29,14 +27,14 @@
   </div>
 </template>
 
+
 <script lang="ts">
 import { defineComponent, onMounted, ref, toRefs } from 'vue';
-import { useRoute } from 'vue-router';
 import { ChildService, Child } from '../api/service';
 import InputText from 'primevue/inputtext';
 import Divider from 'primevue/divider';
 import Button from 'primevue/button';
-import FileUpload from 'primevue/fileupload'; // Убедитесь, что импортируете FileUpload
+import FileUpload from 'primevue/fileupload';
 
 export default defineComponent({
   name: 'Action',
@@ -44,7 +42,7 @@ export default defineComponent({
     InputText,
     Divider,
     Button,
-    FileUpload // Не забудьте добавить FileUpload в компоненты
+    FileUpload
   },
   props: {
     id: {
@@ -67,7 +65,8 @@ export default defineComponent({
     const description = ref(initialData?.value?.description || '');
     const name = ref(initialData?.value?.name || '');
     const content = ref(initialData?.value?.content || '');
-    const src = ref<string | null>(null);
+    const src = ref<File | null>(null);
+    const selectedFile = ref<File | null>(null);
     const childService = new ChildService();
 
     onMounted(async () => {
@@ -82,6 +81,7 @@ export default defineComponent({
               description.value = item.description || '';
               name.value = item.name || '';
               content.value = item.content || '';
+              src.value = item.image || '';
             } else {
               console.error('Элемент с таким ID не найден');
             }
@@ -96,58 +96,64 @@ export default defineComponent({
 
     function onFileSelect(event: { files: File[] }) {
       const file = event.files[0];
+      console.log('Выбранный файл:', file);
+      
+      if (!file) {
+        console.error('Файл не выбран!');
+        return;
+      }
+      
+      src.value = file;
+      selectedFile.value = file;
       const reader = new FileReader();
+      const newFile = ref<String>;
 
-      reader.onload = (e) => {
+      /* reader.onload = (e) => {
         if (e.target && e.target.result) {
-          src.value = e.target.result as string; // Приведение типа
+          newFile = e.target.result as string; // Для отображения
         }
-      };
+      }; */
 
       reader.readAsDataURL(file);
     }
 
     const save = async () => {
-      console.log('Начало сохранения...');
-      const data: Partial<Child> = {
-        h1: h1.value,
-        title: title.value,
-        description: description.value,
-        name: name.value,
-        content: content.value,
-        category: categoryType.value
-      };
+  console.log('Начало сохранения...');
 
-      const updatedData: Partial<Child> = {};
+  const jsonData = {
+    h1: h1.value,
+    title: title.value,
+    description: description.value,
+    name: name.value,
+    content: content.value,
+    category: categoryType.value,
+    src: src.value
+  };
 
-      for (const key of Object.keys(data) as Array<keyof Child>) {
-        const newValue = data[key];
-        const currentValue = initialData.value?.[key];
-        if (newValue !== currentValue) {
-          updatedData[key] = newValue;
-        }
-      }
+  console.log('Данные для отправки (JSON):', jsonData);
 
-      if (Object.keys(updatedData).length === 0) {
-        console.log('Нет изменений для сохранения.');
-        return;
-      }
+  try {
+    const startTime = performance.now();
+    let savedId = id.value;
 
-      try {
-        const startTime = performance.now();
-        if (id.value && id.value !== 'null') {
-          await childService.update(id.value, updatedData, 'test/categories');
-        } else {
-          await childService.create({ ...data, category: categoryType.value });
-        }
-        console.log('Успех: Данные сохранены!');
-        const endTime = performance.now();
-        console.log(`Сохранение завершено за ${endTime - startTime} мс`);
-        emit('close');
-      } catch (error) {
-        console.error('Ошибка при сохранении данных:', error);
-      }
-    };
+    // Сохраняем JSON данные
+    if (id.value && id.value !== 'null') {
+      
+      await childService.update(id.value, jsonData, 'test/categories');
+    } else {
+      const response = await childService.create(jsonData, 'test/categories');
+      savedId = response.id; // Получение нового ID
+    }
+
+    console.log('Успех: Данные сохранены!');
+    const endTime = performance.now();
+    console.log(`Сохранение завершено за ${endTime - startTime} мс`);
+    emit('close');
+  } catch (error) {
+    console.error('Ошибка при сохранении данных:', error);
+  }
+};
+
 
     return {
       h1,
@@ -162,6 +168,7 @@ export default defineComponent({
   }
 });
 </script>
+
 
 <style>
 /* Стили для заголовка панели */
