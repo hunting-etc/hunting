@@ -103,6 +103,12 @@ class CategoriesStore(BaseUUID):
             # Сжимаем изображение
             compress_image(image_path)
 
+    def delete(self, *args, **kwargs):
+        # Удаляем файл перед удалением объекта
+        if self.photo and os.path.isfile(self.photo.path):
+            os.remove(self.photo.path)
+        super().delete(*args, **kwargs)
+
     def __str__(self):
         return self.name
 

@@ -46,34 +46,9 @@ class CategoriesStoreSerializer(serializers.ModelSerializer):
                 "category": obj.type.category,
             }
         return None
-    # def create(self, validated_data):
-    #     type_data = validated_data.pop('type', None)
-    #
-    #     # Если есть вложенные данные для `type`, создаем или получаем объект
-    #     if type_data:
-    #         type_instance, _ = CategoriesType.objects.get_or_create(**type_data)
-    #         validated_data['type'] = type_instance
-    #         return CategoriesStore.objects.create(**validated_data)
-    #
-    # def update(self, instance, validated_data):
-    #     type_data = validated_data.pop('type', None)
-    #
-    #     # Если есть вложенные данные для `type`, обновляем или создаем объект
-    #     if type_data:
-    #         type_instance, _ = CategoriesType.objects.update_or_create(
-    #             id=instance.type.id, defaults=type_data
-    #         )
-    #         instance.type = type_instance
-    #
-    #     # Обновляем остальные поля
-    #     for attr, value in validated_data.items():
-    #         setattr(instance, attr, value)
-    #
-    #     instance.save()
-    #     return instance
     class Meta:
         model = CategoriesStore
 
-        exclude = ['photo']
-        # fields = '__all__'
+        # exclude = ['photo']
+        fields = '__all__'
 
