@@ -8,6 +8,7 @@ export interface Error {
 
 export class ApiService<T> {
     baseUrl: string = "http://localhost:8000";
+    //baseUrl: string = "http://26.73.223.97:8000";
 
     /* public async getAll(prefix: string): Promise<T[]> {
         const response = await fetch(`${this.baseUrl}/${prefix}`);
@@ -158,10 +159,10 @@ export class ApiService<T> {
 
 export interface Child extends BaseUUIDSchema {
     h1: string | null | undefined;
-  title: string | null | undefined;
-  description: string | null | undefined;
-  name: string | null | undefined;
-  content: string | null | undefined;
+    title: string | null | undefined;
+    description: string | null | undefined;
+    name: string | null | undefined;
+    content: string | null | undefined;
     image: string | File | null;
     sortOrder: number | null;
     category: string;
