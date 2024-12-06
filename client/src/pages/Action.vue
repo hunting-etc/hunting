@@ -26,7 +26,7 @@
       class="p-button-outlined"
     />
     <div class="image-preview">
-      <img v-if="src" :src="photo" alt="Image" />
+      <img v-if="photo" :src="photo" alt="Image" />
     </div>
 
     <label for="content">Content</label>
@@ -77,31 +77,24 @@ export default defineComponent({
     const src = ref<File | null>(null);
     const selectedFile = ref<File | null>(null);
     const childService = new ChildService();
-    const photo=ref("")
+    const photo=ref<string>("")
 
     onMounted(async () => {
-      if (id.value && id.value !== 'null' && !initialData.value) {
-        try {
-          const data: Child | Child[] = await childService.getById('test/categories', id.value);
-          if (Array.isArray(data)) {
-            const item = data.find((child) => child.id === id.value);
+      
+        console.log("sdfsdf");
+        
+          const item: Child = await childService.getById('test/categories', id.value!);
+          console.log(item);
             if (item) {
               h1.value = item.h1 || '';
               title.value = item.title || '';
               description.value = item.description || '';
               name.value = item.name || '';
               content.value = item.content || '';
-              src.value = item.image || '';
+              photo.value = `${childService.baseUrl}/${item.photo}` || '';
             } else {
-              console.error('Элемент с таким ID не найден');
+              console.log('Элемент с таким ID не найден');
             }
-          } else {
-            console.error('Ожидался массив данных, но получен один объект');
-          }
-        } catch (error) {
-          console.error('Ошибка при получении данных:', error);
-        }
-      }
     });
 
     function onFileSelect(event: { files: File[] }) {
@@ -117,7 +110,6 @@ export default defineComponent({
       selectedFile.value = file;
       const reader = new FileReader();
       
-
       reader.onload = (e) => {
         if (e.target && e.target.result) {
           

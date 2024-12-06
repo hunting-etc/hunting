@@ -185,14 +185,14 @@ export class ApiService<T> {
 }
 
 export interface Child extends BaseUUIDSchema {
-    h1: string | null | undefined;
-    title: string | null | undefined;
-    description: string | null | undefined;
-    name: string | null | undefined;
-    content: string | null | undefined;
-    image: File | File | null;
-    sortOrder: number | null;
-    category: string;
+    h1: string;
+    title?: string;
+    description?: string;
+    name?: string ;
+    content?: string;
+    photo?: string | null;
+    sortOrder?: number;
+    category?: string;
 }
 
 export interface Info extends BaseUUIDSchema {
