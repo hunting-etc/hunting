@@ -17,15 +17,24 @@
     <Divider />
 
     <label for="image">Фото</label>
-    <FileUpload mode="basic" @select="onFileSelect" customUpload auto severity="secondary" class="p-button-outlined" />
-    <img v-if="src" :src="photo" alt="Image" style="filter: grayscale(70%)" />
+    <FileUpload
+      mode="basic"
+      @select="onFileSelect"
+      customUpload
+      auto
+      severity="secondary"
+      class="p-button-outlined"
+    />
+    <div class="image-preview">
+      <img v-if="src" :src="photo" alt="Image" />
+    </div>
 
     <label for="content">Content</label>
     <InputText id="content" v-model="content" />
-    
     <Button label="Сохранить" class="p-button" @click="save" />
   </div>
 </template>
+
 
 
 <script lang="ts">
@@ -176,7 +185,6 @@ export default defineComponent({
 
 
 <style>
-/* Стили для заголовка панели */
 .p-panel-header {
   background-color: #4CAF50;
   color: white;
@@ -186,7 +194,6 @@ export default defineComponent({
   border-top-right-radius: 8px;
 }
 
-/* Стили для элементов ввода */
 input.p-inputtext {
   width: 97%;
   padding: 10px;
@@ -196,13 +203,11 @@ input.p-inputtext {
   transition: border 0.3s;
 }
 
-/* Эффект при наведении на элементы ввода */
 input.p-inputtext:focus {
   border-color: #4CAF50;
   outline: none;
 }
 
-/* Стили для кнопок */
 .p-button {
   background-color: #269e2a;
   color: white;
@@ -213,8 +218,24 @@ input.p-inputtext:focus {
   margin-top: 20px;
 }
 
-/* Эффект при наведении на кнопку */
 .p-button:hover {
   background-color: #166f1a;
+}
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.image-preview {
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+
+.image-preview img {
+  max-width: 100%;
+  max-height: 200px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 </style>
