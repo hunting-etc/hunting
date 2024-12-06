@@ -55,19 +55,27 @@ export class ApiService<T> {
     async create(data: Partial<Child>, endpoint: string = 'test/categories') {
         try {
           // Удаляем поле category из верхнего уровня и переносим его в type
-          const { category, ...restData } = data; 
+          const { category, src, ...restData } = data as {src?: File} & Partial<Child>; 
       
+          const formData = new FormData();
+
+          if(src instanceof File){
+            formData.append("photo", src);
+          }
+
+          if (category) {
+            formData.append("type", JSON.stringify({ category }));
+        }
+
+          Object.entries(restData).forEach(([key, value]) => {
+            if(value !== undefined && value !== null) {
+                formData.append(key, value.toString());
+            }
+          })
+          
           const response = await fetch(`${this.baseUrl}/${endpoint}`, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              ...restData, // Добавляем оставшиеся данные
-              type: {
-                category: category // Переносим category в type
-              }
-            }),
+            body: formData,
           });
       
           if (!response.ok) {
@@ -82,6 +90,7 @@ export class ApiService<T> {
           throw error;
         }
       }
+
 
     // async update(id: string, newData: Partial<T>, endpoint: string) {
 
@@ -117,13 +126,13 @@ export class ApiService<T> {
     //     return await response.json();
     // }
     async update(id: string, newData: Partial<T>, endpoint: string) {
-        const { src, ...restData } = newData as { src?: File } & Partial<T>;
-        
+        const { src, category, ...restData } = newData as { src?: File; category?: string } & Partial<T>;
+    
         const formData = new FormData();
     
         // Добавляем файл, если он существует
         if (src instanceof File) {
-            formData.append("photo", src); 
+            formData.append("photo", src);
         }
     
         // Добавляем остальные данные в FormData
@@ -132,6 +141,11 @@ export class ApiService<T> {
                 formData.append(key, value.toString());
             }
         });
+    
+        // Добавляем поле type с вложенным category
+        if (category) {
+            formData.append("type", JSON.stringify({ category }));
+        }
     
         console.log("FormData для отправки:", formData);
     

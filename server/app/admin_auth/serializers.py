@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.core.exceptions import ValidationError
 from .models import CategoriesStore, InformationPageStore, CategoriesType
+import json
 
 
 class InformationPageStoreSerializer(serializers.ModelSerializer):
@@ -22,6 +23,14 @@ class CategoriesStoreSerializer(serializers.ModelSerializer):
         Проверяем, что категория существует.
         """
         type_data = self.initial_data.get("type", {})
+
+        # Если type_data — это строка, пробуем распарсить её как JSON
+        if isinstance(type_data, str):
+            try:
+                type_data = json.loads(type_data)
+            except json.JSONDecodeError:
+                raise serializers.ValidationError({"type": "Неверный формат данных для type."})
+
         type_category = type_data.get("category")
 
         # Если категория не указана, пропускаем валидацию

@@ -93,14 +93,21 @@ class CategoriesStore(BaseUUID):
 
 
     def save(self, *args, **kwargs):
-        # Сначала вызываем метод save родительского класса
+        # Проверяем, обновляется ли объект
+        if self.pk:
+            old_instance = CategoriesStore.objects.filter(pk=self.pk).first()
+            if old_instance and old_instance.photo != self.photo:
+                old_photo_path = old_instance.photo.path
+                # Удаляем старое фото, если путь существует
+                if os.path.isfile(old_photo_path):
+                    os.remove(old_photo_path)
+
+        # Сохраняем новую фотографию
         super().save(*args, **kwargs)
 
-        # Путь к сохраненному изображению
+        # Сжимаем изображение
         if self.photo:
             image_path = self.photo.path
-
-            # Сжимаем изображение
             compress_image(image_path)
 
     def delete(self, *args, **kwargs):
