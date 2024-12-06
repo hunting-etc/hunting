@@ -8,13 +8,6 @@ export interface Error {
 
 export class ApiService<T> {
     baseUrl: string = "http://localhost:8000";
-    //baseUrl: string = "http://26.73.223.97:8000";
-
-    /* public async getAll(prefix: string): Promise<T[]> {
-        const response = await fetch(`${this.baseUrl}/${prefix}`);
-        const jsonData = await response.json();
-        return jsonData as T[];
-    } */
 
         public async getAll(prefix: string, options: { category?: string; id?: string }): Promise<T[] | T> {
             let url = `${this.baseUrl}/${prefix}`;
@@ -91,58 +84,21 @@ export class ApiService<T> {
         }
       }
 
-
-    // async update(id: string, newData: Partial<T>, endpoint: string) {
-
-    //     const { src, ...restData } = newData as { src?: File } & Partial<T>;
-    //     let img= new FormData();
-        
-    //     if (src instanceof File) { // Проверяем, что src является экземпляром File
-    //         img.append("photo", src); // Добавляем файл
-    //     }
-    //     console.log("xyi",img);
-
-    //     const response = await fetch(`${this.baseUrl}/${endpoint}/${id}`, {
-    //         method: 'PATCH',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify(
-    //             {...restData,
-    //             photo:img
-                    
-    //             }
-
-
-    //         ), // Отправляем только измененные данные
-
-    //     });
-    
-    //     if (!response.ok) {
-    //         const errorData = await response.json();
-    //         throw new Error(errorData.message || 'Ошибка при сохранении данных');
-    //     }
-    
-    //     return await response.json();
-    // }
     async update(id: string, newData: Partial<T>, endpoint: string) {
         const { src, category, ...restData } = newData as { src?: File; category?: string } & Partial<T>;
     
         const formData = new FormData();
     
-        // Добавляем файл, если он существует
         if (src instanceof File) {
             formData.append("photo", src);
         }
     
-        // Добавляем остальные данные в FormData
         Object.entries(restData).forEach(([key, value]) => {
             if (value !== undefined && value !== null) {
                 formData.append(key, value.toString());
             }
         });
     
-        // Добавляем поле type с вложенным category
         if (category) {
             formData.append("type", JSON.stringify({ category }));
         }

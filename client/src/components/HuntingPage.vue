@@ -6,7 +6,16 @@
       <Button label="+" class="createButton" @click="openDialog()" />
     </div>
     <DataTable :value="childList" showGridlines tableStyle="min-width: 50rem">
-      <Column field="name" header="Название"></Column>
+      <Column field="name" header="Название">
+  <template #body="slotProps">
+    <div class="img-text-container">
+      <div>
+      <img :src="`${childService.baseUrl}${slotProps.data.photo}`" alt="Image" class="img-col" />
+    </div>
+      <div class="text">{{ slotProps.data.name }}</div>
+    </div>
+    </template>
+</Column>
       <Column field="sortOrder" header="Сортировка"></Column>
       <Column header="Действия">
         <template #body="{ data }">
@@ -107,7 +116,8 @@ const handleDialogClose = () => {
       deleteItem,
       dialogVisible,
       selectedItem,
-      handleDialogClose
+      handleDialogClose,
+      childService
     };
   }
 });
@@ -179,5 +189,23 @@ p {
 }
 .deleteButton:hover {
   background-color: #621313 !important; /* Темнее при наведении */
+}
+/* Стили для контейнера с картинкой и текстом */
+.img-text-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Стили для изображения */
+.img-col {
+  max-width: 150px; 
+  max-height: 250px; 
+  object-fit: cover; 
+  border-radius: 4px;
+  border: 1px solid #ddd; 
+}
+.text {
+  text-align: center;
 }
 </style>

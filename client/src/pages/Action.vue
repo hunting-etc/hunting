@@ -17,6 +17,9 @@
     <Divider />
 
     <label for="image">Фото</label>
+    <div class="image-preview">
+      <img v-if="photo" :src="photo" alt="Image" />
+    </div>
     <FileUpload
       mode="basic"
       @select="onFileSelect"
@@ -25,9 +28,6 @@
       severity="secondary"
       class="p-button-outlined"
     />
-    <div class="image-preview">
-      <img v-if="photo" :src="photo" alt="Image" />
-    </div>
 
     <label for="content">Content</label>
     <InputText id="content" v-model="content" />
@@ -80,8 +80,6 @@ export default defineComponent({
     const photo=ref<string>("")
 
     onMounted(async () => {
-      
-        console.log("sdfsdf");
         
           const item: Child = await childService.getById('test/categories', id.value!);
           console.log(item);
@@ -117,8 +115,6 @@ export default defineComponent({
           
         }
       };
-
-
       reader.readAsDataURL(file);
     }
 
@@ -225,6 +221,9 @@ label {
 }
 
 .image-preview img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
   max-width: 100%;
   max-height: 200px;
   border: 1px solid #ccc;
