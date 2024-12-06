@@ -18,7 +18,7 @@
 
     <label for="image">Фото</label>
     <FileUpload mode="basic" @select="onFileSelect" customUpload auto severity="secondary" class="p-button-outlined" />
-    <img v-if="src" :src="src" alt="Image" style="filter: grayscale(70%)" />
+    <img v-if="src" :src="photo" alt="Image" style="filter: grayscale(70%)" />
 
     <label for="content">Content</label>
     <InputText id="content" v-model="content" />
@@ -68,6 +68,7 @@ export default defineComponent({
     const src = ref<File | null>(null);
     const selectedFile = ref<File | null>(null);
     const childService = new ChildService();
+    const photo=ref("")
 
     onMounted(async () => {
       if (id.value && id.value !== 'null' && !initialData.value) {
@@ -106,13 +107,16 @@ export default defineComponent({
       src.value = file;
       selectedFile.value = file;
       const reader = new FileReader();
-      const newFile = ref<String>;
+      
 
-      /* reader.onload = (e) => {
+      reader.onload = (e) => {
         if (e.target && e.target.result) {
-          newFile = e.target.result as string; // Для отображения
+          
+          photo.value = e.target.result as string; // Для отображения
+          
         }
-      }; */
+      };
+
 
       reader.readAsDataURL(file);
     }
@@ -163,7 +167,8 @@ export default defineComponent({
       content,
       src,
       onFileSelect,
-      save
+      save,
+      photo
     };
   }
 });
