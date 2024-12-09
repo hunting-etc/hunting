@@ -1,0 +1,51 @@
+.fest-sbv {
+    // background: url(@/site/assets/images/fest-sbv/background.svg);
+    // background-size: 30%;
+    // background-position: center;
+    // background-repeat: no-repeat;
+    // background-attachment: fixed;
+    // background-position-y: 20%;
+    .error-number {
+        color: #6A00FB;
+    }
+
+    --primary-color: #6A00FB;
+
+    .festival-underline {
+        h2::after {
+            background: linear-gradient(270deg, #0D0083 0%, #6A00FB 40.08%, #F474F4 100%);
+        }
+    }
+
+    .festival-poster-vertical-bar {
+        background: linear-gradient(270deg, #0D0083 0%, #6A00FB 40.08%, #F474F4 100%);
+    }
+
+    .festival-band-horizontal-bar {
+        background: linear-gradient(270deg, #0D0083 0%, #6A00FB 40.08%, #F474F4 100%);
+    }
+}
+
+.fest-sbv-item {
+    .festival-button {
+        background: linear-gradient(270deg, #0D0083 0%, #6A00FB 40.08%, #F474F4 100%);
+
+        &:hover {
+            filter: brightness(0.9);
+        }
+    }
+
+    .festival-underline {
+        h2::after {
+            background: linear-gradient(270deg, #0D0083 0%, #6A00FB 40.08%, #F474F4 100%);
+        }
+    }
+
+    .festival-poster-vertical-bar {
+        background: linear-gradient(270deg, #0D0083 0%, #6A00FB 40.08%, #F474F4 100%);
+    }
+
+    .festival-band-horizontal-bar {
+        background: linear-gradient(270deg, #0D0083 0%, #6A00FB 40.08%, #F474F4 100%);
+    }
+}

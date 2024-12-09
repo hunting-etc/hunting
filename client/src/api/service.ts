@@ -84,27 +84,32 @@ export class ApiService<T> {
         }
       }
 
-    async update(id: string, newData: Partial<T>, endpoint: string) {
+      async update(id: string, newData: Partial<T>, endpoint: string) {
+        // Извлечение src (файла) и category из newData
         const { src, category, ...restData } = newData as { src?: File; category?: string } & Partial<T>;
     
         const formData = new FormData();
     
+        // Если src — это файл, добавляем его в formData
         if (src instanceof File) {
             formData.append("photo", src);
         }
     
+        // Добавляем остальные данные в formData, преобразуя значения в строки, если необходимо
         Object.entries(restData).forEach(([key, value]) => {
             if (value !== undefined && value !== null) {
                 formData.append(key, value.toString());
             }
         });
     
+        // Добавляем категорию, если она есть
         if (category) {
             formData.append("type", JSON.stringify({ category }));
         }
     
         console.log("FormData для отправки:", formData);
     
+        // Отправка запроса с использованием fetch API
         const response = await fetch(`${this.baseUrl}/${endpoint}/${id}`, {
             method: 'PATCH',
             body: formData, // Отправляем FormData напрямую
@@ -117,13 +122,50 @@ export class ApiService<T> {
         return await response.json();
     }
     
-    uploadImage(formData: FormData, id: string, endpoint: string) {
-        return fetch(`${this.baseUrl}/${endpoint}/${id}`, {
-          method: 'PATCH',
-          body: formData
-        });
+    
+    imageURL: string = "http://localhost:8000/test/image";
+
+    async uploadImage(file: File): Promise<{ url: string }> {
+        const formData = new FormData();
+        formData.append("image", file);
+    
+        try {
+          const response = await fetch(`${this.imageURL}/upload-image`, {
+            method: "POST",
+            body: formData,
+          });
+    
+          if (!response.ok) {
+            throw new Error(`Ошибка загрузки изображения: ${response.statusText}`);
+          }
+    
+          return await response.json(); // Ожидаем, что сервер вернет объект с URL
+        } catch (error) {
+          console.error("Ошибка при загрузке изображения:", error);
+          throw error;
+        }
       }
       
+      async deleteImage(imageUrl: string): Promise<void> {
+        try {
+          const response = await fetch(`${this.imageURL}/delete-image`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ url: imageUrl }),
+          });
+    
+          if (!response.ok) {
+            throw new Error(`Ошибка удаления изображения: ${response.statusText}`);
+          }
+    
+          console.log("Изображение успешно удалено");
+        } catch (error) {
+          console.error("Ошибка при удалении изображения:", error);
+          throw error;
+        }
+      }
 
     public async delete(prefix: string, id: string, baseAdmin: string): Promise<void> {
         const response = await fetch(`${this.baseUrl}/${baseAdmin}/${prefix}/${id}`, {

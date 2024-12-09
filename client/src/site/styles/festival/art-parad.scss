@@ -1,0 +1,57 @@
+.art-parad {
+    // background: url(@/site/assets/images/art-parad/background.svg);
+    // background-size: 30%;
+    // background-position: center;
+    // background-repeat: no-repeat;
+    // background-attachment: fixed;
+    // background-position-y: 20%;
+    --primary-color: #2848DB;
+    
+    .error-number {
+        color: #4b37fb;
+    }
+
+
+    .festival-underline {
+        h2::after {
+            background: #2848DB;
+        }
+    }
+
+    body{
+        background-color: var(--primary-color);
+    }
+
+    .festival-poster-vertical-bar {
+        background: #2848DB;
+    }
+
+    .festival-band-horizontal-bar {
+        background: #2848DB;
+    }
+}
+
+.art-parad-item {
+    .festival-button {
+        background: url(@/site/assets/images/art-parad/button.svg);
+        background-size: cover;
+
+        &:hover {
+            filter: brightness(0.9);
+        }
+    }
+
+    .festival-underline {
+        h2::after {
+            background: #2848DB;
+        }
+    }
+
+    .festival-poster-vertical-bar {
+        background: #2848DB;
+    }
+
+    .festival-band-horizontal-bar {
+        background: #2848DB;
+    }
+}

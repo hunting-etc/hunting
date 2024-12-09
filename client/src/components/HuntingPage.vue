@@ -3,19 +3,22 @@
     <h1>Охота</h1>
     <p>Информация о категориях охоты.</p>
     <div class="header-container">
-      <Button label="+" class="createButton" @click="openDialog()" />
+      <Button label="+" class="createButton" @click="openCreateDialog" />
+      <Dialog v-model:visible="createDialogVisible" modal header="Создание категории" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+        <Create @close="handleCreateDialogClose" categoryType="Hunting" />
+      </Dialog>
     </div>
     <DataTable :value="childList" showGridlines tableStyle="min-width: 50rem">
       <Column field="name" header="Название">
-  <template #body="slotProps">
-    <div class="img-text-container">
-      <div>
-      <img :src="`${childService.baseUrl}${slotProps.data.photo}`" alt="Image" class="img-col" />
-    </div>
-      <div class="text">{{ slotProps.data.name }}</div>
-    </div>
-    </template>
-</Column>
+        <template #body="slotProps">
+          <div class="img-text-container">
+            <div>
+              <img :src="`${childService.baseUrl}${slotProps.data.photo}`" alt="Image" class="img-col" />
+            </div>
+            <div class="text">{{ slotProps.data.name }}</div>
+          </div>
+        </template>
+      </Column>
       <Column field="sortOrder" header="Сортировка"></Column>
       <Column header="Действия">
         <template #body="{ data }">
@@ -39,6 +42,7 @@ import { DataTable, Column } from 'primevue';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import Action from "../pages/Action.vue";
+import Create from "../pages/Create.vue";
 
 export default defineComponent({
   name: "HuntingPage",
@@ -47,18 +51,19 @@ export default defineComponent({
     Column,
     Button,
     Dialog,
-    Action
+    Action,
+    Create
   },
   setup() {
     const router = useRouter();
     const childList = ref<Child[]>([]);
     const childService = new ChildService();
-    const dialogVisible = ref(false);
+    const dialogVisible = ref(false); // Для "Изменение категории"
+    const createDialogVisible = ref(false); // Для "Создание категории"
     const selectedItem = ref<Child | null>(null);
 
     const fetchData = async () => {
       try {
-        // Получение данных по имени категории "Охота"
         childList.value = await childService.getByName('test/categories', 'Hunting');
         childList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
       } catch (error) {
@@ -66,33 +71,38 @@ export default defineComponent({
       }
     };
 
-    const openDialog = () => {
-      selectedItem.value = null; // Очищаем выбранный элемент для создания новой категории
-      dialogVisible.value = true; // Открываем диалог
+    const openCreateDialog = () => {
+      createDialogVisible.value = true; // Открываем диалог для создания новой категории
     };
 
     const loadDataAndOpenDialog = async (id: string) => {
-    try {
+      try {
         const data: Child | Child[] = await childService.getAll('test/categories', { id, category: "Hunting" });
         if (Array.isArray(data)) {
-            if (data.length > 0) {
-                selectedItem.value = data[0]; // Используем первый элемент массива, если он есть
-            } else {
-                throw new Error("Нет данных для отображения");
-            }
+          if (data.length > 0) {
+            selectedItem.value = data[0];
+          } else {
+            throw new Error("Нет данных для отображения");
+          }
         } else {
-            selectedItem.value = data; // Прямое присваивание, если это объект
+          selectedItem.value = data;
         }
         dialogVisible.value = true; // Открываем диалог
-    } catch (error) {
+      } catch (error) {
         console.error("Ошибка при загрузке данных:", error);
-    }
-};
+      }
+    };
 
-const handleDialogClose = () => {
-  dialogVisible.value = false;
-  fetchData();
-};
+    const handleDialogClose = () => {
+      dialogVisible.value = false;
+      fetchData();
+    };
+
+    const handleCreateDialogClose = () => {
+      createDialogVisible.value = false;
+      fetchData();
+    };
+
     const deleteItem = async (id: string) => {
       const confirmDelete = confirm("Вы уверены, что хотите удалить этот элемент?");
       if (confirmDelete) {
@@ -111,17 +121,20 @@ const handleDialogClose = () => {
 
     return {
       childList,
-      openDialog,
+      openCreateDialog,
       loadDataAndOpenDialog,
       deleteItem,
       dialogVisible,
+      createDialogVisible,
       selectedItem,
       handleDialogClose,
+      handleCreateDialogClose,
       childService
     };
   }
 });
 </script>
+
 
 <style>
 h1 {
@@ -139,65 +152,59 @@ p {
   margin: 20px 0;
 }
 
-/* Стили для заголовков таблицы */
 .DataTable th {
-  background-color: #4CAF50; /* Зеленый фон */
-  color: white; /* Белый текст */
-  padding: 10px; /* Отступы */
-  text-align: left; /* Выравнивание текста */
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px;
+  text-align: left;
 }
 
-/* Стили для ячеек таблицы */
 .DataTable td {
-  border: 1px solid #dddddd; /* Светло-серая граница */
-  padding: 8px; /* Отступы */
+  border: 1px solid #dddddd;
+  padding: 8px;
 }
 
-/* Чередование фона строк для удобства чтения */
 .DataTable tr:nth-child(even) {
-  background-color: #f2f2f2; /* Светло-серый фон для четных строк */
+  background-color: #f2f2f2;
 }
 
-/* Стили для кнопок */
 .p-button {
   background-color: #269e2a;
-  color: white; /* Белый текст */
-  border: none; /* Без границы */
-  padding: 5px 10px; /* Отступы */
-  cursor: pointer; /* Указатель при наведении */
-  border-radius: 4px; /* Закругленные углы */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
 }
 
-/* Эффект при наведении на кнопку */
 .p-button:hover {
-  background-color: #166f1a; /* Темнее при наведении */
+  background-color: #166f1a;
 }
 .header-container {
   display: flex;
-  justify-content: flex-end; /* Выравнивание содержимого вправо */
-  margin-bottom: 10px; /* Отступ между кнопкой и таблицей */
+  justify-content: flex-end;
+  margin-bottom: 10px;
 }
 
 .createButton {
-  margin-right: -1px; /* Убираем границу между кнопкой и таблицей */
+  margin-right: -1px;
   z-index: 1;
 }
 .deleteButton {
-  background-color: #901010 !important; /* Красный цвет */
-  color: white; /* Белый текст */
+  background-color: #901010 !important;
+  color: white;
   left: 10%;
 }
 .deleteButton:hover {
-  background-color: #621313 !important; /* Темнее при наведении */
+  background-color: #621313 !important;
 }
-/* Стили для контейнера с картинкой и текстом */
+
 .img-text-container {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-/* Стили для изображения */
 .img-col {
   max-width: 150px; 
   max-height: 250px; 

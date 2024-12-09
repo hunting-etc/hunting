@@ -1,0 +1,52 @@
+.ifmc {
+    // background: url(@/site/assets/images/ifmc/background.svg);
+    // background-size: 30%;
+    // background-position: center;
+    // background-repeat: no-repeat;
+    // background-attachment: fixed;
+    // background-position-y: 20%;
+
+    --primary-color: #007e2e;
+    
+    .error-number {
+        color: #007e2e;
+    }
+
+    .festival-underline {
+        h2::after {
+            background: #009F42;
+        }
+    }
+
+    .festival-poster-vertical-bar {
+        background: #009F42;
+    }
+
+    .festival-band-horizontal-bar {
+        background: #009F42;
+    }
+}
+
+.ifmc-item {
+    .festival-button {
+        background: #009035;
+
+        &:hover {
+            background: #007e2e;
+        }
+    }
+
+    .festival-underline {
+        h2::after {
+            background: #009F42;
+        }
+    }
+
+    .festival-poster-vertical-bar {
+        background: #009F42;
+    }
+
+    .festival-band-horizontal-bar {
+        background: #009F42;
+    }
+}

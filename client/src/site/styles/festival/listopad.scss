@@ -1,0 +1,51 @@
+.listopad {
+    // background: url(@/site/assets/images/listopad/background.svg);
+    // background-size: 30%;
+    // background-position: center;
+    // background-repeat: no-repeat;
+    // background-attachment: fixed;
+    // background-position-y: 20%;
+    .error-number {
+        color: #FE8B36;
+    }
+
+    --primary-color: #FE8B36;
+
+    .festival-underline {
+        h2::after {
+            background: linear-gradient(90deg, #FB841C 0%, #F63A1E 50.31%, #FB841C 100%);
+        }
+    }
+
+    .festival-poster-vertical-bar {
+        background: linear-gradient(90deg, #FB841C 0%, #F63A1E 50.31%, #FB841C 100%);
+    }
+
+    .festival-band-horizontal-bar {
+        background: linear-gradient(90deg, #FB841C 0%, #F63A1E 50.31%, #FB841C 100%);
+    }
+}
+
+.listopad-item {
+    .festival-button {
+        background: linear-gradient(90deg, #FE8B36 0%, #FE8B36 0.01%, #F63A1E 49.27%, #FE8B36 100%);
+
+        &:hover {
+            filter: brightness(0.9);
+        }
+    }
+
+    .festival-underline {
+        h2::after {
+            background: linear-gradient(90deg, #FB841C 0%, #F63A1E 50.31%, #FB841C 100%);
+        }
+    }
+
+    .festival-poster-vertical-bar {
+        background: linear-gradient(90deg, #FB841C 0%, #F63A1E 50.31%, #FB841C 100%);
+    }
+
+    .festival-band-horizontal-bar {
+        background: linear-gradient(90deg, #FB841C 0%, #F63A1E 50.31%, #FB841C 100%);
+    }
+}

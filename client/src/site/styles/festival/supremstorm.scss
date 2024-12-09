@@ -1,0 +1,52 @@
+.supremstorm {
+    // background: url(@/site/assets/images/supremstorm/background.svg);
+    // background-size: 30%;
+    // background-position: center;
+    // background-repeat: no-repeat;
+    // background-attachment: fixed;
+    // background-position-y: 40%;
+
+    --primary-color: #BB3F43;
+    
+    .error-number {
+        color: #BB3F43;
+    }
+
+    .festival-underline {
+        h2::after {
+            background: #BB3F43;
+        }
+    }
+
+    .festival-poster-vertical-bar {
+        background: #BB3F43;
+    }
+
+    .festival-band-horizontal-bar {
+        background: #BB3F43;
+    }
+}
+
+.supremstorm-item {
+    .festival-button {
+        background: linear-gradient(90deg, #BB3F43 0%, #553B99 51.04%, #4454B0 100%);
+
+        &:hover {
+            filter: brightness(0.9);
+        }
+    }
+
+    .festival-underline {
+        h2::after {
+            background: #673580;
+        }
+    }
+
+    .festival-poster-vertical-bar {
+        background: #673580;
+    }
+
+    .festival-band-horizontal-bar {
+        background: #673580;
+    }
+}

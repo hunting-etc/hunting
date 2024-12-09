@@ -28,148 +28,135 @@
       severity="secondary"
       class="p-button-outlined"
     />
+    <Divider />
 
-    <label for="content">Content</label>
-    <InputText id="content" v-model="content" />
+    <div class="content__main">
+      <div ref="editorContainer" class="content-editor"></div>
+    </div>
+
     <Button label="Сохранить" class="p-button" @click="save" />
   </div>
 </template>
 
-
-
 <script lang="ts">
-import { defineComponent, onMounted, ref, toRefs } from 'vue';
-import { ChildService, Child } from '../api/service';
-import InputText from 'primevue/inputtext';
-import Divider from 'primevue/divider';
-import Button from 'primevue/button';
-import FileUpload from 'primevue/fileupload';
+import { defineComponent, ref, onMounted, toRefs } from "vue";
+import InputText from "primevue/inputtext";
+import Divider from "primevue/divider";
+import Button from "primevue/button";
+import FileUpload from "primevue/fileupload";
+import { ChildService, Child } from "../api/service";
+import { initEditor } from "../editor.js/editor-init";
 
 export default defineComponent({
-  name: 'Action',
+  name: "Create",
   components: {
     InputText,
     Divider,
     Button,
-    FileUpload
+    FileUpload,
   },
   props: {
     id: {
       type: String,
-      required: false
-    },
-    initialData: {
-      type: Object as () => Child | null,
-      default: null
+      required: true,
     },
     categoryType: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
+    initialChildData: {
+      type: Object as () => Child | null,
+      default: null,
+    },
   },
   setup(props, { emit }) {
-    const { id, initialData, categoryType } = toRefs(props);
-    const h1 = ref(initialData?.value?.h1 || '');
-    const title = ref(initialData?.value?.title || '');
-    const description = ref(initialData?.value?.description || '');
-    const name = ref(initialData?.value?.name || '');
-    const content = ref(initialData?.value?.content || '');
-    const src = ref<File | null>(null);
+    const { id, initialChildData, categoryType } = toRefs(props);
+
+    // Объявление переменных для формы
+    const h1 = ref(initialChildData?.value?.h1 || "");
+    const title = ref(initialChildData?.value?.title || "");
+    const description = ref(initialChildData?.value?.description || "");
+    const name = ref(initialChildData?.value?.name || "");
+    const photo = ref<string>(initialChildData?.value?.photo || "");
     const selectedFile = ref<File | null>(null);
+    const editorContainer = ref<HTMLElement | null>(null);
+    let editorInstance: any = null;
+
     const childService = new ChildService();
-    const photo=ref<string>("")
 
-    onMounted(async () => {
-        
-          const item: Child = await childService.getById('test/categories', id.value!);
-          console.log(item);
-            if (item) {
-              h1.value = item.h1 || '';
-              title.value = item.title || '';
-              description.value = item.description || '';
-              name.value = item.name || '';
-              content.value = item.content || '';
-              photo.value = `${childService.baseUrl}/${item.photo}` || '';
-            } else {
-              console.log('Элемент с таким ID не найден');
-            }
-    });
-
-    function onFileSelect(event: { files: File[] }) {
-      const file = event.files[0];
-      console.log('Выбранный файл:', file);
-      
-      if (!file) {
-        console.error('Файл не выбран!');
-        return;
+    // Инициализация редактора
+    const initializeEditor = () => {
+      if (editorContainer.value) {
+        editorInstance = initEditor(editorContainer.value, {
+          data: initialChildData?.value?.content
+            ? JSON.parse(initialChildData.value.content)
+            : undefined,
+        });
       }
-      
-      src.value = file;
-      selectedFile.value = file;
-      const reader = new FileReader();
-      
-      reader.onload = (e) => {
-        if (e.target && e.target.result) {
-          
-          photo.value = e.target.result as string; // Для отображения
-          
-        }
-      };
-      reader.readAsDataURL(file);
+    };
+
+    // Обработчик выбора файла
+    async function onFileSelect(event: { files: File[] }) {
+      const file = event.files[0];
+      if (file) {
+        selectedFile.value = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (e.target && e.target.result) {
+            photo.value = e.target.result as string;
+          }
+        };
+        reader.readAsDataURL(file);
+      }
     }
 
+    // Метод сохранения данных
     const save = async () => {
-  console.log('Начало сохранения...');
+      try {
+        // Сохранение содержимого редактора
+        const editorData = editorInstance
+          ? await editorInstance.save().then((data: any) => JSON.stringify(data))
+          : "";
 
-  const jsonData = {
-    h1: h1.value,
-    title: title.value,
-    description: description.value,
-    name: name.value,
-    content: content.value,
-    category: categoryType.value,
-    src: src.value
-  };
+        // Подготовка данных для обновления
+        const jsonData = {
+          h1: h1.value,
+          title: title.value,
+          description: description.value,
+          name: name.value,
+          content: editorData,
+          category: categoryType.value,
+          photo: photo.value, // Используем выбранный файл или уже существующее фото
+        };
 
-  console.log('Данные для отправки (JSON):', jsonData);
+        // Обновление данных через API
+        await childService.update(id.value, jsonData, 'test/categories');
+        console.log("Данные успешно обновлены");
+        emit("close");
+      } catch (error) {
+        console.error("Ошибка при сохранении данных:", error);
+      }
+    };
 
-  try {
-    const startTime = performance.now();
-    let savedId = id.value;
-
-    // Сохраняем JSON данные
-    if (id.value && id.value !== 'null') {
-      
-      await childService.update(id.value, jsonData, 'test/categories');
-    } else {
-      const response = await childService.create(jsonData, 'test/categories');
-      savedId = response.id; // Получение нового ID
-    }
-
-    console.log('Успех: Данные сохранены!');
-    const endTime = performance.now();
-    console.log(`Сохранение завершено за ${endTime - startTime} мс`);
-    emit('close');
-  } catch (error) {
-    console.error('Ошибка при сохранении данных:', error);
-  }
-};
-
+    onMounted(() => {
+      initializeEditor();
+    });
 
     return {
       h1,
       title,
       description,
       name,
-      content,
-      src,
+      photo,
+      selectedFile,
+      editorContainer,
       onFileSelect,
       save,
-      photo
     };
-  }
+  },
 });
 </script>
+
 
 
 <style>

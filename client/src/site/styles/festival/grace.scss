@@ -1,0 +1,51 @@
+.grace {
+    // background: url(@/site/assets/images/grace/background.svg);
+    // background-size: 30%;
+    // background-position: center;
+    // background-repeat: no-repeat;
+    // background-attachment: fixed;
+    // background-position-y: 30%;
+    .error-number {
+        color: #4BCFD6;
+    }
+
+    --primary-color: #4BCFD6;
+
+    .festival-underline {
+        h2::after {
+            background: linear-gradient(90deg, #4BCFD6 0%, #2883C5 16.98%, #0638B5 33.65%, #0C5E8D 50.83%, #128169 66.46%, #2DB276 81.56%, #4EED86 100%);
+        }
+    }
+
+    .festival-poster-vertical-bar {
+        background: linear-gradient(90deg, #4BCFD6 0%, #2883C5 16.98%, #0638B5 33.65%, #0C5E8D 50.83%, #128169 66.46%, #2DB276 81.56%, #4EED86 100%);
+    }
+
+    .festival-band-horizontal-bar {
+        background: linear-gradient(90deg, #4BCFD6 0%, #2883C5 16.98%, #0638B5 33.65%, #0C5E8D 50.83%, #128169 66.46%, #2DB276 81.56%, #4EED86 100%);
+    }
+}
+
+.grace-item {
+    .festival-button {
+        background: linear-gradient(90deg, #4BCFD6 0%, #2883C5 16.98%, #0638B5 33.65%, #0C5E8D 50.83%, #128169 66.46%, #2DB276 81.56%, #4EED86 100%);
+
+        &:hover {
+            filter: brightness(0.9);
+        }
+    }
+
+    .festival-underline {
+        h2::after {
+            background: linear-gradient(90deg, #4BCFD6 0%, #2883C5 16.98%, #0638B5 33.65%, #0C5E8D 50.83%, #128169 66.46%, #2DB276 81.56%, #4EED86 100%);
+        }
+    }
+
+    .festival-poster-vertical-bar {
+        background: linear-gradient(90deg, #4BCFD6 0%, #2883C5 16.98%, #0638B5 33.65%, #0C5E8D 50.83%, #128169 66.46%, #2DB276 81.56%, #4EED86 100%);
+    }
+
+    .festival-band-horizontal-bar {
+        background: linear-gradient(90deg, #4BCFD6 0%, #2883C5 16.98%, #0638B5 33.65%, #0C5E8D 50.83%, #128169 66.46%, #2DB276 81.56%, #4EED86 100%);
+    }
+}

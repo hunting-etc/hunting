@@ -1,0 +1,52 @@
+.snow {
+    // background: url(@/site/assets/images/snow/background.svg);
+    // background-size: 20%;
+    // background-position: center;
+    // background-repeat: no-repeat;
+    // background-attachment: fixed;
+    // background-position-y: 40%;;
+    --primary-color: #102A83;
+
+    .error-number {
+        color: #102A83;
+    }
+
+    .festival-underline {
+        h2::after {
+            background: #102A83;
+        }
+    }
+
+    .festival-poster-vertical-bar {
+        background: #102A83;
+    }
+
+    .festival-band-horizontal-bar {
+        background: #102A83;
+    }
+}
+
+.snow-item {
+    .festival-button {
+        background: url(@/site/assets/images/snow/button.svg);
+        background-size: cover;
+
+        &:hover {
+            filter: brightness(0.9);
+        }
+    }
+
+    .festival-underline {
+        h2::after {
+            background: #102A83;
+        }
+    }
+
+    .festival-poster-vertical-bar {
+        background: #102A83;
+    }
+
+    .festival-band-horizontal-bar {
+        background: #102A83;
+    }
+}

@@ -1,0 +1,55 @@
+@import "swiper/swiper-bundle.css";
+
+// Common
+@import "@/common/styles/vendor/fontawesome/fontawesome";
+@import "@/common/styles/vendor/fontawesome/thin";
+@import "@/common/styles/vendor/fontawesome/regular";
+@import "@/common/styles/vendor/fontawesome/light";
+@import "@/common/styles/vendor/fontawesome/brands";
+@import "@/common/styles/vendor/fontawesome/solid";
+@import "@/common/styles/fonts/yandex";
+@import "@/common/styles/components/flags";
+@import "@/common/styles/components/normalize";
+@import "@/common/styles/components/banner";
+@import "@/common/styles/components/header";
+@import "@/common/styles/components/footer";
+@import "@/market/styles/components/market-swiper-buttons";
+@import "@/market/styles/components/market-swiper-buttons";
+@import "@/market/styles/components/market-item";
+@import "@/common/styles/pages/info-item";
+@import "@/common/styles/pages/info-page";
+@import "@/common/styles/pages/info-item-page";
+@import "@/market/styles/components/priority-nav-core.css";
+
+// Application
+@import "general";
+@import "common";
+@import "components/cards";
+@import "components/blocks-content";
+@import "components/pagination";
+@import "@/common/styles/components/datepicker";
+@import "components/grid";
+@import "components/figure-input-content";
+@import "components/emoji.scss";
+
+@import "pages/search-page";
+@import "pages/news";
+@import "pages/news-item";
+@import "pages/news-page";
+@import "pages/event-item";
+@import "pages/event-item-page";
+@import "pages/event-main-page";
+@import "pages/band-item";
+@import "pages/band-item-page";
+@import "pages/band-page";
+@import "pages/partner-page";
+@import "pages/projects";
+
+// Festivals
+@import "@/site/styles/festival/fest-sbv.scss";
+@import "festival/ifmc";
+@import "festival/art-parad";
+@import "@/site/styles/festival/listopad.scss";
+@import "@/site/styles/festival/snow.scss";
+@import "@/site/styles/festival/grace.scss";
+@import "@/site/styles/festival/supremstorm.scss";
