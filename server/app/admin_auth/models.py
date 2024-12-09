@@ -79,7 +79,7 @@ class CategoriesStore(BaseUUID):
     )
 
     # Контент - блок произвольного текста
-    content = models.TextField(
+    content = models.JSONField(
         blank=True,
         help_text="Введите контент для блока."
     )

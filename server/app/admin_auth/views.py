@@ -2,6 +2,7 @@ from ctypes.wintypes import PSIZE
 from dbm import error
 from django.shortcuts import render,redirect
 from django.views.generic import DetailView, UpdateView, DeleteView
+from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -16,6 +17,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import InformationPageStore, CategoriesStore
 from base.service import CategoryService,InformationPageService
+from django.http import JsonResponse
+import os
 
 
 class AllCategoryView(APIView):
@@ -47,12 +50,16 @@ class AllCategoryView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        # self.service.validation(request.data)
-        serializer = CategoriesStoreSerializer(data=request.data)
-        if serializer.is_valid():
-            instance=serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+            # self.service.validation(request.data)
+
+            serializer = CategoriesStoreSerializer(data=request.data)
+            if serializer.is_valid():
+                instance=serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk):
         """Метод для частичного обновления объекта."""
@@ -80,6 +87,53 @@ class AllCategoryView(APIView):
         # Удаляем объект
         instance.delete()
         return Response({"message": "Объект успешно удален"}, status=status.HTTP_204_NO_CONTENT)
+
+class ImageView(APIView):
+    def get(self, request, pk=None):
+        """Обработка GET-запросов: либо получение всех объектов, либо одного по pk."""
+        if pk:
+            try:
+                instance = CategoriesStore.objects.get(pk=pk)
+            except CategoriesStore.DoesNotExist:
+                return Response({"error": "Объект не найден"}, status=status.HTTP_404_NOT_FOUND)
+            serializer = CategoriesStoreSerializer(instance)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            # Фильтрация по параметру `category`
+            category_name = request.query_params.get('category')
+            if category_name:
+                # Фильтрация по вложенному полю `type__category`
+                items = CategoriesStore.objects.filter(type__category__icontains=category_name)
+            else:
+                items = CategoriesStore.objects.all()
+
+            serializer = CategoriesStoreSerializer(items, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+    def post(self, request):
+        if "image" in request.FILES:
+            data = request.FILES["image"]
+            data_str = str(data)
+            image_path = os.path.join('static/images', data_str)
+            with open(image_path, 'wb') as image_file:
+                for chunk in data.chunks():
+                    image_file.write(chunk)
+            return JsonResponse(
+                {
+                    "url": f"http://localhost:8000/static/images/{data_str}",
+                    "name": data_str,
+                    "size": data.size,
+                    "type": data.content_type
+                }, safe=False)
+
+    def delete(self, request, file_name: str):
+        image_path = os.path.join('static/images', file_name)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
+        return JsonResponse(None, safe=False)
+
 
 class InformationPageStoreView(APIView):
     service = InformationPageService()
