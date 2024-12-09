@@ -89,7 +89,7 @@ export default defineComponent({
     };
     reader.readAsDataURL(file);
 
-    try {
+    /* try {
       const response = await childService.uploadImage(file);
       if (response.url) {
         photo.value = response.url; // Обновляем фото на загруженный URL
@@ -97,7 +97,7 @@ export default defineComponent({
       }
     } catch (error) {
       console.error("Ошибка при загрузке изображения:", error);
-    }
+    } */
   }
 }
 
@@ -146,9 +146,9 @@ async function onImageRemove(url: string) {
         title: title.value,
         description: description.value,
         name: name.value,
-        editorContent: editorData,
+        content: editorData,
         category: props.categoryType,
-        src: selectedFile.value,
+        photo: photo.value,
       };
 
       try {
