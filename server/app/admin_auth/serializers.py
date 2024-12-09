@@ -58,6 +58,6 @@ class CategoriesStoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = CategoriesStore
 
-        # exclude = ['photo']
+        # exclude = ['content']
         fields = '__all__'
 

@@ -50,16 +50,12 @@ class AllCategoryView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-
-
-
-            # self.service.validation(request.data)
-
-            serializer = CategoriesStoreSerializer(data=request.data)
-            if serializer.is_valid():
-                instance=serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # self.service.validation(request.data)
+        serializer = CategoriesStoreSerializer(data=request.data)
+        if serializer.is_valid():
+            instance=serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk):
         """Метод для частичного обновления объекта."""
