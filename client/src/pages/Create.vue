@@ -130,10 +130,9 @@ async function onImageRemove() {
   formData.append("description", description.value || "");
   formData.append("name", name.value || "");
   formData.append("content", editorData);
-
   if (props.category) {
-    formData.append("type", JSON.stringify(props.category));
-}
+    formData.append("type", JSON.stringify({ category: props.category }));
+  }
 
 
   if (photo.value) {

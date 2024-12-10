@@ -5,7 +5,7 @@
     <div class="header-container">
       <Button label="+" class="createButton" @click="openCreateDialog" />
       <Dialog v-model:visible="createDialogVisible" modal header="Создание категории" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-        <Create @close="handleCreateDialogClose" categoryType="Hunting" />
+        <Create @close="handleCreateDialogClose" category="Hunting" />
       </Dialog>
     </div>
     <DataTable :value="childList" showGridlines tableStyle="min-width: 50rem">
@@ -29,8 +29,10 @@
     </DataTable>
 
     <Dialog v-model:visible="dialogVisible" modal header="Изменение категории" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-      <Action :initialData="selectedItem" :id="selectedItem?.id" @close="handleDialogClose" categoryType="Hunting" />
-    </Dialog>
+  <Suspense>
+      <Action :initialData="selectedItem" :id="selectedItem!.id" @close="handleDialogClose" category="Hunting" />
+  </Suspense>
+</Dialog>
   </div>
 </template>
 
