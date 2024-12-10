@@ -45,83 +45,39 @@ export class ApiService<T> {
         return jsonData as T;
     }
 
-    async create(data: Partial<Child>, endpoint: string = 'test/categories') {
-        try {
-          // Удаляем поле category из верхнего уровня и переносим его в type
-          const { category, src, ...restData } = data as {src?: File} & Partial<Child>; 
-      
-          const formData = new FormData();
-
-          if(src instanceof File){
-            formData.append("photo", src);
-          }
-
-          if (category) {
-            formData.append("type", JSON.stringify({ category }));
-        }
-
-          Object.entries(restData).forEach(([key, value]) => {
-            if(value !== undefined && value !== null) {
-                formData.append(key, value.toString());
-            }
-          })
-          
-          const response = await fetch(`${this.baseUrl}/${endpoint}`, {
-            method: 'POST',
-            body: formData,
-          });
-      
-          if (!response.ok) {
-            throw new Error(`Ошибка при создании данных: ${response.statusText}`);
-          }
-      
-          const responseData = await response.json();
-          console.log('Данные успешно созданы:', responseData);
-          return responseData;
-        } catch (error) {
-          console.error('Ошибка при создании данных:', error);
-          throw error;
-        }
-      }
-
-      async update(id: string, newData: Partial<T>, endpoint: string) {
-        // Извлечение src (файла) и category из newData
-        const { src, category, ...restData } = newData as { src?: File; category?: string } & Partial<T>;
-    
-        const formData = new FormData();
-    
-        // Если src — это файл, добавляем его в formData
-        if (src instanceof File) {
-            formData.append("photo", src);
-        }
-    
-        // Добавляем остальные данные в formData, преобразуя значения в строки, если необходимо
-        Object.entries(restData).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
-                formData.append(key, value.toString());
-            }
-        });
-    
-        // Добавляем категорию, если она есть
-        if (category) {
-            formData.append("type", JSON.stringify({ category }));
-        }
-    
-        console.log("FormData для отправки:", formData);
-    
-        // Отправка запроса с использованием fetch API
-        const response = await fetch(`${this.baseUrl}/${endpoint}/${id}`, {
-            method: 'PATCH',
-            body: formData, // Отправляем FormData напрямую
+    async create(data: FormData, url: string) {
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          body: data, // Передаем FormData напрямую
         });
     
         if (!response.ok) {
-            throw new Error(`Ошибка: ${response.statusText}`);
+          throw new Error(`Ошибка HTTP: ${response.status}`);
         }
     
-        return await response.json();
+        return await response.json(); // Возвращаем распарсенный JSON
+      } catch (error) {
+        console.error("Ошибка при выполнении запроса:", error);
+        throw error; // Пробрасываем ошибку для обработки в вызывающем коде
+      }
     }
     
+
+    async update(id: string, newData: FormData, endpoint: string) {
+      const response = await fetch(`${this.baseUrl}/${endpoint}/${id}`, {
+          method: 'PATCH',
+          body: newData, // Отправляем FormData напрямую
+      });
+  
+      if (!response.ok) {
+          throw new Error(`Ошибка: ${response.statusText}`);
+      }
+  
+      return await response.json();
+  }
+  
+  
     
     imageURL: string = "http://localhost:8000/test/image";
 
@@ -188,7 +144,7 @@ export interface Child extends BaseUUIDSchema {
     description?: string;
     name?: string ;
     content?: string;
-    photo?: string | null;
+    photo?: File | null;
     sortOrder?: number;
     category?: string;
 }

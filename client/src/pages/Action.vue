@@ -18,7 +18,7 @@
 
     <label for="image">Фото</label>
     <div class="image-preview">
-      <img v-if="photo" :src="photo" alt="Image" />
+      <img v-if="photoUrl" :src="photoUrl" alt="Image" />
     </div>
     <FileUpload
       mode="basic"
@@ -48,7 +48,7 @@ import { ChildService, Child } from "../api/service";
 import { initEditor } from "../editor.js/editor-init";
 
 export default defineComponent({
-  name: "Create",
+  name: "Edit",
   components: {
     InputText,
     Divider,
@@ -77,8 +77,10 @@ export default defineComponent({
     const title = ref(initialChildData?.value?.title || "");
     const description = ref(initialChildData?.value?.description || "");
     const name = ref(initialChildData?.value?.name || "");
-    const photo = ref<string>(initialChildData?.value?.photo || "");
-    const selectedFile = ref<File | null>(null);
+    const photo = ref<File | null>(null); // Объект файла
+    const photoUrl = ref<string | null>(
+      initialChildData?.value?.photo ? URL.createObjectURL(initialChildData.value.photo) : null
+    ); // URL изображения
     const editorContainer = ref<HTMLElement | null>(null);
     let editorInstance: any = null;
 
@@ -96,19 +98,13 @@ export default defineComponent({
     };
 
     // Обработчик выбора файла
-    async function onFileSelect(event: { files: File[] }) {
+    const onFileSelect = (event: { files: File[] }) => {
       const file = event.files[0];
       if (file) {
-        selectedFile.value = file;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          if (e.target && e.target.result) {
-            photo.value = e.target.result as string;
-          }
-        };
-        reader.readAsDataURL(file);
+        photo.value = file;
+        photoUrl.value = URL.createObjectURL(file); // Создаём URL для предпросмотра
       }
-    }
+    };
 
     // Метод сохранения данных
     const save = async () => {
@@ -119,18 +115,20 @@ export default defineComponent({
           : "";
 
         // Подготовка данных для обновления
-        const jsonData = {
-          h1: h1.value,
-          title: title.value,
-          description: description.value,
-          name: name.value,
-          content: editorData,
-          category: categoryType.value,
-          photo: photo.value, // Используем выбранный файл или уже существующее фото
-        };
+        const formData = new FormData();
+        formData.append("h1", h1.value);
+        formData.append("title", title.value || "");
+        formData.append("description", description.value || "");
+        formData.append("name", name.value || "");
+        formData.append("content", editorData);
+        formData.append("category", categoryType.value);
+
+        if (photo.value) {
+          formData.append("photo", photo.value); // Добавляем файл
+        }
 
         // Обновление данных через API
-        await childService.update(id.value, jsonData, 'test/categories');
+        await childService.update(id.value, formData, "test/categories");
         console.log("Данные успешно обновлены");
         emit("close");
       } catch (error) {
@@ -148,7 +146,7 @@ export default defineComponent({
       description,
       name,
       photo,
-      selectedFile,
+      photoUrl, // Возвращаем URL для отображения
       editorContainer,
       onFileSelect,
       save,
@@ -156,8 +154,6 @@ export default defineComponent({
   },
 });
 </script>
-
-
 
 <style>
 .p-panel-header {

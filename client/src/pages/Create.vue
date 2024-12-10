@@ -18,7 +18,7 @@
 
     <label for="image">Фото</label>
     <div class="image-preview">
-      <img v-if="photo" :src="photo" alt="Image" />
+      <img v-if="photoUrl" :src="photoUrl" alt="Image" />
     </div>
     <FileUpload
       mode="basic"
@@ -69,8 +69,9 @@ export default defineComponent({
     const name = ref("");
     const content = ref("");
     const src = ref<File | null>(null);
-    const photo = ref<string>("");
-    const selectedFile = ref<File | null>(null);
+    const photo = ref<File | null>(null); // Для файла
+    const photoUrl = ref<string | null>(null); // Для привязки к src
+
 
     const editorContainer = ref<HTMLElement | null>(null);
     let editorInstance: any = null;
@@ -80,37 +81,19 @@ export default defineComponent({
     async function onFileSelect(event: { files: File[] }) {
   const file = event.files[0];
   if (file) {
-    selectedFile.value = file;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target && e.target.result) {
-        photo.value = e.target.result as string;
-      }
-    };
-    reader.readAsDataURL(file);
-
-    /* try {
-      const response = await childService.uploadImage(file);
-      if (response.url) {
-        photo.value = response.url; // Обновляем фото на загруженный URL
-        console.log("Изображение загружено:", response.url);
-      }
-    } catch (error) {
-      console.error("Ошибка при загрузке изображения:", error);
-    } */
+    photo.value = file; // Сохраняем объект File
+    photoUrl.value = URL.createObjectURL(file); // Создаем URL для отображения
   }
 }
 
-
-async function onImageRemove(url: string) {
-  try {
-    await childService.deleteImage(url);
-    photo.value = ""; // Очищаем локальную ссылку на изображение
-    console.log("Изображение удалено:", url);
-  } catch (error) {
-    console.error("Ошибка при удалении изображения:", error);
+async function onImageRemove() {
+  if (photoUrl.value) {
+    URL.revokeObjectURL(photoUrl.value); // Удаляем объект URL
+    photoUrl.value = null; // Очищаем строку для отображения
+    photo.value = null; // Удаляем объект File
   }
 }
+
 
     const initializeEditor = () => {
       if (editorContainer.value) {
@@ -137,31 +120,37 @@ async function onImageRemove(url: string) {
     };
 
     const save = async () => {
-      const editorData = editorInstance
-        ? await editorInstance.save().then((data: any) => JSON.stringify(data))
-        : "";
+  const editorData = editorInstance
+    ? await editorInstance.save().then((data: any) => JSON.stringify(data))
+    : "";
 
-      const jsonData = {
-        h1: h1.value,
-        title: title.value,
-        description: description.value,
-        name: name.value,
-        content: editorData,
-        category: props.categoryType,
-        photo: photo.value,
-      };
+  const formData = new FormData();
+  formData.append("h1", h1.value);
+  formData.append("title", title.value || "");
+  formData.append("description", description.value || "");
+  formData.append("name", name.value || "");
+  formData.append("content", editorData);
+  formData.append("category", props.categoryType);
 
-      try {
-        const response = await childService.create(jsonData, "test/categories");
-        console.log("Категория успешно создана с ID:", response.id);
-        emit("close"); // Закрытие окна или очистка данных
-      } catch (error) {
-        console.error("Ошибка при создании категории:", error);
-      }
-    };
+  if (photo.value) {
+    formData.append("photo", photo.value); // Добавляем файл
+  }
+
+  try {
+    const response = await childService.create(formData, "/test/categories");
+    console.log("Категория успешно создана с ID:", response.id);
+    emit("close");
+  } catch (error) {
+    console.error("Ошибка при создании категории:", error);
+  }
+};
+
 
     onMounted(() => {
       initializeEditor();
+      if (photoUrl.value) {
+    URL.revokeObjectURL(photoUrl.value);
+  }
     });
 
     return {
@@ -170,6 +159,7 @@ async function onImageRemove(url: string) {
       description,
       name,
       content,
+      photoUrl,
       src,
       onFileSelect,
       save,
@@ -259,5 +249,4 @@ async function onImageRemove(url: string) {
   padding: 10px;
 }
   </style>
-
 
