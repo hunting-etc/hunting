@@ -45,9 +45,9 @@ export class ApiService<T> {
         return jsonData as T;
     }
 
-    async create(data: FormData, url: string) {
+    async create(data: FormData, endpoint: string = 'test/categories') {
       try {
-        const response = await fetch(url, {
+        const response = await fetch(`${this.baseUrl}/${endpoint}`, {
           method: "POST",
           body: data, // Передаем FormData напрямую
         });

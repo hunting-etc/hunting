@@ -57,7 +57,7 @@ export default defineComponent({
     FileUpload,
   },
   props: {
-    categoryType: {
+    category: {
       type: String,
       required: true,
     },
@@ -130,7 +130,11 @@ async function onImageRemove() {
   formData.append("description", description.value || "");
   formData.append("name", name.value || "");
   formData.append("content", editorData);
-  formData.append("category", props.categoryType);
+
+  if (props.category) {
+    formData.append("type", JSON.stringify(props.category));
+}
+
 
   if (photo.value) {
     formData.append("photo", photo.value); // Добавляем файл

@@ -60,7 +60,7 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    categoryType: {
+    category: {
       type: String,
       required: true,
     },
@@ -70,7 +70,7 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
-    const { id, initialChildData, categoryType } = toRefs(props);
+    const { id, initialChildData, category } = toRefs(props);
 
     // Объявление переменных для формы
     const h1 = ref(initialChildData?.value?.h1 || "");
@@ -121,7 +121,11 @@ export default defineComponent({
         formData.append("description", description.value || "");
         formData.append("name", name.value || "");
         formData.append("content", editorData);
-        formData.append("category", categoryType.value);
+       
+        if (category) {
+            formData.append("type", JSON.stringify({ category }));
+        }
+
 
         if (photo.value) {
           formData.append("photo", photo.value); // Добавляем файл
