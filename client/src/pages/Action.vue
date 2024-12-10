@@ -34,7 +34,7 @@
       <div ref="editorContainer" class="content-editor"></div>
     </div>
 
-    <Button label="Сохранить" class="p-button" @click="save" />
+    <Button label="Сохранить" class="p-button" @click="save" ></Button>
   </div>
 </template>
 
@@ -71,8 +71,9 @@ export default defineComponent({
     },
   },
   async setup(props, { emit }) {
-    const { id, initialData, category } = toRefs(props);
-
+    const { id, initialData} = toRefs(props);
+   
+    const {category } = props;
     // Объявление переменных для формы
     const h1 = ref(initialData?.value?.h1 || "");
     const title = ref(initialData?.value?.title || "");
@@ -156,7 +157,9 @@ const editorData = editorInstance
 
     // Метод сохранения данных
     const save = async () => {
+      
       try {
+        console.log("gergege",category)
         // Сохранение содержимого редактора
         const editorData = editorInstance
           ? await editorInstance.save().then((data: any) => JSON.stringify(data))
@@ -169,10 +172,12 @@ const editorData = editorInstance
         formData.append("description", description.value || "");
         formData.append("name", name.value || "");
         formData.append("content", editorData);
-       
-        if (category.value) {
-          formData.append("type", JSON.stringify(category.value));
+        
+        if ( category ) {
+          formData.append("category", JSON.stringify({ category: category }));
         }
+
+
 
         if (photo.value) {
           formData.append("photo", photo.value); // Добавляем файл
@@ -188,6 +193,7 @@ const editorData = editorInstance
     };
 
     onMounted(() => {
+      
       initializeEditor();
     });
 

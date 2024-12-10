@@ -35,7 +35,7 @@
       <div ref="editorContainer" class="content-editor"></div>
     </div>
 
-    <Button label="Создать категорию" class="p-button" @click="save" />
+    <Button label="Создать категорию" class="p-button" @click="save"></Button>
   </div>
 </template>
 

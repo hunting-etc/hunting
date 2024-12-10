@@ -30,7 +30,7 @@
 
     <Dialog v-model:visible="dialogVisible" modal header="Изменение категории" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
   <Suspense>
-      <Action :initialData="selectedItem" :id="selectedItem!.id" @close="handleDialogClose" category="Hunting" />
+      <Action :initialData="selectedItem" :id="selectedItem!.id" @close="handleDialogClose" :category="'Hunting'" />
   </Suspense>
 </Dialog>
   </div>
