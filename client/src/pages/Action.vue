@@ -80,7 +80,7 @@ export default defineComponent({
     const description = ref(initialData?.value?.description || "");
     const name = ref(initialData?.value?.name || "");
     const photo = ref<File | null>(null); // Объект файла
-    
+    const childService = new ChildService();
     const editorContainer = ref<HTMLElement | null>(null);
     let editorInstance: any = null;
 
@@ -89,7 +89,7 @@ export default defineComponent({
     if (initialData?.value?.photo && (initialData.value.photo as any) instanceof File) {
   photoUrl.value = URL.createObjectURL(initialData.value.photo as File);
 } else if (typeof initialData?.value?.photo === "string") {
-  photoUrl.value = initialData.value.photo; // Если это уже строка URL
+  photoUrl.value =`${childService.baseUrl}${initialData.value.photo}` ; // Если это уже строка URL
 }
 
 
@@ -108,14 +108,18 @@ watch(photo, (newFile: File | null, oldFile: File | null) => {
 
 
 
-    const childService = new ChildService();
+    
 
     // Инициализация редактора
     const initializeEditor = () => {
   if (editorContainer.value) {
+    // console.log(editorContainer.value)
+    
     editorInstance = initEditor(editorContainer.value, {
+      
       onImageAdd: async (file: File) => {
         try {
+          
           const response = await childService.uploadImage(file);
           if (response.url) {
             editorInstance.insertImage(response.url);
@@ -132,6 +136,7 @@ watch(photo, (newFile: File | null, oldFile: File | null) => {
         }
       },
     });
+    
   }
 };
 
@@ -207,7 +212,8 @@ const editorData = editorInstance
       editorContainer,
       onFileSelect,
       save,
-      editorData
+      editorData,
+      childService
     };
   },
 });
