@@ -79,6 +79,7 @@ export default defineComponent({
     const title = ref(initialData?.value?.title || "");
     const description = ref(initialData?.value?.description || "");
     const name = ref(initialData?.value?.name || "");
+    const content = ref(initialData?.value?.content || "");
     const photo = ref<File | null>(null); // Объект файла
     const childService = new ChildService();
     const editorContainer = ref<HTMLElement | null>(null);
@@ -107,48 +108,28 @@ watch(photo, (newFile: File | null, oldFile: File | null) => {
 });
 
 
-
-    
-
-    // Инициализация редактора
-    const initializeEditor = () => {
-  if (editorContainer.value) {
-    // console.log(editorContainer.value)
-    
-    editorInstance = initEditor(editorContainer.value, {
-      
-      onImageAdd: async (file: File) => {
-        try {
-          
-          const response = await childService.uploadImage(file);
-          if (response.url) {
-            editorInstance.insertImage(response.url);
-          }
-        } catch (error) {
-          console.error("Ошибка при загрузке изображения:", error);
-        }
-      },
-      onImageRemove: async (url: string) => {
-        try {
-          await childService.deleteImage(url);
-        } catch (error) {
-          console.error("Ошибка при удалении изображения:", error);
-        }
-      },
-    });
-    
+const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕПИСЫВАЛ GPT НО ОН БЫЛ ВЗЯТ У ЯРИКА
+  if (!editorContainer.value) {
+    console.error("Editor container is not defined.");
+    return;
   }
+
+  // Инициализация редактора
+  editorInstance = initEditor(editorContainer.value, {
+  });
+  // Загрузка данных в редактор ВТОРАЯ ЧАСТЬ, ЭТОТ БЛОК МБ ДОЛЖЕН НАХОДИТЬСЯ НЕ ЗДЕСЬ Я ХЗ
 };
+    
 
 // Предположим, что где-то вы пытаетесь вызвать JSON.parse
 // Пример: если вы получаете данные в виде объекта
-const editorData = editorInstance
-  ? await editorInstance.save().then((data: any) => {
-      // Преобразуем объект в строку JSON перед парсингом
-      const jsonData = JSON.stringify(data); // Преобразуем объект в строку
-      return JSON.parse(jsonData); // Теперь можно безопасно использовать JSON.parse
-    })
-  : "";
+// const editorData = editorInstance
+//   ? await editorInstance.save().then((data: any) => {
+//       // Преобразуем объект в строку JSON перед парсингом
+//       const jsonData = JSON.stringify(data); // Преобразуем объект в строку
+//       return JSON.parse(jsonData); // Теперь можно безопасно использовать JSON.parse
+//     })
+//   : "";
 
 
     // Обработчик выбора файла
@@ -164,7 +145,7 @@ const editorData = editorInstance
     const save = async () => {
       
       try {
-        console.log("gergege",category)
+        
         // Сохранение содержимого редактора
         const editorData = editorInstance
           ? await editorInstance.save().then((data: any) => JSON.stringify(data))
@@ -199,7 +180,21 @@ const editorData = editorInstance
 
     onMounted(() => {
       
-      initializeEditor();
+    initializeEditor();
+  
+    setTimeout(() => {
+    try {
+      const editorData = content.value
+
+      if (editorInstance) {
+        
+        
+        editorInstance.render(editorData);
+      }
+    } catch (error) {
+      console.error("Error rendering editor data:", error);
+    }
+  }, 100);
     });
 
     return {
@@ -212,7 +207,7 @@ const editorData = editorInstance
       editorContainer,
       onFileSelect,
       save,
-      editorData,
+      // editorData,
       childService
     };
   },
