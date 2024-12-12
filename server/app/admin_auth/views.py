@@ -110,15 +110,27 @@ class ImageView(APIView):
     def post(self, request):
         if "image" in request.FILES:
             data = request.FILES["image"]
-            data_str = str(data)
-            image_path = os.path.join('static/images', data_str)
+            # Валидация файла
+
+            # Генерация уникального имени файла, если файл с таким именем уже существует
+            file_name = str(data)
+            image_dir = os.path.join('static/images')
+            os.makedirs(image_dir, exist_ok=True)  # Создать папку, если её нет
+
+            image_path = os.path.join(image_dir, file_name)
+            base_name, extension = os.path.splitext(file_name)
+            counter = 1
+            while os.path.exists(image_path):
+                file_name = f"{base_name}_{counter}{extension}"
+                image_path = os.path.join(image_dir, file_name)
+                counter += 1
             with open(image_path, 'wb') as image_file:
                 for chunk in data.chunks():
                     image_file.write(chunk)
             return JsonResponse(
                 {
-                    "url": f"http://localhost:8000/static/images/{data_str}",
-                    "name": data_str,
+                    "url": f"http://localhost:8000/static/images/{file_name}",
+                    "name": file_name,
                     "size": data.size,
                     "type": data.content_type
                 }, safe=False)
