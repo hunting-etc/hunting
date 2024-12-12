@@ -153,7 +153,7 @@ const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕ�
         // Обновление данных через API
         await childService.update(id.value, formData, "test/categories");
         console.log("Данные успешно обновлены");
-        content.value="";
+        content.value=""; //очищение строки контента
         console.log(content, "content")
         emit("close");
       } catch (error) {
@@ -164,7 +164,7 @@ const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕ�
     onMounted(() => {
       
     initializeEditor();
-    emit("editor-instance", editorInstance);
+    emit("editor-instance", editorInstance);//передача эдитора в HuntingPage.vue
   
     setTimeout(() => {
     try {

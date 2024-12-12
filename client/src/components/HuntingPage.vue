@@ -37,7 +37,7 @@
     @hide="onDialogHide">
   <Suspense>
       <Action
-      @editor-instance="onEditorInstanceReceived"
+      @editor-instance="onEditorInstanceReceived" передача эдитора из Action.vue
       :initialData="selectedItem" 
       :id="selectedItem!.id" 
       @close="handleDialogClose"
@@ -121,6 +121,7 @@ export default defineComponent({
   fetchData();
 };
 
+//добавление всплывающего окна о подтверждении выхода
 const onDialogHide = () => {
   if (isSaveAction.value) {
     isSaveAction.value = false;
@@ -133,7 +134,7 @@ const onDialogHide = () => {
     console.log("dfhdh",editorInstance);
     
     if (editorInstance) {
-      editorInstance.clear();
+      editorInstance.clear();//очищение эдитора
     }
     if (selectedItem.value) {
       selectedItem.value.content = ""; // Сбрасываем строку content
