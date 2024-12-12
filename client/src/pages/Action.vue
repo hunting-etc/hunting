@@ -74,7 +74,6 @@ export default defineComponent({
     const { id, initialData} = toRefs(props);
    
     const {category } = props;
-    // Объявление переменных для формы
     const h1 = ref(initialData?.value?.h1 || "");
     const title = ref(initialData?.value?.title || "");
     const description = ref(initialData?.value?.description || "");
@@ -84,8 +83,9 @@ export default defineComponent({
     const childService = new ChildService();
     const editorContainer = ref<HTMLElement | null>(null);
     let editorInstance: any = null;
-
     const photoUrl = ref<string | null>(null);
+
+    emit("editor-instance", editorInstance);
 
     if (initialData?.value?.photo && (initialData.value.photo as any) instanceof File) {
   photoUrl.value = URL.createObjectURL(initialData.value.photo as File);
@@ -107,45 +107,28 @@ watch(photo, (newFile: File | null, oldFile: File | null) => {
   }
 });
 
-
 const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕПИСЫВАЛ GPT НО ОН БЫЛ ВЗЯТ У ЯРИКА
   if (!editorContainer.value) {
     console.error("Editor container is not defined.");
     return;
   }
 
-  // Инициализация редактора
   editorInstance = initEditor(editorContainer.value, {
   });
   // Загрузка данных в редактор ВТОРАЯ ЧАСТЬ, ЭТОТ БЛОК МБ ДОЛЖЕН НАХОДИТЬСЯ НЕ ЗДЕСЬ Я ХЗ
 };
-    
 
-// Предположим, что где-то вы пытаетесь вызвать JSON.parse
-// Пример: если вы получаете данные в виде объекта
-// const editorData = editorInstance
-//   ? await editorInstance.save().then((data: any) => {
-//       // Преобразуем объект в строку JSON перед парсингом
-//       const jsonData = JSON.stringify(data); // Преобразуем объект в строку
-//       return JSON.parse(jsonData); // Теперь можно безопасно использовать JSON.parse
-//     })
-//   : "";
-
-
-    // Обработчик выбора файла
     const onFileSelect = (event: { files: File[] }) => {
       const file = event.files[0];
       if (file) {
         photo.value = file;
-        photoUrl.value = URL.createObjectURL(file); // Создаём URL для предпросмотра
+        photoUrl.value = URL.createObjectURL(file);
       }
     };
 
-    // Метод сохранения данных
     const save = async () => {
       
-      try {
-        
+      try {        
         // Сохранение содержимого редактора
         const editorData = editorInstance
           ? await editorInstance.save().then((data: any) => JSON.stringify(data))
@@ -163,8 +146,6 @@ const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕ�
           formData.append("category", JSON.stringify({ category: category }));
         }
 
-
-
         if (photo.value) {
           formData.append("photo", photo.value); // Добавляем файл
         }
@@ -172,6 +153,8 @@ const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕ�
         // Обновление данных через API
         await childService.update(id.value, formData, "test/categories");
         console.log("Данные успешно обновлены");
+        content.value="";
+        console.log(content, "content")
         emit("close");
       } catch (error) {
         console.error("Ошибка при сохранении данных:", error);
@@ -181,14 +164,13 @@ const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕ�
     onMounted(() => {
       
     initializeEditor();
+    emit("editor-instance", editorInstance);
   
     setTimeout(() => {
     try {
       const editorData = content.value
 
       if (editorInstance) {
-        
-        
         editorInstance.render(editorData);
       }
     } catch (error) {
@@ -207,8 +189,8 @@ const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕ�
       editorContainer,
       onFileSelect,
       save,
-      // editorData,
-      childService
+      childService,
+      editorInstance
     };
   },
 });

@@ -28,10 +28,22 @@
       </Column>
     </DataTable>
 
-    <Dialog v-model:visible="dialogVisible" modal header="Изменение категории" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <Dialog 
+    v-model:visible="dialogVisible" 
+    modal 
+    header="Изменение категории" 
+    :style="{ width: '50rem' }" 
+    :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+    @hide="onDialogHide">
   <Suspense>
-      <Action :initialData="selectedItem" :id="selectedItem!.id" @close="handleDialogClose" :category="'Hunting'" />
+      <Action
+      @editor-instance="onEditorInstanceReceived"
+      :initialData="selectedItem" 
+      :id="selectedItem!.id" 
+      @close="handleDialogClose"
+      :category="'Hunting'" />
   </Suspense>
+  
 </Dialog>
   </div>
 </template>
@@ -56,6 +68,11 @@ export default defineComponent({
     Action,
     Create
   },
+  methods: {
+  onEditorInstanceReceived(instance: any) {
+    this.editorInstance = instance; // Сохраняем editorInstance
+  },
+},
   setup() {
     const router = useRouter();
     const childList = ref<Child[]>([]);
@@ -63,6 +80,9 @@ export default defineComponent({
     const dialogVisible = ref(false); // Для "Изменение категории"
     const createDialogVisible = ref(false); // Для "Создание категории"
     const selectedItem = ref<Child | null>(null);
+
+    let editorInstance: any = null;
+    const isSaveAction = ref(false); // Новый флаг
 
     const fetchData = async () => {
       try {
@@ -89,16 +109,41 @@ export default defineComponent({
         } else {
           selectedItem.value = data;
         }
-        dialogVisible.value = true; // Открываем диалог
+        dialogVisible.value = true;
       } catch (error) {
         console.error("Ошибка при загрузке данных:", error);
       }
     };
 
     const handleDialogClose = () => {
-      dialogVisible.value = false;
-      fetchData();
-    };
+  isSaveAction.value = true;
+  dialogVisible.value = false;
+  fetchData();
+};
+
+const onDialogHide = () => {
+  if (isSaveAction.value) {
+    isSaveAction.value = false;
+    return; 
+  }
+  
+  const confirmClose = confirm("Вы уверены, что хотите выйти?\nДанные не сохранятся.");
+  if (confirmClose) {
+    dialogVisible.value = false;
+    console.log("dfhdh",editorInstance);
+    
+    if (editorInstance) {
+      editorInstance.clear();
+    }
+    if (selectedItem.value) {
+      selectedItem.value.content = ""; // Сбрасываем строку content
+      console.log("content", selectedItem.value.content)
+    }
+    fetchData();
+  } else {
+    dialogVisible.value = true;
+  }
+};
 
     const handleCreateDialogClose = () => {
       createDialogVisible.value = false;
@@ -131,7 +176,9 @@ export default defineComponent({
       selectedItem,
       handleDialogClose,
       handleCreateDialogClose,
-      childService
+      childService,
+      editorInstance,
+      onDialogHide
     };
   }
 });
