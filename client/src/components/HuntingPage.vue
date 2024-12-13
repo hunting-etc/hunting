@@ -34,10 +34,12 @@
     header="Изменение категории" 
     :style="{ width: '50rem' }" 
     :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
-    @hide="onDialogHide">
+    @hide="onDialogHide"
+    
+    >
+    
   <Suspense>
       <Action
-      @editor-instance="onEditorInstanceReceived" передача эдитора из Action.vue
       :initialData="selectedItem" 
       :id="selectedItem!.id" 
       @close="handleDialogClose"
@@ -49,7 +51,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
+import { defineComponent, ref, onMounted,watch  } from "vue";
 import { useRouter } from 'vue-router';
 import { ChildService, Child } from "../api/service";
 import { DataTable, Column } from 'primevue';
@@ -57,6 +59,7 @@ import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import Action from "../pages/Action.vue";
 import Create from "../pages/Create.vue";
+
 
 export default defineComponent({
   name: "HuntingPage",
@@ -68,11 +71,6 @@ export default defineComponent({
     Action,
     Create
   },
-  methods: {
-  onEditorInstanceReceived(instance: any) {
-    this.editorInstance = instance; // Сохраняем editorInstance
-  },
-},
   setup() {
     const router = useRouter();
     const childList = ref<Child[]>([]);
@@ -80,10 +78,11 @@ export default defineComponent({
     const dialogVisible = ref(false); // Для "Изменение категории"
     const createDialogVisible = ref(false); // Для "Создание категории"
     const selectedItem = ref<Child | null>(null);
-
-    let editorInstance: any = null;
+    
+    const editorInstance = ref<any>(null);
     const isSaveAction = ref(false); // Новый флаг
 
+    
     const fetchData = async () => {
       try {
         childList.value = await childService.getByName('test/categories', 'Hunting');
@@ -117,34 +116,17 @@ export default defineComponent({
 
     const handleDialogClose = () => {
   isSaveAction.value = true;
-  dialogVisible.value = false;
+  dialogVisible.value = true;
   fetchData();
 };
 
 //добавление всплывающего окна о подтверждении выхода
+
 const onDialogHide = () => {
-  if (isSaveAction.value) {
-    isSaveAction.value = false;
-    return; 
-  }
-  
-  const confirmClose = confirm("Вы уверены, что хотите выйти?\nДанные не сохранятся.");
-  if (confirmClose) {
-    dialogVisible.value = false;
-    console.log("dfhdh",editorInstance);
-    
-    if (editorInstance) {
-      editorInstance.clear();//очищение эдитора
-    }
-    if (selectedItem.value) {
-      selectedItem.value.content = ""; // Сбрасываем строку content
-      console.log("content", selectedItem.value.content)
-    }
-    fetchData();
-  } else {
-    dialogVisible.value = true;
-  }
+  window.editorInstance.clear();
 };
+
+ 
 
     const handleCreateDialogClose = () => {
       createDialogVisible.value = false;
@@ -165,6 +147,7 @@ const onDialogHide = () => {
 
     onMounted(() => {
       fetchData();
+      
     });
 
     return {
@@ -179,7 +162,8 @@ const onDialogHide = () => {
       handleCreateDialogClose,
       childService,
       editorInstance,
-      onDialogHide
+      onDialogHide,
+      
     };
   }
 });

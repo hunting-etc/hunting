@@ -85,7 +85,7 @@ export default defineComponent({
     let editorInstance: any = null;
     const photoUrl = ref<string | null>(null);
 
-    emit("editor-instance", editorInstance);
+    
 
     if (initialData?.value?.photo && (initialData.value.photo as any) instanceof File) {
   photoUrl.value = URL.createObjectURL(initialData.value.photo as File);
@@ -113,8 +113,10 @@ const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕ�
     return;
   }
 
-  editorInstance = initEditor(editorContainer.value, {
+  window.editorInstance = initEditor(editorContainer.value, {
   });
+  
+  
   // Загрузка данных в редактор ВТОРАЯ ЧАСТЬ, ЭТОТ БЛОК МБ ДОЛЖЕН НАХОДИТЬСЯ НЕ ЗДЕСЬ Я ХЗ
 };
 
@@ -164,20 +166,23 @@ const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕ�
     onMounted(() => {
       
     initializeEditor();
-    emit("editor-instance", editorInstance);//передача эдитора в HuntingPage.vue
-  
-    setTimeout(() => {
-    try {
-      const editorData = content.value
 
-      if (editorInstance) {
-        editorInstance.render(editorData);
-      }
-    } catch (error) {
-      console.error("Error rendering editor data:", error);
+    
+    
+    
+    
+    setTimeout(() => {
+  try {
+    if (window.editorInstance) {
+      // Рендерим данные в редактор
+      window.editorInstance.render(content.value)
+    } else {
+      console.error("Editor instance is not initialized");
     }
-  }, 100);
-    });
+  } catch (error) {
+    console.error("Unexpected error:", error);
+  }
+}, 100);})
 
     return {
       h1,
