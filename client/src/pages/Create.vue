@@ -1,19 +1,23 @@
 <template>
   <div class="panel">
     <label for="h1">H1</label>
-    <InputText id="h1" v-model="h1" />
+    <InputText id="h1" v-model="h1" :class="{ 'input-error': errors.h1 }"/>
+    <p v-if="errors.h1" class="error">{{ errors.h1 }}</p>
     <Divider />
 
     <label for="title">Title</label>
-    <InputText id="title" v-model="title" />
+    <InputText id="title" v-model="title" :class="{ 'input-error': errors.title }"/>
+    <p v-if="errors.title" class="error">{{ errors.title }}</p>
     <Divider />
 
     <label for="description">Description</label>
-    <InputText id="description" v-model="description" />
+    <InputText id="description" v-model="description" :class="{ 'input-error': errors.description }"/>
+    <p v-if="errors.description" class="error">{{ errors.description }}</p>
     <Divider />
 
     <label for="name">Название</label>
-    <InputText id="name" v-model="name" />
+    <InputText id="name" v-model="name" :class="{ 'input-error': errors.name }"/>
+    <p v-if="errors.name" class="error">{{ errors.name }}</p>
     <Divider />
 
     <label for="image">Фото</label>
@@ -25,17 +29,21 @@
       @select="onFileSelect"
       customUpload
       auto
+      :maxFileSize="5242880"
+      accept="image/*"
       severity="secondary"
       class="p-button-outlined"
+      :class="{ 'input-error': errors.image }"
     />
+    <p v-if="errors.image" class="error">{{ errors.image }}</p>
     <Divider />
 
     <div class="content__main">
-
       <div ref="editorContainer" class="content-editor"></div>
     </div>
 
-    <Button label="Создать категорию" class="p-button" @click="save"></Button>
+    <Button label="Сохранить" class="p-button" @click="save" ></Button>
+    <p v-if="globalError" class="global-error">{{ globalError }}</p>
   </div>
 </template>
 
@@ -71,20 +79,35 @@ export default defineComponent({
     const src = ref<File | null>(null);
     const photo = ref<File | null>(null); // Для файла
     const photoUrl = ref<string | null>(null); // Для привязки к src
-
-
     const editorContainer = ref<HTMLElement | null>(null);
     let editorInstance: any = null;
-
     const childService = new ChildService();
 
-    async function onFileSelect(event: { files: File[] }) {
+    const errors = ref({
+      h1: '',
+      title: '',
+      description: '',
+      name: '',
+      image: '',
+    });
+    const globalError = ref("");
+
+    const onFileSelect = (event: { files: File[] }) => {
   const file = event.files[0];
   if (file) {
-    photo.value = file; // Сохраняем объект File
-    photoUrl.value = URL.createObjectURL(file); // Создаем URL для отображения
+    if (!file.type.startsWith('image/')) {
+      errors.value.image = 'Загрузите изображение в формате PNG, JPEG или GIF.';
+      return;
+    }
+    if (file.size > 5242880) {
+      errors.value.image = 'Изображение должно весить не более 5 МБ.';
+      return;
+    }
+    photo.value = file;
+    photoUrl.value = URL.createObjectURL(file);
+    errors.value.image = ''; // Очистка ошибок
   }
-}
+};
 
 async function onImageRemove() {
   if (photoUrl.value) {
@@ -119,7 +142,32 @@ async function onImageRemove() {
       }
     };
 
+    const validateAll = (): boolean => {
+      errors.value.h1 =
+        h1.value.length >= 10 && h1.value.length <= 60
+          ? ''
+          : 'H1 должно быть от 10 до 60 символов';
+      errors.value.title =
+        title.value.length >= 30 && title.value.length <= 80
+          ? ''
+          : 'Title должно быть от 30 до 80 символов';
+      errors.value.description =
+        description.value.length >= 80 && description.value.length <= 160
+          ? ''
+          : 'Description должно быть от 80 до 160 символов';
+      errors.value.name = name.value.length > 0 && name.value.length <= 200 ? '' : 'Name обязателен и не должен превышать 200 символов';
+
+      return Object.values(errors.value).every((error) => !error);
+    };
+
     const save = async () => {
+      if (!validateAll()) {
+    globalError.value = "Введены некорректные данные";
+    console.error("Валидация не пройдена");
+    return;
+  }
+  globalError.value = ""; // Сбрасываем ошибку при успешной валидации
+
   const editorData = editorInstance
     ? await editorInstance.save().then((data: any) => JSON.stringify(data))
     : "";
@@ -168,7 +216,10 @@ async function onImageRemove() {
       save,
       photo,
       editorContainer,
-      onImageRemove
+      onImageRemove,
+      validateAll,
+      errors,
+      globalError
     };
   },
 });
@@ -183,7 +234,14 @@ async function onImageRemove() {
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
   }
-  
+  .error {
+  color: red;
+  font-size: 14px;
+}
+
+.input-error {
+  border-color: red;
+}
   input.p-inputtext {
     width: 97%;
     padding: 10px;
@@ -250,6 +308,17 @@ async function onImageRemove() {
   min-height: 300px;
   border: 1px solid #ccc;
   padding: 10px;
+}
+.button-container {
+  display: flex;
+  align-items: center; /* Центрирование по вертикали */
+  margin-top: 20px; /* Отступ сверху */
+}
+
+.global-error {
+  color: red;
+  font-size: 14px;
+  margin-left: 10px; /* Отступ слева от сообщения об ошибке */
 }
   </style>
 
