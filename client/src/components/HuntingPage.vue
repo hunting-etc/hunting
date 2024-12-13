@@ -51,7 +51,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted,watch  } from "vue";
+import { defineComponent, ref, onMounted} from "vue";
 import { useRouter } from 'vue-router';
 import { ChildService, Child } from "../api/service";
 import { DataTable, Column } from 'primevue';
@@ -72,16 +72,11 @@ export default defineComponent({
     Create
   },
   setup() {
-    const router = useRouter();
     const childList = ref<Child[]>([]);
     const childService = new ChildService();
     const dialogVisible = ref(false); // Для "Изменение категории"
     const createDialogVisible = ref(false); // Для "Создание категории"
     const selectedItem = ref<Child | null>(null);
-    
-    const editorInstance = ref<any>(null);
-    const isSaveAction = ref(false); // Новый флаг
-
     
     const fetchData = async () => {
       try {
@@ -115,7 +110,7 @@ export default defineComponent({
     };
 
     const handleDialogClose = () => {
-  isSaveAction.value = true;
+  
   dialogVisible.value = true;
   fetchData();
 };
@@ -161,7 +156,6 @@ const onDialogHide = () => {
       handleDialogClose,
       handleCreateDialogClose,
       childService,
-      editorInstance,
       onDialogHide,
       
     };
