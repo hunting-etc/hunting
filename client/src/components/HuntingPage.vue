@@ -110,8 +110,7 @@ export default defineComponent({
     };
 
     const handleDialogClose = () => {
-  
-  dialogVisible.value = true;
+  dialogVisible.value = false;
   fetchData();
 };
 

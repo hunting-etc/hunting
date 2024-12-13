@@ -82,7 +82,7 @@ export default defineComponent({
     const photo = ref<File | null>(null); // Объект файла
     const childService = new ChildService();
     const editorContainer = ref<HTMLElement | null>(null);
-    let editorInstance: any = null;
+   
     const photoUrl = ref<string | null>(null);
 
     
@@ -132,10 +132,10 @@ const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕ�
       
       try {        
         // Сохранение содержимого редактора
-        const editorData = editorInstance
-          ? await editorInstance.save().then((data: any) => JSON.stringify(data))
+        const editorData = window.editorInstance
+          ? await window.editorInstance.save().then((data: any) => JSON.stringify(data))
           : "";
-
+      
         // Подготовка данных для обновления
         const formData = new FormData();
         formData.append("h1", h1.value);
@@ -156,7 +156,6 @@ const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕ�
         await childService.update(id.value, formData, "test/categories");
         console.log("Данные успешно обновлены");
         content.value=""; //очищение строки контента
-        console.log(content, "content")
         emit("close");
       } catch (error) {
         console.error("Ошибка при сохранении данных:", error);
@@ -195,7 +194,7 @@ const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕ�
       onFileSelect,
       save,
       childService,
-      editorInstance
+      
     };
   },
 });
