@@ -1,14 +1,14 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Home from "../components/Home.vue";
 import LoginForm from "../components/LoginForm.vue";
-import HuntingPage from "../components/HuntingPage.vue";
-import Fishing from "../pages/Fishing.vue";
-import Ecotourism from "../pages/Ecotourism.vue";
-import Services from "../pages/Services.vue";
-import About from "../pages/About.vue";
-import News from "../pages/News.vue";
-import ActiveRecreation from "../pages/ActiveRecreation.vue";
-import Action from "../pages/Action.vue";
+import Home from "../components/Home.vue";
+import HuntingPage from "../categories/HuntingPage.vue";
+import Fishing from "../categories/Fishing.vue";
+import ActiveRecreation from "../categories/ActiveRecreation.vue";
+import Ecotourism from "../categories/Ecotourism.vue";
+import Services from "../categories/Services.vue";
+import About from "../categories/About.vue";
+import News from "../categories/News.vue";
+
 
 export default createRouter({
   history: createWebHistory(),
@@ -27,11 +27,6 @@ export default createRouter({
           name: "Hunting",
           path: "hunting",
           component: HuntingPage,
-        },
-        {
-          name: "Action",
-          path: "action",
-          component: Action,
         },
         {
           name: "Fishing",

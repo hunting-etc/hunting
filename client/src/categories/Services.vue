@@ -1,11 +1,11 @@
 <template>
   <div>
-    <h1>Охота</h1>
-    <p>Информация о категориях охоты.</p>
+    <h1>Услуги</h1>
+    <p>Информация о категориях услуг.</p>
     <div class="header-container">
       <Button label="+" class="createButton" @click="openCreateDialog" />
       <Dialog v-model:visible="createDialogVisible" modal header="Создание категории" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-        <Create @close="handleCreateDialogClose" category="Hunting" />
+        <Create @close="handleCreateDialogClose" category="Services" />
       </Dialog>
     </div>
     <DataTable :value="childList" showGridlines tableStyle="min-width: 50rem">
@@ -19,7 +19,6 @@
           </div>
         </template>
       </Column>
-      <Column field="sortOrder" header="Сортировка"></Column>
       <Column header="Действия">
         <template #body="{ data }">
           <Button label="Изменить" @click="loadDataAndOpenDialog(data.id)" />
@@ -43,7 +42,7 @@
       :initialData="selectedItem" 
       :id="selectedItem!.id" 
       @close="handleDialogClose"
-      :category="'Hunting'" />
+      :category="'Services'" />
   </Suspense>
   
 </Dialog>
@@ -52,17 +51,16 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted} from "vue";
-import { useRouter } from 'vue-router';
 import { ChildService, Child } from "../api/service";
 import { DataTable, Column } from 'primevue';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
-import Action from "../pages/Action.vue";
-import Create from "../pages/Create.vue";
+import Action from "../components/Action.vue";
+import Create from "../components/Create.vue";
 
 
 export default defineComponent({
-  name: "HuntingPage",
+  name: "Services",
   components: {
     DataTable,
     Column,
@@ -80,7 +78,7 @@ export default defineComponent({
     
     const fetchData = async () => {
       try {
-        childList.value = await childService.getByName('test/categories', 'Hunting');
+        childList.value = await childService.getByName('test/categories', 'Services');
         childList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
       } catch (error) {
         console.error("Ошибка при получении данных:", error);
@@ -93,7 +91,7 @@ export default defineComponent({
 
     const loadDataAndOpenDialog = async (id: string) => {
       try {
-        const data: Child | Child[] = await childService.getAll('test/categories', { id, category: "Hunting" });
+        const data: Child | Child[] = await childService.getAll('test/categories', { id, category: "Services" });
         if (Array.isArray(data)) {
           if (data.length > 0) {
             selectedItem.value = data[0];
@@ -166,9 +164,10 @@ const onDialogHide = () => {
 <style>
 h1 {
   text-align: center;
+  font-size: 28px !important;
 }
 p {
-  font-size: 12px;
+  font-size: 20px !important;
   text-align: center;
   top: 50%;
   left: 50%;
