@@ -79,7 +79,7 @@ export default defineComponent({
     const photo = ref<File | null>(null); // Для файла
     const photoUrl = ref<string | null>(null); // Для привязки к src
     const editorContainer = ref<HTMLElement | null>(null);
-    let editorInstance: any = null;
+    
     const childService = new ChildService();
 
     const errors = ref({
@@ -137,12 +137,12 @@ async function onImageRemove() {
 
     const initializeEditor = () => {
       if (editorContainer.value) {
-        editorInstance = initEditor(editorContainer.value, {
+        window.editorInstance = initEditor(editorContainer.value, {
           onImageAdd: async (file: File) => {
             try {
               const response = await childService.uploadImage(file);
               if (response.url) {
-                editorInstance.insertImage(response.url);
+                window.editorInstance.insertImage(response.url);
               }
             } catch (error) {
               console.error("Ошибка при загрузке изображения:", error);
@@ -173,8 +173,8 @@ async function onImageRemove() {
           ? ''
           : 'Description должно быть от 80 до 160 символов';
       errors.value.name = name.value.length > 0 && name.value.length <= 200 ? '' : 'Name обязателен и не должен превышать 200 символов';
-      errors.value.image =
-    photo.value ? '' : 'Фото обязательно для загрузки';
+      errors.value.image = photoUrl.value ? '' : 'Фото обязательно для загрузки';
+
 
       return Object.values(errors.value).every((error) => !error);
     };
@@ -186,8 +186,8 @@ async function onImageRemove() {
   }
   globalError.value = ""; // Сбрасываем ошибку при успешной валидации
 
-  const editorData = editorInstance
-    ? await editorInstance.save().then((data: any) => JSON.stringify(data))
+  const editorData = window.editorInstance
+    ? await window.editorInstance.save().then((data: any) => JSON.stringify(data))
     : "";
 
   const formData = new FormData();
@@ -206,7 +206,7 @@ async function onImageRemove() {
   }
 
   try {
-    const response = await childService.create(formData, "/test/categories");
+    const response = await childService.create(formData, "test/categories");
     console.log("Категория успешно создана с ID:", response.id);
     emit("close");
   } catch (error) {

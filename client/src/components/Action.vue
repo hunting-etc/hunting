@@ -186,8 +186,9 @@ const onFileSelect = (event: { files: File[] }) => {
           ? ''
           : 'Description должно быть от 80 до 160 символов';
       errors.value.name = name.value.length > 0 && name.value.length <= 200 ? '' : 'Name обязателен и не должен превышать 200 символов';
-      errors.value.image =
-    photo.value ? '' : 'Фото обязательно для загрузки';
+      
+      errors.value.image = photoUrl.value ? '' : 'Фото обязательно для загрузки';
+
 
       return Object.values(errors.value).every((error) => !error);
     };
@@ -213,7 +214,7 @@ const onFileSelect = (event: { files: File[] }) => {
         formData.append("content", editorData);
         
         if ( category ) {
-          formData.append("category", JSON.stringify({ category: category }));
+          formData.append("type", JSON.stringify({ category: category }));
         }
 
         if (photo.value) {

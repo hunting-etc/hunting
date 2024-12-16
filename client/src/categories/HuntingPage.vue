@@ -4,8 +4,8 @@
     <p>Информация о категориях охоты.</p>
     <div class="header-container">
       <Button label="+" class="createButton" @click="openCreateDialog" />
-      <Dialog v-model:visible="createDialogVisible" modal header="Создание категории" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-        <Create @close="handleCreateDialogClose" category="Hunting" />
+      <Dialog @hide="onDialogHide" v-model:visible="createDialogVisible" modal header="Создание категории" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+        <Create @close="handleCreateDialogClose" category="Hunting"   />
       </Dialog>
     </div>
     <DataTable :value="childList" showGridlines tableStyle="min-width: 50rem">
@@ -34,9 +34,7 @@
     :style="{ width: '50rem' }" 
     :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
     @hide="onDialogHide"
-    
     >
-    
   <Suspense>
       <Action
       :initialData="selectedItem" 
@@ -75,6 +73,7 @@ export default defineComponent({
     const dialogVisible = ref(false); // Для "Изменение категории"
     const createDialogVisible = ref(false); // Для "Создание категории"
     const selectedItem = ref<Child | null>(null);
+    let isManuallyClosed = false;
     
     const fetchData = async () => {
       try {
@@ -108,6 +107,7 @@ export default defineComponent({
     };
 
     const handleDialogClose = () => {
+    isManuallyClosed = true;
   dialogVisible.value = false;
   fetchData();
 };
@@ -115,6 +115,14 @@ export default defineComponent({
 //добавление всплывающего окна о подтверждении выхода
 
 const onDialogHide = () => {
+  if (isManuallyClosed) {
+    // Если закрытие было вызвано вручную, просто сбрасываем флаг
+    isManuallyClosed = false;
+    return;
+  }
+
+  // Если закрытие происходит естественно, очищаем editorInstance
+  console.log(window.editorInstance);
   window.editorInstance.clear();
 };
 
