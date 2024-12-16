@@ -32,7 +32,6 @@
       :maxFileSize="5242880"
       accept="image/*"
       severity="secondary"
-      class="p-button-outlined"
       :class="{ 'input-error': errors.image }"
     />
     <p v-if="errors.image" class="error">{{ errors.image }}</p>
@@ -99,18 +98,31 @@ export default defineComponent({
 
     const onFileSelect = (event: { files: File[] }) => {
   const file = event.files[0];
+
   if (file) {
+    // Проверяем формат изображения
     if (!file.type.startsWith('image/')) {
       errors.value.image = 'Загрузите изображение в формате PNG, JPEG или GIF.';
+      photo.value = null; // Сбрасываем файл
+      photoUrl.value = null;
       return;
     }
+    // Проверяем размер файла
     if (file.size > 5242880) {
       errors.value.image = 'Изображение должно весить не более 5 МБ.';
+      photo.value = null; // Сбрасываем файл
+      photoUrl.value = null;
       return;
     }
+    // Устанавливаем файл и сбрасываем ошибки
     photo.value = file;
     photoUrl.value = URL.createObjectURL(file);
-    errors.value.image = ''; // Очистка ошибок
+    errors.value.image = ''; // Сбрасываем ошибку, если файл корректный
+  } else {
+    // Если файл не выбран, устанавливаем ошибку
+    errors.value.image = 'Фото обязательно для загрузки';
+    photo.value = null;
+    photoUrl.value = null;
   }
 };
 
@@ -161,6 +173,8 @@ async function onImageRemove() {
           ? ''
           : 'Description должно быть от 80 до 160 символов';
       errors.value.name = name.value.length > 0 && name.value.length <= 200 ? '' : 'Name обязателен и не должен превышать 200 символов';
+      errors.value.image =
+    photo.value ? '' : 'Фото обязательно для загрузки';
 
       return Object.values(errors.value).every((error) => !error);
     };
