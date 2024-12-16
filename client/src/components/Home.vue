@@ -10,59 +10,76 @@ const dropdownData = [
     label: "Охота",
     key: "hunting",
     options: [
-      { label: "Категории", path: "/home/hunting" },
-      { label: "Информационные страницы", path: "/home/hunting-info" },
+      { label: "Охота/Категории", path: "/home/hunting" },
+      { label: "Охота/Информационные страницы", path: "/home/infopage/infoHunting" },
     ],
   },
   {
     label: "Рыбалка",
     key: "fishing",
     options: [
-      { label: "Категории", path: "/home/fishing" },
-      { label: "Информационные страницы", path: "/home/fishing-info" },
+      { label: "Рыбалка/Категории", path: "/home/fishing" },
+      { label: "Рыбалка/Информационные страницы", path: "/home/infopage/infoFishing" },
     ],
   },
   {
     label: "Активный отдых",
     key: "activeRecreation",
     options: [
-      { label: "Категории", path: "/home/activeRecreation" },
-      { label: "Информационные страницы", path: "/home/activeRecreation-info" },
+      { label: "Активный отдых/Категории", path: "/home/activeRecreation" },
+      { label: "Активный отдых/Информационные страницы", path: "/home/infopage/infoActiveRecreation" },
     ],
   },
   {
     label: "Экотуризм",
     key: "fishing",
     options: [
-      { label: "Категории", path: "/home/ecotourism" },
-      { label: "Информационные страницы", path: "/home/ecotourism-info" },
+      { label: "Экотуризм/Категории", path: "/home/ecotourism" },
+      { label: "Экотуризм/Информационные страницы", path: "/home/infopage/infoEcotourism" },
     ],
   },
   {
     label: "Услуги",
     key: "services",
     options: [
-      { label: "Категории", path: "/home/services" },
-      { label: "Информационные страницы", path: "/home/services-info" },
+      { label: "Услуги/Категории", path: "/home/services" },
+      { label: "Услуги/Информационные страницы", path: "/home/infopage/infoServices" },
     ],
   },
   {
     label: "Новости",
     key: "news",
     options: [
-      { label: "Категории", path: "/home/news" },
-      { label: "Информационные страницы", path: "/home/news-info" },
+      { label: "Новости/Категории", path: "/home/news" },
+      { label: "Новости/Информационные страницы", path: "/home/infopage/infoNews" },
     ],
   }
 ];
 
+const selectedValues = ref<{ [key: string]: any }>({});
+
+dropdownData.forEach((dropdown) => {
+  selectedValues.value[dropdown.key] = null;
+});
+
+const resetOtherDropdowns = (currentKey: string) => {
+  for (const key in selectedValues.value) {
+    if (key !== currentKey) {
+      selectedValues.value[key] = null;
+    }
+  }
+};
+
 // Управление маршрутизацией
 const router = useRouter();
-const handleSelection = (path: string) => {
-  if (!path) return;
-  router.push(path).catch((err) => {
-    console.error("Navigation Error:", err);
-  });
+const handleSelection = (dropdownKey: string, selectedOption: any) => {
+  selectedValues.value[dropdownKey] = selectedOption;
+  resetOtherDropdowns(dropdownKey);
+  if (selectedOption?.path) {
+    router.push(selectedOption.path).catch((err) => {
+      console.error("Navigation Error:", err);
+    });
+  }
 };
 </script>
 
@@ -75,14 +92,16 @@ const handleSelection = (path: string) => {
 
         <!-- Генерация выпадающих списков -->
         <div v-for="dropdown in dropdownData" :key="dropdown.key" class="menu-block">
-          <Dropdown 
-            :options="dropdown.options" 
-            optionLabel="label" 
-            :placeholder="dropdown.label" 
-            @change="(e) => handleSelection(e.value.path)" 
-            class="dropdown" 
-          />
-        </div>
+  <Dropdown 
+    v-model="selectedValues[dropdown.key]" 
+    :options="dropdown.options" 
+    optionLabel="label" 
+    :placeholder="dropdown.label" 
+    @change="(e) => handleSelection(dropdown.key, e.value)" 
+    class="dropdown" 
+  />
+</div>
+
 
         <!-- Пример дополнительной кнопки -->
         <RouterLink to="/about">

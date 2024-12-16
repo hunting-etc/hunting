@@ -1,22 +1,22 @@
 <template>
   <div class="panel">
     <label for="h1">H1</label>
-    <InputText id="h1" v-model="h1" :class="{ 'input-error': errors.h1 }"/>
+    <InputText id="h1" v-model="h1" :class="{ 'input-error': errors.h1 }"  @input="clearError('h1')"/>
     <p v-if="errors.h1" class="error">{{ errors.h1 }}</p>
     <Divider />
 
     <label for="title">Title</label>
-    <InputText id="title" v-model="title" :class="{ 'input-error': errors.title }"/>
+    <InputText id="title" v-model="title" :class="{ 'input-error': errors.title }"  @input="clearError('title')"/>
     <p v-if="errors.title" class="error">{{ errors.title }}</p>
     <Divider />
 
     <label for="description">Description</label>
-    <InputText id="description" v-model="description" :class="{ 'input-error': errors.description }"/>
+    <InputText id="description" v-model="description" :class="{ 'input-error': errors.description }"  @input="clearError('description')"/>
     <p v-if="errors.description" class="error">{{ errors.description }}</p>
     <Divider />
 
     <label for="name">Название</label>
-    <InputText id="name" v-model="name" :class="{ 'input-error': errors.name }"/>
+    <InputText id="name" v-model="name" :class="{ 'input-error': errors.name }" @input="clearError('name')"/>
     <p v-if="errors.name" class="error">{{ errors.name }}</p>
     <Divider />
 
@@ -44,6 +44,7 @@
 
     <div class="button-container">
     <Button label="Сохранить" :class="{ 'p-button-error': globalError }" @click="save" ></Button>
+    <p v-if="globalError" class="global-error">{{ globalError }}</p>
 
   </div>
 </div>
@@ -104,6 +105,10 @@ export default defineComponent({
     });
     const globalError = ref("");
     
+    const clearError = (field: keyof typeof errors.value) => {
+      errors.value[field] = "";
+      globalError.value = ""; // Убираем глобальную ошибку при изменении любого поля
+    };
 
     if (initialData?.value?.photo && (initialData.value.photo as any) instanceof File) {
   photoUrl.value = URL.createObjectURL(initialData.value.photo as File);
@@ -239,77 +244,158 @@ const onFileSelect = (event: { files: File[] }) => {
       childService,
       validateAll,
       errors,
-      globalError
+      globalError,
+      clearError
     };
   },
 });
 </script>
 
-<style>
-.p-panel-header {
-  background-color: #4CAF50;
-  color: white;
-  font-weight: bold;
-  padding: 10px;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+<style scoped>
+/* Общий стиль для панели */
+.panel {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
 }
 
+/* Заголовки */
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Поля ввода */
 input.p-inputtext {
-  width: 97%;
+  width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-bottom: 15px;
-  transition: border 0.3s;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background-color: #fff;
 }
 
 input.p-inputtext:focus {
-  border-color: #4CAF50;
+  border-color: #4caf50;
+  box-shadow: 0 0 4px rgba(76, 175, 80, 0.6);
   outline: none;
 }
-.error {
-  color: red;
-  font-size: 14px;
-}
-
+/* Поля с ошибкой */
 .input-error {
-  border-color: red;
-}
-.p-button {
-  background-color: #269e2a;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
-  border-radius: 4px;
-  margin-top: 10px;
-}
-.p-button:hover {
-  background-color: #166f1a;
-}
-label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
+  border-color: #e53935 !important;
+  background-color: #ffe6e6;
 }
 
+/* Разделители */
+.p-divider {
+  margin: 20px 0;
+  border: none;
+  height: 1px;
+  background-color: #ddd;
+}
+
+/* Превью изображений */
 .image-preview {
-  margin-top: 10px;
-  margin-bottom: 15px;
+  margin: 20px 0;
+  text-align: center;
 }
 
 .image-preview img {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
   max-width: 100%;
   max-height: 200px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+/* Кнопки */
+.p-button {
+  display: block;
+  width: 100%;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.p-button:hover {
+  background-color: #45a049;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Ошибки под полями */
+.error {
+  color: #e53935;
+  font-size: 12px !important; /* Принудительное применение размера */
+  margin-top: 4px;
+}
+
+/* Ошибки на глобальном уровне */
+.global-error {
+  color: #e53935;
+  font-size: 14px !important; /* Принудительное применение размера */
+  font-weight: bold;
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* Кнопка ошибки */
 .p-button-error {
-  background-color: red !important;
+  background-color: #e53935 !important;
   color: white !important;
 }
+
+.p-button-error:hover {
+  background-color: #d32f2f !important;
+}
+
+/* Контейнер редактора */
+.content-editor {
+  min-height: 300px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Контейнер для кнопок */
+.button-container {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .panel {
+    padding: 15px;
+  }
+
+  .p-button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  input.p-inputtext {
+    font-size: 13px;
+    padding: 8px;
+  }
+}
+
 </style>

@@ -8,6 +8,12 @@ import Ecotourism from "../categories/Ecotourism.vue";
 import Services from "../categories/Services.vue";
 import About from "../categories/About.vue";
 import News from "../categories/News.vue";
+import InfoHunting from "../infoPages/infoHunting.vue";
+import InfoFishing from "../infoPages/infoFishing.vue";
+import InfoActiverecreation from "../infoPages/infoActiverecreation.vue";
+import InfoEcotourism from "../infoPages/infoEcotourism.vue";
+import { InfoService } from "../api/service";
+import InfoNews from "../infoPages/infoNews.vue";
 
 
 export default createRouter({
@@ -26,7 +32,12 @@ export default createRouter({
         {
           name: "Hunting",
           path: "hunting",
-          component: HuntingPage,
+          component: HuntingPage,          
+        },
+        {
+          name: "InfoHunting",
+          path: "infopage/infoHunting",
+          component: InfoHunting,
         },
         {
           name: "Fishing",
@@ -34,9 +45,19 @@ export default createRouter({
           component: Fishing,
         },
         {
+          name: "InfoFishing",
+          path: "infopage/infoFishing",
+          component: InfoFishing,
+        },
+        {
           name: "ActiveRecreation",
-          path: "activeRecreation",
+          path: "infopage/activeRecreation",
           component: ActiveRecreation,
+        },
+        {
+          name: "InfoActiveRecreation",
+          path: "infopage/infoActiveRecreation",
+          component: InfoActiverecreation,
         },
         {
           name: "EcoTourism",
@@ -44,9 +65,19 @@ export default createRouter({
           component: Ecotourism,
         },
         {
+          name: "InfoEcotourism",
+          path: "infopage/infoEcotourism",
+          component: InfoEcotourism,
+        },
+        {
           name: "Services",
           path: "services",
           component: Services,
+        },
+        {
+          name: "InfoServices",
+          path: "infopage/infoServices",
+          component: InfoService,
         },
         {
           name: "About",
@@ -58,7 +89,14 @@ export default createRouter({
           path: "news",
           component: News,
         },
+        {
+          name: "InfoNews",
+          path: "infopage/infoNews",
+          component: InfoNews,
+        },
       ],
     },
   ],
 });
+
+
