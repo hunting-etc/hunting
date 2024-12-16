@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from django.core.exceptions import ValidationError
+from unicodedata import category
+
 from .models import CategoriesStore, InformationPageStore, CategoriesType
 import json
 
@@ -30,20 +32,34 @@ class CategoriesStoreSerializer(serializers.ModelSerializer):
                 type_data = json.loads(type_data)
             except json.JSONDecodeError:
                 raise serializers.ValidationError({"type": "Неверный формат данных для type."})
+        # Если `type` — пустой словарь
+        if isinstance(type_data, dict) and not type_data:
+            raise serializers.ValidationError({"type":"Поле не может быть пустым."})
+
+        if "id" in type_data:
+            raise serializers.ValidationError({"type": "К полю 'id' нельзя обратиться."})
 
         type_category = type_data.get("category")
 
         # Если категория не указана, пропускаем валидацию
-        if not type_category:
-            return data
+        # if not type_category:
+        #     return data
 
+        category_type = CategoriesType.objects.filter(category=type_category).first()
+        category_store = CategoriesStore.objects.filter(name=type_category).first()
 
-        if not type_category or not CategoriesType.objects.filter(category=type_category).exists():
+        if not category_type and not category_store:
             raise serializers.ValidationError({"type": "Указанная категория не существует."})
-
-        # Присваиваем объект категории в validated_data
-        data["type"] = CategoriesType.objects.get(category=type_category)
+            # Если категория найдена в CategoriesStore, преобразуем её в CategoriesType
+        if category_store and not category_type:
+            # Пример преобразования (зависит от вашей бизнес-логики)
+            category_type = CategoriesType.objects.create(category=category_store.name)
+        # Присваиваем найденный объект в зависимости от источника
+        data["type"] = category_type
         return data
+
+
+
 
     def get_type(self, obj):
         """
@@ -58,6 +74,6 @@ class CategoriesStoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = CategoriesStore
 
-        # exclude = ['content']
+        # exclude = ['photo']
         fields = '__all__'
 

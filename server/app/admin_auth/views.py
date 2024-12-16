@@ -5,6 +5,7 @@ from django.views.generic import DetailView, UpdateView, DeleteView
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
+import json
 
 from .serializers import CategoriesStoreSerializer, InformationPageStoreSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -16,13 +17,13 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import InformationPageStore, CategoriesStore
-from base.service import CategoryService,InformationPageService
+from base.service import CategoryService,InformationPageService, CategoryValidationSchema
 from django.http import JsonResponse
 import os
 
 
 class AllCategoryView(APIView):
-    service = CategoryService()
+    # service = CategoryService()
 
     # def get(self, request):
     #     items = CategoriesStore.objects.all()
@@ -50,6 +51,14 @@ class AllCategoryView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
+
+        print(request.data)
+        validation_result =CategoryValidationSchema.validate_or_error(request.data)
+        if isinstance(validation_result, dict):  # Это словарь с ошибками
+            return JsonResponse(validation_result, status=400)
+
+
+
         # self.service.validation(request.data)
         serializer = CategoriesStoreSerializer(data=request.data)
         if serializer.is_valid():
@@ -64,6 +73,12 @@ class AllCategoryView(APIView):
             instance = CategoriesStore.objects.get(pk=pk)
         except CategoriesStore.DoesNotExist:
             return Response({"error": "Объект не найден"}, status=status.HTTP_404_NOT_FOUND)
+
+        validation_result = CategoryValidationSchema.validate_or_error(request.data)
+        if isinstance(validation_result, dict):  # Это словарь с ошибками
+            return JsonResponse(validation_result, status=400)
+
+
         # self.service.validation(request.data)
         # Передаем объект и обновляемые данные в сериализатор
         serializer = CategoriesStoreSerializer(instance, data=request.data, partial=True)
@@ -146,16 +161,38 @@ class ImageView(APIView):
 class InformationPageStoreView(APIView):
     service = InformationPageService()
 
-    def get(self, request):
-        items = InformationPageStore.objects.all()
-        serializer = InformationPageStoreSerializer(items, many=True)
-        return Response(serializer.data)
+    def get(self, request, pk=None):
+        """Обработка GET-запросов: либо получение всех объектов, либо одного по pk."""
+        if pk:
+            try:
+                instance = CategoriesStore.objects.get(pk=pk)
+            except CategoriesStore.DoesNotExist:
+                return Response({"error": "Объект не найден"}, status=status.HTTP_404_NOT_FOUND)
+            serializer = CategoriesStoreSerializer(instance)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            # Фильтрация по параметру `category`
+            category_name = request.query_params.get('category')
+            if category_name:
+                # Фильтрация по вложенному полю `type__category`
+                items = CategoriesStore.objects.filter(type__category__icontains=category_name)
+            else:
+                items = CategoriesStore.objects.all()
+
+            serializer = CategoriesStoreSerializer(items, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        self.service.validation(request.data)
-        serializer = InformationPageStoreSerializer(data=request.data)
+
+        print(request.data)
+        validation_result = CategoryValidationSchema.validate_or_error(request.data)
+        if isinstance(validation_result, dict):  # Это словарь с ошибками
+            return JsonResponse(validation_result, status=400)
+
+        # self.service.validation(request.data)
+        serializer = CategoriesStoreSerializer(data=request.data)
         if serializer.is_valid():
-            instance=serializer.save()
+            instance = serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -163,13 +200,17 @@ class InformationPageStoreView(APIView):
         """Метод для частичного обновления объекта."""
         try:
             # Находим объект по первичному ключу
-            instance = InformationPageStore.objects.get(pk=pk)
-        except InformationPageStore.DoesNotExist:
+            instance = CategoriesStore.objects.get(pk=pk)
+        except CategoriesStore.DoesNotExist:
             return Response({"error": "Объект не найден"}, status=status.HTTP_404_NOT_FOUND)
-        print(request.data)
-        self.service.validation(request.data)
+
+        validation_result = CategoryValidationSchema.validate_or_error(request.data)
+        if isinstance(validation_result, dict):  # Это словарь с ошибками
+            return JsonResponse(validation_result, status=400)
+
+        # self.service.validation(request.data)
         # Передаем объект и обновляемые данные в сериализатор
-        serializer = InformationPageStoreSerializer(instance, data=request.data, partial=True)
+        serializer = CategoriesStoreSerializer(instance, data=request.data, partial=True)
         if serializer.is_valid():
             instance = serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -179,8 +220,8 @@ class InformationPageStoreView(APIView):
         """Метод для удаления объекта."""
         try:
             # Находим объект по первичному ключу
-            instance = InformationPageStore.objects.get(pk=pk)
-        except InformationPageStore.DoesNotExist:
+            instance = CategoriesStore.objects.get(pk=pk)
+        except CategoriesStore.DoesNotExist:
             return Response({"error": "Объект не найден"}, status=status.HTTP_404_NOT_FOUND)
 
         # Удаляем объект

@@ -1,11 +1,40 @@
-from typing import TypeVar, Generic, List, Dict
-
-from base.abstractions import BaseServiceProtocol
-from django.db import models
-import re
-from datetime import datetime
-from django.utils import timezone
 from django.core.exceptions import ValidationError
+from pydantic import BaseModel, Field, ValidationError
+from django.http import QueryDict
+
+
+class CategoryValidationSchema(BaseModel):
+    h1: str = Field(..., min_length=10, max_length=60, description="Поле должно содержать от 10 до 60 символов.")
+    title:str=Field(..., min_length=30, max_length=80, description="Поле должно содержать от 30 до 80 символов.")
+    description:str=Field(..., min_length=80, max_length=160, description="Поле должно содержать от 80 до 160 символов.")
+    name:str=Field(..., max_length=200, description="Поле должно содержать до 200 символов.")
+
+    @classmethod
+    def validate_or_error(cls, data):
+        try:
+            simple_data = {}
+            if isinstance(data, QueryDict):#Это если данные из Form-data(мега костыль)
+                for key in data.keys():
+                    simple_data[key] = data.getlist(key)[0]
+                return cls(**simple_data)# Можно ли иначе подружить Form-data и Pydantic?
+            else:
+                return cls(**data)
+
+        except ValidationError as e:
+
+            # Возвращаем API-ответ с ошибками
+            formatted_errors = cls.format_errors(e.errors())
+            return formatted_errors
+
+    @staticmethod
+    def format_errors(errors):
+        # Преобразуем список ошибок в формат {поле: [сообщения]}
+        formatted = {}
+        for error in errors:
+            field = error["loc"][-1]  # Получаем имя поля
+            message = error["msg"]  # Сообщение об ошибке
+            formatted.setdefault(field, []).append(message)  # Собираем сообщения в список
+        return formatted
 
 
 

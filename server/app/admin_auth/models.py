@@ -81,7 +81,8 @@ class CategoriesStore(BaseUUID):
     # Контент - блок произвольного текста
     content = models.JSONField(
         blank=True,
-        help_text="Введите контент для блока."
+        help_text="Введите контент для блока.",
+        null = True
     )
     type=models.ForeignKey(
         CategoriesType,
