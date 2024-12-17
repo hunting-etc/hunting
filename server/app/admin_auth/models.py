@@ -1,19 +1,9 @@
-from tkinter.constants import CASCADE
-
-from PIL.ImtImagePlugin import field
-
 from django.db import models
 from django.core.exceptions import ValidationError
 from PIL import Image
 import uuid
 import os
 
-
-class BaseUUID(models.Model):
-    id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, primary_key=True)
-
-    class Meta:
-        abstract = True  # Делаем этот класс абстрактным
 
 # Утилита для обработки изображений
 def compress_image(image_path):
@@ -28,22 +18,21 @@ def validate_image_size(image):
     max_file_size = 5 * 1024 * 1024  # 5 MB
     if image.size > max_file_size:
         raise ValidationError(
-            f"Размер файла не должен превышать 5 MB. Текущий размер: {image.size / (1024 * 1024):.2f} MB")
+            f"Размер файла не должен превышать 5 MB. Текущий размер: {image.size / (1024 * 1024):.2f} MB"
+        )
 
 
-class CategoriesType(models.Model):
-    category = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.category
+class BaseUUID(models.Model):
+    """Абстрактный класс с UUID."""
+    id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, primary_key=True)
 
     class Meta:
-        verbose_name = "Хранилище типов категорий"
-        verbose_name_plural = "Хранилище типов категорий"
+        abstract = True  # Делаем этот класс абстрактным
 
 
-# Модель для хранения данных
-class CategoriesStore(BaseUUID):
+class BaseCategory(BaseUUID):
+    """Абстрактный базовый класс для общих полей категорий."""
+
     # H1 - от 10 до 60 символов
     h1 = models.CharField(
         max_length=60,
@@ -67,6 +56,7 @@ class CategoriesStore(BaseUUID):
 
     # Название - до 200 символов
     name = models.CharField(
+        unique=True,
         max_length=200,
         help_text="Введите название (до 200 символов)."
     )
@@ -81,22 +71,14 @@ class CategoriesStore(BaseUUID):
     # Контент - блок произвольного текста
     content = models.JSONField(
         blank=True,
-        help_text="Введите контент для блока.",
-        null = True
+        null=True,
+        help_text="Введите контент для блока."
     )
-    type=models.ForeignKey(
-        CategoriesType,
-        on_delete=models.CASCADE,
-        blank=True,
-        help_text="Выберите связанную категорию."
-    )
-
-
 
     def save(self, *args, **kwargs):
         # Проверяем, обновляется ли объект
         if self.pk:
-            old_instance = CategoriesStore.objects.filter(pk=self.pk).first()
+            old_instance = self.__class__.objects.filter(pk=self.pk).first()
             if old_instance and old_instance.photo != self.photo:
                 old_photo_path = old_instance.photo.path
                 # Удаляем старое фото, если путь существует
@@ -121,29 +103,66 @@ class CategoriesStore(BaseUUID):
         return self.name
 
     class Meta:
+        abstract = True
+
+
+class CategoriesType(models.Model):
+    """Тип категории."""
+    category = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.category
+
+    class Meta:
+        verbose_name = "Хранилище типов категорий"
+        verbose_name_plural = "Хранилище типов категорий"
+
+
+class CategoriesStore(BaseCategory):
+    """Хранилище категорий."""
+    type = models.ForeignKey(
+        CategoriesType,
+        on_delete=models.CASCADE,
+        blank=True,
+        help_text="Выберите связанную категорию."
+    )
+
+    class Meta:
         verbose_name = "Хранилище категорий"
         verbose_name_plural = "Хранилище категорий"
 
 
-class Service(models.Model):
+class ServiceStore(BaseCategory):
     """Модель для представления услуг."""
-    name = models.CharField(
-        max_length=200,
-        help_text="Введите название услуги (до 200 символов)."
-    )
-    description = models.TextField(
+    price = models.CharField(
+        max_length=50,
         blank=True,
-        help_text="Описание услуги."
+        help_text="Введите цену страницы (до 50 символов)."
+    )
+    category = models.ForeignKey(
+        CategoriesStore,
+        on_delete=models.PROTECT,
+        blank=True,
+        help_text="Выберите связанную категорию."
     )
 
-    def __str__(self):
-        return self.name
+    class Meta:
+        verbose_name = "Страницы услуг"
+        verbose_name_plural = "Страницы услуг"
 
-class InformationPageStore(CategoriesStore,BaseUUID):
-    """Хранилище инфрмационных страниц."""
+
+class InformationPageStore(BaseCategory):
+    """Хранилище информационных страниц."""
+
+    category = models.ForeignKey(
+        CategoriesStore,
+        on_delete=models.PROTECT,
+        blank=True,
+        help_text="Выберите связанную категорию."
+    )
 
     services = models.ManyToManyField(
-        Service,
+        ServiceStore,
         blank=True,
         related_name="information_pages",
         help_text="Выберите связанные услуги."
@@ -153,7 +172,8 @@ class InformationPageStore(CategoriesStore,BaseUUID):
         verbose_name = "Информационные страницы"
         verbose_name_plural = "Информационные страницы"
 
-
+    def __str__(self):
+        return self.name
 
 
 
