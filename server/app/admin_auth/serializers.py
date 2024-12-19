@@ -19,28 +19,28 @@ class ServiceStoreSerializer(serializers.ModelSerializer):
         category_data = self.initial_data.get("category", {})
 
         if isinstance(category_data, dict):  # Если пришел словарь
-            if "name" not in category_data:
-                raise serializers.ValidationError({"category": "Можно обращаться только к полю 'name'."})
+            if "id" not in category_data:
+                raise serializers.ValidationError({"category": "Можно обращаться только к полю 'id'."})
             if len(category_data.keys()) > 1:
                 raise serializers.ValidationError({"category": "К этому полю нельзя обратиться."})
         elif isinstance(category_data, str):
             try:
                 category_data = json.loads(category_data)
-                if not isinstance(category_data, dict) or "name" not in category_data:
-                    raise serializers.ValidationError({"category": "Можно обращаться только к полю 'name'."})
+                if not isinstance(category_data, dict) or "id" not in category_data:
+                    raise serializers.ValidationError({"category": "Можно обращаться только к полю 'id'."})
             except json.JSONDecodeError:
                 raise serializers.ValidationError({"category": "Неверный формат данных для category."})
         else:
-            raise serializers.ValidationError({"category": "Поле category должно быть объектом с полем 'name'."})
+            raise serializers.ValidationError({"category": "Поле category должно быть объектом с полем 'id'."})
 
-        category_name = category_data.get("name")
+        category_name = category_data.get("id")
 
-        if not CategoriesStore.objects.filter(name=category_name).exists():
+        if not CategoriesStore.objects.filter(id=category_name).exists():
             raise serializers.ValidationError({"category": "Указанная категория не существует."})
 
             # Assign category data to `data["category"]`
 
-        data["category"] = CategoriesStore.objects.get(name=category_name)
+        data["category"] = CategoriesStore.objects.get(id=category_name)
 
         return data
 
@@ -124,19 +124,19 @@ class InformationPageStoreSerializer(serializers.ModelSerializer):
         category_data = self.initial_data.get("category", {})
 
         if isinstance(category_data, dict):  # Если пришел словарь
-            if "name" not in category_data:
-                raise serializers.ValidationError({"category": "Можно обращаться только к полю 'name'."})
+            if "id" not in category_data:
+                raise serializers.ValidationError({"category": "Можно обращаться только к полю 'id'."})
             if len(category_data.keys()) > 1:
                 raise serializers.ValidationError({"category": "К этому полю нельзя обратиться."})
         elif isinstance(category_data, str):
             try:
                 category_data = json.loads(category_data)
-                if not isinstance(category_data, dict) or "name" not in category_data:
-                    raise serializers.ValidationError({"category": "Можно обращаться только к полю 'name'."})
+                if not isinstance(category_data, dict) or "id" not in category_data:
+                    raise serializers.ValidationError({"category": "Можно обращаться только к полю 'id'."})
             except json.JSONDecodeError:
                 raise serializers.ValidationError({"category": "Неверный формат данных для category."})
         else:
-            raise serializers.ValidationError({"category": "Поле category должно быть объектом с полем 'name'."})
+            raise serializers.ValidationError({"category": "Поле category должно быть объектом с полем 'id'."})
 
 
 
@@ -149,43 +149,43 @@ class InformationPageStoreSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({"services": "Неверный формат данных для services."})
         if isinstance(services_data, list):
             for service in services_data:
-                if not isinstance(service, dict) or "name" not in service:
-                    raise serializers.ValidationError({"services": "Можно обращаться только к полю 'name'."})
+                if not isinstance(service, dict) or "id" not in service:
+                    raise serializers.ValidationError({"services": "Можно обращаться только к полю 'id'."})
                 if len(service.keys()) > 1:
                     raise serializers.ValidationError({"services": "К этому полю нельзя обратиться."})
         else:
 
             raise serializers.ValidationError(
-                {"services": "Поле services должно быть списком объектов с полем 'name'."})
+                {"services": "Поле services должно быть списком объектов с полем 'id'."})
 
         valid_services = []
 
         for service_data in services_data:
             # Проверяем, что каждый элемент является словарем с ключом "name"
-            if not isinstance(service_data, dict) or "name" not in service_data:
-                raise serializers.ValidationError({"services": "Каждый объект должен содержать только поле 'name'."})
+            if not isinstance(service_data, dict) or "id" not in service_data:
+                raise serializers.ValidationError({"services": "Каждый объект должен содержать только поле 'id'."})
 
-            service_name = service_data.get("name")
+            service_name = service_data.get("id")
 
             # Проверяем, существует ли сервис с таким именем
-            if not ServiceStore.objects.filter(name=service_name).exists():
+            if not ServiceStore.objects.filter(id=service_name).exists():
                 raise serializers.ValidationError({"services": f"Сервис с именем '{service_name}' не существует."})
 
             # Добавляем найденный сервис в список
-            valid_services.append(ServiceStore.objects.get(name=service_name))
+            valid_services.append(ServiceStore.objects.get(id=service_name))
 
         # Присваиваем валидные сервисы в `data["services"]`
         data["services"] = valid_services
 
         # Присваиваем валидные категории в `data["category"]`
-        category_name=category_data.get("name")
+        category_name=category_data.get("id")
 
-        if not CategoriesStore.objects.filter(name=category_name).exists():
+        if not CategoriesStore.objects.filter(id=category_name).exists():
             raise serializers.ValidationError({"category": "Указанная категория не существует."})
 
             # Assign category data to `data["category"]`
 
-        data["category"] = CategoriesStore.objects.get(name=category_name)
+        data["category"] = CategoriesStore.objects.get(id=category_name)
 
 
         return data

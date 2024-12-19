@@ -4,9 +4,9 @@
       <p>Информационные страницы охоты.</p>
       <div class="header-container">
         <Button label="+" class="createButton" @click="openCreateDialog" />
-        <Dialog v-model:visible="createDialogVisible" modal header="Создание информационной страницы" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-          <Create @close="handleCreateDialogClose" category="News" />
-        </Dialog>
+        <Dialog @hide="onDialogHide" v-model:visible="createDialogVisible" modal header="Создание категории" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+        <infoCreate @close="handleCreateDialogClose" category="Hunting"/>
+      </Dialog>
       </div>
       <DataTable :value="childList" showGridlines tableStyle="min-width: 50rem">
         <Column field="name" header="Название">
@@ -38,11 +38,12 @@
       >
       
     <Suspense>
-        <Action
+        <infoAction
         :initialData="selectedItem" 
         :id="selectedItem!.id" 
         @close="handleDialogClose"
-        :category="'News'" />
+        :category="selectedItem?.category"
+        :services="selectedItem?.services?.map(service => service.name)" />
     </Suspense>
     
   </Dialog>
@@ -57,6 +58,7 @@
   import Dialog from 'primevue/dialog';
   import infoAction from "../components/infoAction.vue";
   import infoCreate from "../components/infoCreate.vue";
+
   
   
   export default defineComponent({
@@ -75,11 +77,15 @@
       const dialogVisible = ref(false); // Для "Изменение категории"
       const createDialogVisible = ref(false); // Для "Создание категории"
       const selectedItem = ref<Child | null>(null);
+      let isManuallyClosed = false;
       
+
+
       const fetchData = async () => {
         try {
-          childList.value = await childService.getByName('test/infopage', 'News');
+          childList.value = await childService.getByName('test/infopages', 'Hunting');
           childList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+          // console.log('fewf',childList.value)
         } catch (error) {
           console.error("Ошибка при получении данных:", error);
         }
@@ -91,7 +97,7 @@
   
       const loadDataAndOpenDialog = async (id: string) => {
         try {
-          const data: Child | Child[] = await childService.getAll('test/infopage', { id, category: "News" });
+          const data: Child | Child[] = await childService.getAll('test/infopages', { id, category: "Hunting" });
           if (Array.isArray(data)) {
             if (data.length > 0) {
               selectedItem.value = data[0];
@@ -108,6 +114,7 @@
       };
   
       const handleDialogClose = () => {
+      isManuallyClosed = true;
     dialogVisible.value = false;
     fetchData();
   };
@@ -115,8 +122,16 @@
   //добавление всплывающего окна о подтверждении выхода
   
   const onDialogHide = () => {
-    window.editorInstance.clear();
-  };
+  if (isManuallyClosed) {
+    // Если закрытие было вызвано вручную, просто сбрасываем флаг
+    isManuallyClosed = false;
+    return;
+  }
+
+  // Если закрытие происходит естественно, очищаем editorInstance
+  
+  window.editorInstance.clear();
+};
   
    
   
@@ -129,7 +144,7 @@
         const confirmDelete = confirm("Вы уверены, что хотите удалить этот элемент?");
         if (confirmDelete) {
           try {
-            await childService.delete('test/infopage', id, '');
+            await childService.delete('test/infopages', id, '');
             fetchData();
           } catch (error) {
             console.error("Ошибка при удалении данных:", error);

@@ -146,7 +146,8 @@ export interface Child extends BaseUUIDSchema {
     content?: string;
     photo?: File | null;
     sortOrder?: number;
-    category?: string;
+    category?: string ;
+    services?: Array<string>| null;
 }
 
 export interface Info extends BaseUUIDSchema {

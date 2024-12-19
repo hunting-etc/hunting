@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
+// import LoginForm from "../components/login.vue";
 import LoginForm from "../components/LoginForm.vue";
 import Home from "../components/Home.vue";
 import HuntingPage from "../categories/HuntingPage.vue";
@@ -12,7 +13,7 @@ import InfoHunting from "../infoPages/infoHunting.vue";
 import InfoFishing from "../infoPages/infoFishing.vue";
 import InfoActiverecreation from "../infoPages/infoActiverecreation.vue";
 import InfoEcotourism from "../infoPages/infoEcotourism.vue";
-import { InfoService } from "../api/service";
+import InfoService  from "../infoPages/infoServices.vue";
 import InfoNews from "../infoPages/infoNews.vue";
 
 
@@ -51,7 +52,7 @@ export default createRouter({
         },
         {
           name: "ActiveRecreation",
-          path: "infopage/activeRecreation",
+          path: "activeRecreation",
           component: ActiveRecreation,
         },
         {
