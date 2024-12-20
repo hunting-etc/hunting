@@ -70,7 +70,7 @@ import InputText from "primevue/inputtext";
 import Divider from "primevue/divider";
 import Button from "primevue/button";
 import FileUpload from "primevue/fileupload";
-import { ChildService, Child } from "../api/service";
+import { InfoService, Info } from "../api/service";
 import { initEditor } from "../editor.js/editor-init";
 import Select from 'primevue/select';
 
@@ -78,7 +78,7 @@ import MultiSelect from 'primevue/multiselect';
 
 
 export default defineComponent({
-  name: "Create",
+  name: "infoCreate",
   components: {
     InputText,
     Divider,
@@ -95,8 +95,8 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
-    const categoryList = ref<Child[]>([]);
-    const serviceList = ref<Child[]>([]);
+    const categoryList = ref<Info[]>([]);
+    const serviceList = ref<Info[]>([]);
     const h1 = ref("");
     const title = ref("");
     const description = ref("");
@@ -107,7 +107,7 @@ export default defineComponent({
     const photoUrl = ref<string | null>(null); // Для привязки к src
     const editorContainer = ref<HTMLElement | null>(null);
     const {category}=props
-    const childService = new ChildService();
+    const childService = new InfoService();
 
 
     const selectedCategory = ref();
@@ -465,6 +465,4 @@ input.p-inputtext:focus {
     padding: 8px;
   }
 }
-
-  </style>
-
+</style>

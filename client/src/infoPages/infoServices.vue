@@ -5,15 +5,15 @@
     <div class="header-container">
       <Button label="+" class="createButton" @click="openCreateDialog" />
       <Dialog @hide="onDialogHide" v-model:visible="createDialogVisible" modal header="Создание категории" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-      <infoCreate @close="handleCreateDialogClose" category="Services"/>
+      <ServiceCreate @close="handleCreateDialogClose" category="Services"/>
     </Dialog>
     </div>
-    <DataTable :value="childList" showGridlines tableStyle="min-width: 50rem">
+    <DataTable :value="infoList" showGridlines tableStyle="min-width: 50rem">
       <Column field="name" header="Название">
         <template #body="slotProps">
           <div class="img-text-container">
             <div>
-              <img :src="`${childService.baseUrl}${slotProps.data.photo}`" alt="Image" class="img-col" />
+              <img :src="`${infoService.baseUrl}${slotProps.data.photo}`" alt="Image" class="img-col" />
             </div>
             <div class="text">{{ slotProps.data.name }}</div>
           </div>
@@ -38,12 +38,11 @@
     >
     
   <Suspense>
-      <infoAction
+      <ServiceAction
       :initialData="selectedItem" 
       :id="selectedItem!.id" 
       @close="handleDialogClose"
       :category="selectedItem?.category"
-      :services="selectedItem?.services?.map(service => service.name)"
       :maincategory="'Services'" />
   </Suspense>
   
@@ -53,44 +52,45 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted} from "vue";
-import { ChildService, Child } from "../api/service";
+import { InfoService, Info } from "../api/service";
 import { DataTable, Column } from 'primevue';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
-import infoAction from "../components/infoAction.vue";
-import infoCreate from "../components/infoCreate.vue";
+import ServiceCreate from "../components/ServiceCreate.vue";
+import ServiceAction from "../components/ServiceAction.vue";
 
 
 
 export default defineComponent({
-  name: "infoHunting",
+  name: "infoServices",
   components: {
     DataTable,
     Column,
     Button,
     Dialog,
-    infoAction,
-    infoCreate
+    ServiceAction,
+    ServiceCreate,
   },
   setup() {
-    const childList = ref<Child[]>([]);
-    const childService = new ChildService();
+    const infoList = ref<Info[]>([]);
+    const infoService = new InfoService();
     const dialogVisible = ref(false); // Для "Изменение категории"
     const createDialogVisible = ref(false); // Для "Создание категории"
-    const selectedItem = ref<Child | null>(null);
+    const selectedItem = ref<Info | null>(null);
     let isManuallyClosed = false;
-    
+
 
 
     const fetchData = async () => {
-      try {
-        childList.value = await childService.getByName('test/infopages', 'Services');
-        childList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
-        // console.log('fewf',childList.value)
-      } catch (error) {
+    try {
+        const infoService = new InfoService(); // Создаём экземпляр InfoService
+        infoList.value = await infoService.getByName('test/services', 'Services');
+        infoList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+    } catch (error) {
         console.error("Ошибка при получении данных:", error);
-      }
-    };
+    }
+};
+
 
     const openCreateDialog = () => {
       createDialogVisible.value = true; // Открываем диалог для создания новой категории
@@ -98,7 +98,7 @@ export default defineComponent({
 
     const loadDataAndOpenDialog = async (id: string) => {
       try {
-        const data: Child | Child[] = await childService.getAll('test/infopages', { id, category: "Services" });
+        const data: Info | Info[] = await infoService.getAll('test/services', { id, category: "Services" });
         if (Array.isArray(data)) {
           if (data.length > 0) {
             selectedItem.value = data[0];
@@ -128,9 +128,7 @@ if (isManuallyClosed) {
   isManuallyClosed = false;
   return;
 }
-
 // Если закрытие происходит естественно, очищаем editorInstance
-
 window.editorInstance.clear();
 };
 
@@ -145,7 +143,7 @@ window.editorInstance.clear();
       const confirmDelete = confirm("Вы уверены, что хотите удалить этот элемент?");
       if (confirmDelete) {
         try {
-          await childService.delete('test/infopages', id, '');
+          await infoService.delete('test/services', id, '');
           fetchData();
         } catch (error) {
           console.error("Ошибка при удалении данных:", error);
@@ -159,7 +157,7 @@ window.editorInstance.clear();
     });
 
     return {
-      childList,
+     infoList,
       openCreateDialog,
       loadDataAndOpenDialog,
       deleteItem,
@@ -168,7 +166,7 @@ window.editorInstance.clear();
       selectedItem,
       handleDialogClose,
       handleCreateDialogClose,
-      childService,
+      infoService,
       onDialogHide,
       
     };

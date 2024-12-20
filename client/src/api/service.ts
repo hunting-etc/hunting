@@ -145,14 +145,21 @@ export interface Child extends BaseUUIDSchema {
     name?: string ;
     content?: string;
     photo?: File | null;
-    sortOrder?: number;
     category?: string| JSON ;
-    services?: Array<string>| null;
+    sortOrder?: number;
 }
 
 export interface Info extends BaseUUIDSchema {
-    description: string;
-    
+  h1: string;
+  title?: string;
+  description?: string;
+  name?: string ;
+  content?: string;
+  photo?: File | null;
+  category?: string| JSON ;
+  services?: Array<string>| null;
+  sortOrder?: number;
+  price: number;
 }
 
 export class ChildService extends ApiService<Child> {}
