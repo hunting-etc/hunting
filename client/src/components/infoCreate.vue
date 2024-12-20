@@ -74,7 +74,7 @@ import { initEditor } from "../editor.js/editor-init";
 import Select from 'primevue/select';
 
 import MultiSelect from 'primevue/multiselect';
-import Services from "../categories/Services.vue";
+
 
 export default defineComponent({
   name: "Create",

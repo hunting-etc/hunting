@@ -75,8 +75,7 @@ import { ChildService, Child } from "../api/service";
 import { initEditor } from "../editor.js/editor-init";
 import { Select } from "primevue";
 import MultiSelect from 'primevue/multiselect';
-import Services from "../categories/Services.vue";
-import { map } from "yandex-maps";
+import { json } from "express";
 
 export default defineComponent({
   name: "Action",
@@ -94,8 +93,9 @@ export default defineComponent({
       required: true,
     },
     category: {
-      type: String || undefined,
+      type: String,
       required: true,
+      
     },
     initialData: {
       type: Object as () => Child | null,
@@ -106,13 +106,17 @@ export default defineComponent({
       type : Array<string>,
       required: true,
       
+    },
+    maincategory:{
+      type:String,
+      required:true,
     }
   },
   async setup(props, { emit }) {
     const childList = ref<Child[]>([]);
     const serviceList = ref<Child[]>([]);
     const { id, initialData} = toRefs(props);
-    const {category,services } = props;
+    const {category,services,maincategory } = props;
     const h1 = ref(initialData?.value?.h1 || "");
     const title = ref(initialData?.value?.title || "");
     const description = ref(initialData?.value?.description || "");
@@ -142,13 +146,13 @@ export default defineComponent({
 
 const fetchData = async () => {
   try {
-    childList.value = await childService.getByName("test/categories", "Hunting");
+    childList.value = await childService.getByName("test/categories", maincategory);
     serviceList.value = await childService.getByName('test/services', 'Services');
     childList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
     serviceList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
     console.log("category",category.id)
     console.log("serve",selectedServices.value)
-    console.log("serve",serviceList.value.map(service=>service.id))
+    
     
     // Устанавливаем значение по умолчанию после загрузки данных
     if (childList.value.length > 0) {

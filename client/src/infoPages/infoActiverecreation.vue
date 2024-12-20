@@ -43,7 +43,8 @@
       :id="selectedItem!.id" 
       @close="handleDialogClose"
       :category="selectedItem?.category"
-      :services="selectedItem?.services?.map(service => service.name)" />
+      :services="selectedItem?.services?.map(service => service.name)"
+      :maincategory="'ActiveRecreation'" />
   </Suspense>
   
 </Dialog>
