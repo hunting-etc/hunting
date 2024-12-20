@@ -150,9 +150,8 @@ const fetchData = async () => {
     serviceList.value = await childService.getByName('test/services', 'Services');
     childList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
     serviceList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
-    console.log("category",category.id)
-    console.log("serve",selectedServices.value)
-    
+   
+    //бла бла
     
     // Устанавливаем значение по умолчанию после загрузки данных
     if (childList.value.length > 0) {
