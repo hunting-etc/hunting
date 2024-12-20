@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'main',
     'hunting',
     'admin_auth',
+    'users',
     'rest_framework',
     'corsheaders',
 ]
