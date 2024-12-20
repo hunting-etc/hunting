@@ -22,7 +22,7 @@
 
     <label for="category">Категория</label>
     <div class="card flex justify-center">
-        <Select v-model="selectedCategory" :options="categories " optionValue="label"  optionLabel="label" placeholder="Select a Сategory" class="w-full md:w-56" />
+        <Select v-model="selectedCategory" :options="categories " optionValue="label"  optionLabel="label" placeholder="Выбрать категорию" class="w-full md:w-56" />
     </div>
     <Divider />
 
@@ -39,6 +39,7 @@
       accept="image/*"
       severity="secondary"
       :class="{ 'input-error': errors.image }"
+    
     />
     <p v-if="errors.image" class="error">{{ errors.image }}</p>
     <Divider />
@@ -50,7 +51,7 @@
 
     <label for="services">Услуги</label>
     <div class="card flex justify-center">
-        <MultiSelect v-model="selectedServices" :options="Services" optionValue="label" optionLabel="label" filter placeholder="Select a Сategory"
+        <MultiSelect v-model="selectedServices" :options="Services" optionValue="label" optionLabel="label" filter placeholder="Выбрать услугу"
             :maxSelectedLabels="3" class="w-full md:w-80" />
     </div>
     <Divider />
@@ -283,8 +284,10 @@ const onFileSelect = (event: { files: File[] }) => {
         formData.append("name", name.value || "");
         formData.append("content", editorData);
         
-        if (props.category) {
-          formData.append("category", JSON.stringify({ id: category.id }));
+        if (selectedCategory) {
+          
+          const selectedCategoryId=childList.value.find(category=> category.name===selectedCategory.value)?.id;
+          formData.append("category", JSON.stringify({ id: selectedCategoryId }));
         }
         
         if (selectedServices.value?.length > 0) {

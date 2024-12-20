@@ -22,8 +22,9 @@
 
     <label for="category">Категория</label>
     <div class="card flex justify-center">
-        <Select v-model="selectedCategory" :options="categories " optionLabel="label" placeholder="Select a Сategory" class="w-full md:w-56" />
+        <Select v-model="selectedCategory" :options="categories " optionLabel="label" placeholder="Выбрать категорию" class="w-full md:w-56"  @change="clearError('category')"/>
     </div>
+    <p v-if="errors.category" class="error">{{ errors.category }}</p>
     <Divider />
     
     <label for="image">Фото</label>
@@ -50,7 +51,7 @@
 
     <label for="services">Услуги</label>
     <div class="card flex justify-center">
-        <MultiSelect v-model="selectedServices" :options="Services" optionLabel="label" filter placeholder="Select a Сategory"
+        <MultiSelect v-model="selectedServices" :options="Services" optionLabel="label" filter placeholder="Выбрать услугу"
             :maxSelectedLabels="3" class="w-full md:w-80" />
     </div>
     <Divider />
@@ -145,6 +146,7 @@ export default defineComponent({
       description: '',
       name: '',
       image: '',
+      category: '',
     });
     const globalError = ref("");
 
@@ -231,7 +233,7 @@ async function onImageRemove() {
           : 'Description должно быть от 80 до 160 символов';
       errors.value.name = name.value.length > 0 && name.value.length <= 200 ? '' : 'Name обязателен и не должен превышать 200 символов';
       errors.value.image = photoUrl.value ? '' : 'Фото обязательно для загрузки';
-
+      errors.value.category = selectedCategory.value ? '' : 'Категория обязательна для выбора';
 
       return Object.values(errors.value).every((error) => !error);
     };
