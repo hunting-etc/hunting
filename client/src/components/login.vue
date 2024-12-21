@@ -2,9 +2,10 @@
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import Message from 'primevue/message';
-import { ref } from 'vue';
+import { ref, withDirectives } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { onMounted } from 'vue';
 
 const router = useRouter();
 
@@ -15,22 +16,41 @@ const formState = ref({
   successMessage: '',
 });
 
+const checkAuth = async () => {
+  try {
+    // Отправляем запрос для проверки авторизации
+    const response = await axios.get('http://127.0.0.1:8000/test/check-auth', {
+      withCredentials: true, // Включаем отправку cookie
+    });
+
+    if (response.data.authenticated) {
+      // Если пользователь авторизован, перенаправляем на главную
+      router.push({ name: 'Home' });
+    }
+  } catch (error) {
+    console.error('Ошибка при проверке авторизации:', error);
+  }
+};
+
+
 const login = async () => {
   formState.value.errorMessage = '';
   formState.value.successMessage = '';
 
   try {
-    const response = await axios.post('http://127.0.0.1:8000/admin/login', {
+    const response = await axios.post('http://127.0.0.1:8000/test/login', {
       login: formState.value.login,
       password: formState.value.password,
+    }, {
+      withCredentials: true, // Передача cookie
     });
 
     if (response.data.success) {
       formState.value.successMessage = 'Авторизация успешна!';
       formState.value.errorMessage = '';
-
+      // Перенаправляем на главную
       setTimeout(() => {
-        router.push({ name: 'Base' });
+        router.push({ name: 'Home' });
       }, 1000);
     } else {
       formState.value.errorMessage = response.data.message;
@@ -40,6 +60,14 @@ const login = async () => {
     console.error('Ошибка:', error);
   }
 };
+
+
+
+
+onMounted(() => {
+  checkAuth();
+});
+
 </script>
 
 <template>

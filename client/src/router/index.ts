@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
-// import LoginForm from "../components/login.vue";
-import LoginForm from "../components/LoginForm.vue";
+import LoginForm from "../components/login.vue";
+// import LoginForm from "../components/LoginForm.vue";
 import Home from "../components/Home.vue";
 import HuntingPage from "../categories/HuntingPage.vue";
 import Fishing from "../categories/Fishing.vue";

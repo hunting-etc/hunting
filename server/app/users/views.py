@@ -5,6 +5,7 @@ from .serializers import LoginSerializer, RegistrationSerializer
 from .models import Admins
 from django.contrib.auth.hashers import check_password
 from .services import CookieService
+from django.http import JsonResponse
 
 
 class LoginView(APIView):
@@ -26,7 +27,7 @@ class LoginView(APIView):
             if check_password(password, admin.password):
 
                 response = Response({"success": True, "message": "Вход выполнен"})
-                self.cookie_service.set_cookie(response, 'user_login', login, max_age=10)
+                self.cookie_service.set_cookie(response, 'user_login', login, max_age=86400)
                 return response
 
             else:
@@ -35,6 +36,14 @@ class LoginView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CheckAuthView(APIView):#для авторизации из файлов куки
+    def get(self, request):
+        # Проверяем наличие cookie
+        user_login = request.COOKIES.get('user_login')
+        if user_login:
+            return JsonResponse({"authenticated": True, "login": user_login})
+        return JsonResponse({"authenticated": False})
 
 
 class RegistrationView(APIView):
