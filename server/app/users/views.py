@@ -27,7 +27,7 @@ class LoginView(APIView):
             if check_password(password, admin.password):
 
                 response = Response({"success": True, "message": "Вход выполнен"})
-                self.cookie_service.set_cookie(response, 'user_login', login, max_age=86400)
+                self.cookie_service.set_cookie(response, 'user_login', login, max_age=1000)
                 return response
 
             else:

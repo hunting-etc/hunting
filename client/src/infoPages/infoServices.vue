@@ -42,7 +42,7 @@
       :initialData="selectedItem" 
       :id="selectedItem!.id" 
       @close="handleDialogClose"
-      :category="selectedItem?.category"
+      v-if="selectedItem?.category" :category="selectedItem.category"
       :maincategory="'Services'" />
   </Suspense>
   
@@ -52,7 +52,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted} from "vue";
-import { InfoService, Info } from "../api/service";
+import { ServService, Service } from "../api/service";
 import { DataTable, Column } from 'primevue';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
@@ -72,18 +72,18 @@ export default defineComponent({
     ServiceCreate,
   },
   setup() {
-    const infoList = ref<Info[]>([]);
-    const infoService = new InfoService();
+    const infoList = ref<Service[]>([]);
+    const infoService = new ServService();
     const dialogVisible = ref(false); // Для "Изменение категории"
     const createDialogVisible = ref(false); // Для "Создание категории"
-    const selectedItem = ref<Info | null>(null);
+    const selectedItem = ref<Service | null>(null);
     let isManuallyClosed = false;
 
 
 
     const fetchData = async () => {
     try {
-        const infoService = new InfoService(); // Создаём экземпляр InfoService
+        const infoService = new ServService(); // Создаём экземпляр InfoService
         infoList.value = await infoService.getByName('test/services', 'Services');
         infoList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
     } catch (error) {
@@ -98,7 +98,7 @@ export default defineComponent({
 
     const loadDataAndOpenDialog = async (id: string) => {
       try {
-        const data: Info | Info[] = await infoService.getAll('test/services', { id, category: "Services" });
+        const data: Service | Service[] = await infoService.getAll('test/services', { id, category: "Services" });
         if (Array.isArray(data)) {
           if (data.length > 0) {
             selectedItem.value = data[0];

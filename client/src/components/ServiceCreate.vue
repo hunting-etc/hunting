@@ -95,7 +95,7 @@
   
     setup(props, { emit }) {
       const categoryList = ref<Info[]>([]);
-      const serviceList = ref<Info[]>([]);
+      // const serviceList = ref<Info[]>([]);
       const h1 = ref("");
       const title = ref("");
       const description = ref("");

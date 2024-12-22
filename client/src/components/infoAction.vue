@@ -72,11 +72,10 @@ import InputText from "primevue/inputtext";
 import Divider from "primevue/divider";
 import Button from "primevue/button";
 import FileUpload from "primevue/fileupload";
-import { ChildService, Child } from "../api/service";
+import { InfoService, Category, Info } from "../api/service";
 import { initEditor } from "../editor.js/editor-init";
 import { Select } from "primevue";
 import MultiSelect from 'primevue/multiselect';
-import { json } from "express";
 
 export default defineComponent({
   name: "Action",
@@ -94,12 +93,12 @@ export default defineComponent({
       required: true,
     },
     category: {
-      type: String,
+      type:  Object as () => Category,
       required: true,
       
     },
     initialData: {
-      type: Object as () => Child | null,
+      type: Object as () => Info | null,
       default: null,
       required: true,
     },
@@ -114,8 +113,8 @@ export default defineComponent({
     }
   },
   async setup(props, { emit }) {
-    const childList = ref<Child[]>([]);
-    const serviceList = ref<Child[]>([]);
+    const childList = ref<Info[]>([]);
+    const serviceList = ref<Info[]>([]);
     const { id, initialData} = toRefs(props);
     const {category,services,maincategory } = props;
     const h1 = ref(initialData?.value?.h1 || "");
@@ -124,7 +123,7 @@ export default defineComponent({
     const name = ref(initialData?.value?.name || "");
     const content = ref(initialData?.value?.content || "");
     const photo = ref<File | null>(null); // Объект файла
-    const childService = new ChildService();
+    const childService = new InfoService();
     const editorContainer = ref<HTMLElement | null>(null);
     const photoUrl = ref<string | null>(null);
     const selectedCategory=ref(category.name || "");
@@ -296,7 +295,6 @@ const onFileSelect = (event: { files: File[] }) => {
     const match = serviceList.value.find(service => service.name === selectedService);
     return match ? match.id : null; // Возвращаем id или null, если не найдено
 }).filter(id => id !== null); // Убираем null из массива
-console.log("cgfcb",selectedIds)
 const selectedServicesArray = selectedIds.map((service:any) => ({
     id: service,
   }));

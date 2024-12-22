@@ -71,7 +71,7 @@
   import Divider from "primevue/divider";
   import Button from "primevue/button";
   import FileUpload from "primevue/fileupload";
-  import { InfoService, Info } from "../api/service";
+  import { ServService, Service, Category } from "../api/service";
   import { initEditor } from "../editor.js/editor-init";
   import { Select } from "primevue";
   import MultiSelect from 'primevue/multiselect';
@@ -92,11 +92,11 @@
         required: true,
       },
       category: {
-        type: String,
+        type:  Object as () => Category,
         required: true,
       },
       initialData: {
-        type: Object as () => Info | null,
+        type: Object as () => Service | null,
         default: null,
         required: true,
       },
@@ -106,7 +106,7 @@
       }
     },
     async setup(props, { emit }) {
-      const InfoList = ref<Info[]>([]);
+      const InfoList = ref<Service[]>([]);
       const { id, initialData} = toRefs(props);
       const {category,maincategory } = props;
       const h1 = ref(initialData?.value?.h1 || "");
@@ -116,7 +116,7 @@
       const price = ref(initialData?.value?.price !== undefined ? String(initialData.value.price) : "");
       const content = ref(initialData?.value?.content || "");
       const photo = ref<File | null>(null); // Объект файла
-      const infoService = new InfoService();
+      const infoService = new ServService();
       const editorContainer = ref<HTMLElement | null>(null);
       const photoUrl = ref<string | null>(null);
       const selectedCategory=ref(category.name || "");
@@ -246,9 +246,6 @@
       };
   
       const save = async () => {
-        console.log("Отправляемая цена:", price.value);
-
-
         if (!validateAll()) {
       globalError.value = "Введены некорректные данные.";
       return;

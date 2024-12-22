@@ -15,89 +15,133 @@ import InfoActiverecreation from "../infoPages/infoActiverecreation.vue";
 import InfoEcotourism from "../infoPages/infoEcotourism.vue";
 import InfoService  from "../infoPages/infoServices.vue";
 import InfoNews from "../infoPages/infoNews.vue";
+import axios from "axios";
 
+const routes = [
+  {
+    name: "LoginForm",
+    path: "/admin",
+    component: LoginForm,
+  },
+  {
+    name: "Home",
+    path: "/home",
+    component: Home,
+    meta: { requiresAuth: true }, // Требуется авторизация
+    children: [
+      {
+        name: "Hunting",
+        path: "hunting",
+        component: HuntingPage,
+        meta: { requiresAuth: true },
+      },
+      {
+        name: "InfoHunting",
+        path: "infopage/infoHunting",
+        component: InfoHunting,
+        meta: { requiresAuth: true },
+      },
+      {
+        name: "Fishing",
+        path: "fishing",
+        component: Fishing,
+        meta: { requiresAuth: true },
+      },
+      {
+        name: "InfoFishing",
+        path: "infopage/infoFishing",
+        component: InfoFishing,
+        meta: { requiresAuth: true },
+      },
+      {
+        name: "ActiveRecreation",
+        path: "activeRecreation",
+        component: ActiveRecreation,
+        meta: { requiresAuth: true },
+      },
+      {
+        name: "InfoActiveRecreation",
+        path: "infopage/infoActiveRecreation",
+        component: InfoActiverecreation,
+        meta: { requiresAuth: true },
+      },
+      {
+        name: "EcoTourism",
+        path: "ecotourism",
+        component: Ecotourism,
+        meta: { requiresAuth: true },
+      },
+      {
+        name: "InfoEcotourism",
+        path: "infopage/infoEcotourism",
+        component: InfoEcotourism,
+        meta: { requiresAuth: true },
+      },
+      {
+        name: "Services",
+        path: "services",
+        component: Services,
+        meta: { requiresAuth: true },
+      },
+      {
+        name: "InfoServices",
+        path: "infopage/infoServices",
+        component: InfoService,
+        meta: { requiresAuth: true },
+      },
+      {
+        name: "About",
+        path: "/about",
+        component: About,
+        meta: { requiresAuth: true },
+      },
+      {
+        name: "News",
+        path: "news",
+        component: News,
+        meta: { requiresAuth: true },
+      },
+      {
+        name: "InfoNews",
+        path: "infopage/infoNews",
+        component: InfoNews,
+        meta: { requiresAuth: true },
+      },
+    ],
+  },
+];
 
-export default createRouter({
+// Создаем маршрутизатор
+const router = createRouter({
   history: createWebHistory(),
-  routes: [
-    {
-      name: "LoginForm",
-      path: "/admin",
-      component: LoginForm,
-    },
-    {
-      name: "Home",
-      path: "/home",
-      component: Home,
-      children: [
-        {
-          name: "Hunting",
-          path: "hunting",
-          component: HuntingPage,          
-        },
-        {
-          name: "InfoHunting",
-          path: "infopage/infoHunting",
-          component: InfoHunting,
-        },
-        {
-          name: "Fishing",
-          path: "fishing", // Относительный путь
-          component: Fishing,
-        },
-        {
-          name: "InfoFishing",
-          path: "infopage/infoFishing",
-          component: InfoFishing,
-        },
-        {
-          name: "ActiveRecreation",
-          path: "activeRecreation",
-          component: ActiveRecreation,
-        },
-        {
-          name: "InfoActiveRecreation",
-          path: "infopage/infoActiveRecreation",
-          component: InfoActiverecreation,
-        },
-        {
-          name: "EcoTourism",
-          path: "ecotourism",
-          component: Ecotourism,
-        },
-        {
-          name: "InfoEcotourism",
-          path: "infopage/infoEcotourism",
-          component: InfoEcotourism,
-        },
-        {
-          name: "Services",
-          path: "services",
-          component: Services,
-        },
-        {
-          name: "InfoServices",
-          path: "infopage/infoServices",
-          component: InfoService,
-        },
-        {
-          name: "About",
-          path: "/about",
-          component: About,
-        },
-        {
-          name: "News",
-          path: "news",
-          component: News,
-        },
-        {
-          name: "InfoNews",
-          path: "infopage/infoNews",
-          component: InfoNews,
-        },
-      ],
-    },
-  ],
+  routes,
 });
+
+// Хук для проверки авторизации
+router.beforeEach(async (to, from, next) => {
+  
+  if (to.meta.requiresAuth) {
+    try {
+      // Проверяем авторизацию на сервере
+      const response = await axios.get("http://127.0.0.1:8000/test/check-auth", {
+        withCredentials: true,
+      });
+      if (response.data.authenticated) {
+        next(); // Пользователь авторизован, продолжаем навигацию
+      } else {
+        next({ name: "LoginForm" }); // Неавторизованный пользователь
+      }
+    } catch (error) {
+      console.error("Ошибка при проверке авторизации:", error);
+      next({ name: "LoginForm" });
+    }
+  } else {
+    next(); // Для маршрутов без авторизации
+  }
+});
+
+// Экспорт маршрутизатора
+export default router;
+
 
 

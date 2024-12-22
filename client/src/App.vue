@@ -8,7 +8,7 @@
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-router.replace('/admin');
+// router.replace('/admin');
 </script>
 
 <!-- <style>

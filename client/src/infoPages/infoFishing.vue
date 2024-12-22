@@ -42,8 +42,8 @@
       :initialData="selectedItem" 
       :id="selectedItem!.id" 
       @close="handleDialogClose"
-      :category="selectedItem?.category"
-      :services="selectedItem?.services?.map(service => service.name)" 
+      v-if="selectedItem?.category" :category="selectedItem.category"
+      :services="selectedItem?.services?.map(service => service.name)?? []"
       :maincategory="'Fishing'"
       />
       
@@ -55,7 +55,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted} from "vue";
-import { ChildService, Child } from "../api/service";
+import { InfoService,Info } from "../api/service";
 import { DataTable, Column } from 'primevue';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
@@ -75,11 +75,11 @@ export default defineComponent({
     infoCreate
   },
   setup() {
-    const childList = ref<Child[]>([]);
-    const childService = new ChildService();
+    const childList = ref<Info[]>([]);
+    const childService = new InfoService();
     const dialogVisible = ref(false); // Для "Изменение категории"
     const createDialogVisible = ref(false); // Для "Создание категории"
-    const selectedItem = ref<Child | null>(null);
+    const selectedItem = ref<Info | null>(null);
     let isManuallyClosed = false;
     
 
@@ -100,7 +100,7 @@ export default defineComponent({
 
     const loadDataAndOpenDialog = async (id: string) => {
       try {
-        const data: Child | Child[] = await childService.getAll('test/infopages', { id, category: "Fishing" });
+        const data: Info | Info[] = await childService.getAll('test/infopages', { id, category: "Fishing" });
         if (Array.isArray(data)) {
           if (data.length > 0) {
             selectedItem.value = data[0];

@@ -145,7 +145,7 @@ export interface Child extends BaseUUIDSchema {
     name?: string ;
     content?: string;
     photo?: File | null;
-    category?: string| JSON ;
+    category?: Category;
     sortOrder?: number;
 }
 
@@ -153,16 +153,43 @@ export interface Info extends BaseUUIDSchema {
   h1: string;
   title?: string;
   description?: string;
-  name?: string ;
+  name?: string;
   content?: string;
   photo?: File | null;
-  category?: string| JSON ;
-  services?: Array<string>| null;
+  category?: Category;
+  services?: Array<Service> | null;
   sortOrder?: number;
-  price: number;
+}
+
+export interface Category {
+  id: string;
+  type: {
+    id: number;
+    category: string;
+  };
+  h1: string;
+  title: string;
+  description: string;
+  name: string;
+  photo: string;
+  content: string;
+}
+
+// Интерфейс для услуги
+export interface Service extends BaseUUIDSchema {
+  id: string;
+  category: Category;
+  h1: string;
+  title: string;
+  description: string;
+  name: string;
+  photo: File | null;
+  content: string;
+  sortOrder?: number;
+  price: string;
 }
 
 export class ChildService extends ApiService<Child> {}
 export class InfoService extends ApiService<Info> {}
-
+export class ServService extends ApiService<Service> {}
 
