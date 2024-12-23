@@ -205,9 +205,14 @@ const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕ�
     return;
   }
   
-  window.editorInstance = initEditor(editorContainer.value, {
-  });
-  
+  const { editorInstance, processPendingDeletions } = initEditor(
+    editorContainer.value,
+    content.value
+  );
+
+  // Сохраняем ссылки на экземпляр редактора и метод обработки удалений в глобальной области
+  window.editorInstance = editorInstance;
+  window.processPendingDeletions = processPendingDeletions;
   // Загрузка данных в редактор ВТОРАЯ ЧАСТЬ, ЭТОТ БЛОК МБ ДОЛЖЕН НАХОДИТЬСЯ НЕ ЗДЕСЬ Я ХЗ
 };
 
@@ -271,6 +276,9 @@ const onFileSelect = (event: { files: File[] }) => {
   globalError.value = ""; // Сбрасываем ошибку при успешной валидации
       try {        
         // Сохранение содержимого редактора
+        if (window.processPendingDeletions) {
+          await window.processPendingDeletions('delete');
+        }
         const editorData = window.editorInstance
           ? await window.editorInstance.save().then((data: any) => JSON.stringify(data))
           : "";
@@ -325,18 +333,7 @@ const selectedServicesArray = selectedIds.map((service:any) => ({
 
     initializeEditor();
 
-    setTimeout(() => {
-  try {
-    if (window.editorInstance) {
-      // Рендерим данные в редактор
-      window.editorInstance.render(content.value)
-    } else {
-      console.error("Editor instance is not initialized");
-    }
-  } catch (error) {
-    console.error("Unexpected error:", error);
-  }
-}, 100);})
+  })
 
     return {
       h1,

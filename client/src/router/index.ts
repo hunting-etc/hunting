@@ -19,6 +19,10 @@ import axios from "axios";
 
 const routes = [
   {
+    path: '/',
+    redirect: '/admin', // Начальный маршрут
+  },
+  {
     name: "LoginForm",
     path: "/admin",
     component: LoginForm,

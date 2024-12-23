@@ -182,16 +182,21 @@
   });
   
   const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕПИСЫВАЛ GPT НО ОН БЫЛ ВЗЯТ У ЯРИКА
-    if (!editorContainer.value) {
-      console.error("Editor container is not defined.");
-      return;
-    }
-    
-    window.editorInstance = initEditor(editorContainer.value, {
-    });
-    
-    // Загрузка данных в редактор ВТОРАЯ ЧАСТЬ, ЭТОТ БЛОК МБ ДОЛЖЕН НАХОДИТЬСЯ НЕ ЗДЕСЬ Я ХЗ
-  };
+  if (!editorContainer.value) {
+    console.error("Editor container is not defined.");
+    return;
+  }
+  
+  const { editorInstance, processPendingDeletions } = initEditor(
+    editorContainer.value,
+    content.value
+  );
+
+  // Сохраняем ссылки на экземпляр редактора и метод обработки удалений в глобальной области
+  window.editorInstance = editorInstance;
+  window.processPendingDeletions = processPendingDeletions;
+  // Загрузка данных в редактор ВТОРАЯ ЧАСТЬ, ЭТОТ БЛОК МБ ДОЛЖЕН НАХОДИТЬСЯ НЕ ЗДЕСЬ Я ХЗ
+};
   
   const onFileSelect = (event: { files: File[] }) => {
     const file = event.files[0];
@@ -251,7 +256,10 @@
       return;
     }
     globalError.value = ""; // Сбрасываем ошибку при успешной валидации
-        try {        
+        try {   
+          if (window.processPendingDeletions) {
+          await window.processPendingDeletions('delete');
+        }     
           // Сохранение содержимого редактора
           const editorData = window.editorInstance
             ? await window.editorInstance.save().then((data: any) => JSON.stringify(data))
@@ -292,18 +300,7 @@
   
       initializeEditor();
   
-      setTimeout(() => {
-    try {
-      if (window.editorInstance) {
-        // Рендерим данные в редактор
-        window.editorInstance.render(content.value)
-      } else {
-        console.error("Editor instance is not initialized");
-      }
-    } catch (error) {
-      console.error("Unexpected error:", error);
-    }
-  }, 100);})
+      })
   
       return {
         h1,

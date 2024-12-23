@@ -124,16 +124,14 @@ export default defineComponent({
 
 //добавление всплывающего окна о подтверждении выхода
 
-const onDialogHide = () => {
-if (isManuallyClosed) {
-  // Если закрытие было вызвано вручную, просто сбрасываем флаг
-  isManuallyClosed = false;
-  return;
-}
-
-// Если закрытие происходит естественно, очищаем editorInstance
-
-window.editorInstance.clear();
+const onDialogHide = async () => {
+  if (isManuallyClosed) {
+    // Если закрытие было вызвано вручную, просто сбрасываем флаг
+    isManuallyClosed = false;
+    return;
+  }
+  // Если закрытие происходит естественно, очищаем editorInstance
+  window.processPendingDeletions('fulldelite');
 };
 
  

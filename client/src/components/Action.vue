@@ -56,7 +56,7 @@ import Divider from "primevue/divider";
 import Button from "primevue/button";
 import FileUpload from "primevue/fileupload";
 import { ChildService, Child } from "../api/service";
-import { initEditor } from "../editor.js/editor-init";
+import { initEditor} from "../editor.js/editor-init";
 
 export default defineComponent({
   name: "Action",
@@ -83,7 +83,7 @@ export default defineComponent({
   },
   async setup(props, { emit }) {
     const { id, initialData} = toRefs(props);
-   
+    
     const {category } = props;
     const h1 = ref(initialData?.value?.h1 || "");
     const title = ref(initialData?.value?.title || "");
@@ -94,7 +94,7 @@ export default defineComponent({
     const childService = new ChildService();
     const editorContainer = ref<HTMLElement | null>(null);
     const photoUrl = ref<string | null>(null);
-
+    
     const errors = ref({
       h1: '',
       title: '',
@@ -134,10 +134,15 @@ const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕ�
     console.error("Editor container is not defined.");
     return;
   }
-
-  window.editorInstance = initEditor(editorContainer.value, {
-  });
   
+  const { editorInstance, processPendingDeletions } = initEditor(
+    editorContainer.value,
+    content.value
+  );
+
+  // Сохраняем ссылки на экземпляр редактора и метод обработки удалений в глобальной области
+  window.editorInstance = editorInstance;
+  window.processPendingDeletions = processPendingDeletions;
   // Загрузка данных в редактор ВТОРАЯ ЧАСТЬ, ЭТОТ БЛОК МБ ДОЛЖЕН НАХОДИТЬСЯ НЕ ЗДЕСЬ Я ХЗ
 };
 
@@ -201,6 +206,10 @@ const onFileSelect = (event: { files: File[] }) => {
   globalError.value = ""; // Сбрасываем ошибку при успешной валидации
       try {        
         // Сохранение содержимого редактора
+
+        if (window.processPendingDeletions) {
+          await window.processPendingDeletions('delete');
+        }
         const editorData = window.editorInstance
           ? await window.editorInstance.save().then((data: any) => JSON.stringify(data))
           : "";
@@ -233,19 +242,7 @@ const onFileSelect = (event: { files: File[] }) => {
     onMounted(() => {
       
     initializeEditor();
-
-    setTimeout(() => {
-  try {
-    if (window.editorInstance) {
-      // Рендерим данные в редактор
-      window.editorInstance.render(content.value)
-    } else {
-      console.error("Editor instance is not initialized");
-    }
-  } catch (error) {
-    console.error("Unexpected error:", error);
-  }
-}, 100);})
+})
 
     return {
       h1,

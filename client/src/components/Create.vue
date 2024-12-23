@@ -135,29 +135,22 @@ async function onImageRemove() {
 }
 
 
-    const initializeEditor = () => {
-      if (editorContainer.value) {
-        window.editorInstance = initEditor(editorContainer.value, {
-          onImageAdd: async (file: File) => {
-            try {
-              const response = await childService.uploadImage(file);
-              if (response.url) {
-                window.editorInstance.insertImage(response.url);
-              }
-            } catch (error) {
-              console.error("Ошибка при загрузке изображения:", error);
-            }
-          },
-          onImageRemove: async (url: string) => {
-            try {
-              await childService.deleteImage(url);
-            } catch (error) {
-              console.error("Ошибка при удалении изображения:", error);
-            }
-          },
-        });
-      }
-    };
+const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕПИСЫВАЛ GPT НО ОН БЫЛ ВЗЯТ У ЯРИКА
+  if (!editorContainer.value) {
+    console.error("Editor container is not defined.");
+    return;
+  }
+  
+  const { editorInstance, processPendingDeletions } = initEditor(
+    editorContainer.value,
+    content.value
+  );
+
+  // Сохраняем ссылки на экземпляр редактора и метод обработки удалений в глобальной области
+  window.editorInstance = editorInstance;
+  window.processPendingDeletions = processPendingDeletions;
+  // Загрузка данных в редактор ВТОРАЯ ЧАСТЬ, ЭТОТ БЛОК МБ ДОЛЖЕН НАХОДИТЬСЯ НЕ ЗДЕСЬ Я ХЗ
+};
 
     const validateAll = (): boolean => {
       errors.value.h1 =
@@ -186,6 +179,9 @@ async function onImageRemove() {
   }
   globalError.value = ""; // Сбрасываем ошибку при успешной валидации
 
+  if (window.processPendingDeletions) {
+          await window.processPendingDeletions('delete');
+        }
   const editorData = window.editorInstance
     ? await window.editorInstance.save().then((data: any) => JSON.stringify(data))
     : "";

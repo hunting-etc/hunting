@@ -16,21 +16,21 @@ const formState = ref({
   successMessage: '',
 });
 
-const checkAuth = async () => {
-  try {
-    // Отправляем запрос для проверки авторизации
-    const response = await axios.get('http://127.0.0.1:8000/test/check-auth', {
-      withCredentials: true, // Включаем отправку cookie
-    });
+// const checkAuth = async () => {
+//   try {
+//     // Отправляем запрос для проверки авторизации
+//     const response = await axios.get('http://127.0.0.1:8000/test/check-auth', {
+//       withCredentials: true, // Включаем отправку cookie
+//     });
 
-    if (response.data.authenticated) {
-      // Если пользователь авторизован, перенаправляем на главную
-      router.push({ name: 'Home' });
-    }
-  } catch (error) {
-    console.error('Ошибка при проверке авторизации:', error);
-  }
-};
+//     if (response.data.authenticated) {
+//       // Если пользователь авторизован, перенаправляем на главную
+//       router.push({ name: 'Home' });
+//     }
+//   } catch (error) {
+//     console.error('Ошибка при проверке авторизации:', error);
+//   }
+// };
 
 
 const login = async () => {
@@ -64,9 +64,9 @@ const login = async () => {
 
 
 
-onMounted(() => {
-  checkAuth();
-});
+// onMounted(() => {
+//   checkAuth();
+// });
 
 </script>
 

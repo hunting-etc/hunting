@@ -75,7 +75,7 @@ export default defineComponent({
     const dialogVisible = ref(false); // Для "Изменение категории"
     const createDialogVisible = ref(false); // Для "Создание категории"
     const selectedItem = ref<Child | null>(null);
-    
+      let isManuallyClosed = false;
     const fetchData = async () => {
       try {
         childList.value = await childService.getByName('test/categories', 'ActiveRecreation');
@@ -108,14 +108,21 @@ export default defineComponent({
     };
 
     const handleDialogClose = () => {
+    isManuallyClosed = true;
   dialogVisible.value = false;
   fetchData();
 };
 
 //добавление всплывающего окна о подтверждении выхода
 
-const onDialogHide = () => {
-  window.editorInstance.clear();
+const onDialogHide = async () => {
+  if (isManuallyClosed) {
+    // Если закрытие было вызвано вручную, просто сбрасываем флаг
+    isManuallyClosed = false;
+    return;
+  }
+  // Если закрытие происходит естественно, очищаем editorInstance
+  window.processPendingDeletions('fulldelite');
 };
 
  
