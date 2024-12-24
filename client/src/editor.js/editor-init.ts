@@ -16,14 +16,14 @@ import JSCookie from '../common/utils/cookie';
 export const initEditor = (element: HTMLElement, data: any = null) => {
   let previousData: any = [];
   let serverImage: string[] = [];
-  let serverGalleri:string[] = [];
+  let serverGallery:string[] = [];
 // Используем Optional Chaining для безопасного доступа к blocks
   previousData = data ?? []; // Если data нет, присваиваем пустой массив
-
+  
   serverImage = previousData?.blocks?.filter((block) => block.type === 'image')
     .map((block) => block.data.file.url) || [];
-  serverGalleri = previousData?.blocks?.filter((block) => block.type === 'gallery')
-    .map((block) => block.data.files.url) || [];
+  serverGallery = previousData?.blocks?.filter((block) => block.type === 'gallery')
+    .map((block) => block.data.files.map((file) => file.url)) || [];
 
   
   // const pxroxyurl=uselessurl.forEach(url=>deleteImage(url))
@@ -63,27 +63,48 @@ export const initEditor = (element: HTMLElement, data: any = null) => {
     console.log('Все ожидающие URL успешно удалены.');
     pendingDeletions.length = 0;
     }
-    if (action === 'fulldelite'){
+    if (action === 'fulldelite') {
       editor.save().then((currentData) => {
-      
-      
-      
-      const currentImages = currentData.blocks
-        .filter((block) => block.type === 'image')
-        .map((block) => block.data.file.url);
-        
-      const deletedImages=currentImages.filter(ing=>!serverImage.includes(ing))
-      for (const url of pendingDeletions) {
-        if (!serverImage.includes(url)) {
-          // Если изображения нет на сервере, удаляем его
-          deleteImage(url);  // Используем await, если deleteImage является асинхронной функцией
-          
+        // Обработка блоков типа 'image'
+        const currentImages = currentData.blocks
+          .filter((block) => block.type === 'image')
+          .map((block) => block.data.file.url);
+    
+        const deletedImages = currentImages.filter((ing) => !serverImage.includes(ing));
+        console.log("deletedImages",deletedImages)
+        for (const url of pendingDeletions) {
+          const isImageBlock = currentImages.includes(url);
+          if (!serverImage.includes(url)&& isImageBlock) {
+            // Если изображения нет на сервере, удаляем его
+            deleteImage(url); // Используем await, если deleteImage является асинхронной функцией
+          }
         }
-      
-      }
-      deletedImages.forEach((url) => deleteImage(url));
-      })
-      console.log('Все удалено.');
+    
+        // deletedImages.forEach((url) => deleteImage(url));
+    
+        // Обработка блоков типа 'gallery'
+        const currentGalleryUrls = currentData.blocks
+          .filter((block) => block.type === 'gallery')
+          .flatMap((block) => block.data.files.map((file) => file.url));
+        console.log("currentGalleryUrls",currentGalleryUrls)
+        const flattenedServerGallery = serverGallery.flat();
+        const deletedGalleryUrls = currentGalleryUrls.filter(
+          (url) => !flattenedServerGallery.includes(url)
+        );
+        console.log("serverGallery",serverGallery)
+        console.log("deletedGalleryUrls",deletedGalleryUrls)
+        for (const url of pendingDeletions) {
+          const isGalleryBlock = currentGalleryUrls.includes(url);
+          if (!flattenedServerGallery.includes(url)&&isGalleryBlock) {
+            
+            // Если изображения нет на сервере, удаляем его
+            deleteImage(url); 
+          }
+        }
+        deletedGalleryUrls.forEach((url) => deleteImage(url));
+        
+        console.log('Все удалено.');
+      });
     } // Очистка массива после обработки
   };
   
@@ -219,51 +240,56 @@ export const initEditor = (element: HTMLElement, data: any = null) => {
     
     onChange() {
       editor.save().then((currentData) => {
-
-        // Проверка на наличие блоков типа 'gallery' в currentData
-        if (currentData.blocks.some((block) => block.type === 'gallery')) {
-          // Получаем предыдущие URL-адреса галерей
+        // console.log('check',currentData.blocks.some((block) => block.type === 'gallery')||(previousData?.blocks).filter((block) => block.type === 'gallery').flatMap((block) => block.data.files.map((file) => file.url)).length>=0)
+         // Проверка и обработка блоков типа 'gallery'
+        // if (currentData.blocks.some((block) => block.type === 'gallery')||(previousData?.blocks).filter((block) => block.type === 'gallery').flatMap((block) => block.data.files.map((file) => file.url)).length>=0) {
+          // Получаем предыдущие URL-адреса из галерей
+          console.log("previousData after chenge",previousData)
           const previousGalleries = (previousData?.blocks || [])
             .filter((block) => block.type === 'gallery')
-            .map((block) => block.data.files.url);
-    
-          // Получаем текущие URL-адреса галерей
+            .flatMap((block) => block.data.files.map((file) => file.url)); // Извлекаем все URL из массива files
+          console.log('previousGalleries',previousGalleries)
+          // Получаем текущие URL-адреса из галерей
           const currentGalleries = currentData.blocks
             .filter((block) => block.type === 'gallery')
-            .map((block) => block.data.files.url);
-    
-          // Находим элементы, которые были удалены
+            .flatMap((block) => block.data.files.map((file) => file.url)); // Извлекаем все URL из массива files
+            console.log('currentGalleries',currentGalleries)
+          // Находим удаленные элементы
           const deletedGalleries = previousGalleries.filter(
             (url) => !currentGalleries.includes(url)
           );
-    
-          // Для каждой удаленной галереи добавляем в список на удаление
+          // Добавляем удаленные URL в список на удаление
           deletedGalleries.forEach((url) => addDeletion(url));
-        }
+          
+        // }
     
         // Проверка на наличие блоков типа 'image' в currentData
-        if (currentData.blocks.some((block) => block.type === 'image')) {
+        // if (currentData.blocks.some((block) => block.type === 'image')||(previousData?.blocks || []).filter((block) => block.type === 'image').map((block) => block.data.file.url).length>=0) {
           // Получаем предыдущие URL-адреса изображений
           const previousImages = (previousData?.blocks || [])
             .filter((block) => block.type === 'image')
             .map((block) => block.data.file.url);
-    
+            console.log('previousGalleries',previousImages)
           // Получаем текущие URL-адреса изображений
           const currentImages = currentData.blocks
             .filter((block) => block.type === 'image')
             .map((block) => block.data.file.url);
-    
+            console.log('currentGalleries',currentImages)
           // Находим элементы, которые были удалены
           const deletedImages = previousImages.filter(
             (url) => !currentImages.includes(url)
+
+          
           );
     
           // Для каждой удаленной картинки добавляем в список на удаление
           deletedImages.forEach((url) => addDeletion(url));
-        }
-    
+           // Убираем null (удалённые блоки)
+        // }
         // Обновляем предыдущее состояние
-        previousData = currentData;
+       
+        previousData=JSON.parse(JSON.stringify(currentData));
+        console.log('previousData after change',previousData)
       });
     },
     
