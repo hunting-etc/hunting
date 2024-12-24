@@ -50,6 +50,7 @@ const login = async () => {
       formState.value.errorMessage = '';
       // Перенаправляем на главную
       setTimeout(() => {
+        console.log("jkhuhouh")
         router.push({ name: 'Home' });
       }, 1000);
     } else {

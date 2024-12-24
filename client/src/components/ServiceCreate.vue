@@ -251,7 +251,7 @@
     }
   
     try {
-      const response = await childService.create(formData, "test/infopages");
+      const response = await childService.create(formData, "test/services");
       console.log("Категория успешно создана с ID:", response.id);
       emit("close");
     } catch (error) {

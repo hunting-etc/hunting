@@ -4,7 +4,7 @@
     <p>Информационные страницы услуг.</p>
     <div class="header-container">
       <Button label="+" class="createButton" @click="openCreateDialog" />
-      <Dialog @hide="onDialogHide" v-model:visible="createDialogVisible" modal header="Создание категории" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+      <Dialog @hide="onDialogHide" v-model:visible="createDialogVisible" modal header="Создание информационной страницы" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
       <ServiceCreate @close="handleCreateDialogClose" category="Services"/>
     </Dialog>
     </div>

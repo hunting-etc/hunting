@@ -122,30 +122,29 @@ const router = createRouter({
 });
 
 // Хук для проверки авторизации
-router.beforeEach(async (to, from, next) => {
+// router.beforeEach(async (to, from, next) => {
   
-  if (to.meta.requiresAuth) {
-    try {
-      // Проверяем авторизацию на сервере
-      const response = await axios.get("http://127.0.0.1:8000/test/check-auth", {
-        withCredentials: true,
-      });
-      if (response.data.authenticated) {
-        next(); // Пользователь авторизован, продолжаем навигацию
-      } else {
-        next({ name: "LoginForm" }); // Неавторизованный пользователь
-      }
-    } catch (error) {
-      console.error("Ошибка при проверке авторизации:", error);
-      next({ name: "LoginForm" });
-    }
-  } else {
-    next(); // Для маршрутов без авторизации
-  }
-});
+//   if (to.meta.requiresAuth) {
+//     try {
+//       // Проверяем авторизацию на сервере
+//       const response = await axios.get("http://127.0.0.1:8000/test/check-auth", {
+//         withCredentials: true,
+//       });
+//       if (response.data.authenticated) {
+//         next(); // Пользователь авторизован, продолжаем навигацию
+//       } else {
+//         next({ name: "LoginForm" }); // Неавторизованный пользователь
+//       }
+//     } catch (error) {
+//       console.error("Ошибка при проверке авторизации:", error);
+//       next({ name: "LoginForm" });
+//     }
+//   } else {
+//     next(); // Для маршрутов без авторизации
+//   }
+// });
 
 // Экспорт маршрутизатора
 export default router;
-
 
 
