@@ -189,7 +189,11 @@ export interface Service extends BaseUUIDSchema {
   price: string;
 }
 
-export class ChildService extends ApiService<Child> {}
+export class ChildService extends ApiService<Child> {
+  fetch(arg0: string) {
+    throw new Error("Method not implemented.");
+  }
+}
 export class InfoService extends ApiService<Info> {}
 export class ServService extends ApiService<Service> {}
 

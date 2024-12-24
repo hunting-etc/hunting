@@ -1,26 +1,26 @@
 <template>
-    <div> 
-        <h1>О компании</h1>
-        <p>Информация о компании.</p>
-    </div>
-    <div class="panel">
+  <div> 
+    <h1>О компании</h1>
+    <p>Информация о компании.</p>
+  </div>
+  <div class="panel">
     <label for="h1">H1</label>
-    <InputText id="h1" v-model="h1" :class="{ 'input-error': errors.h1 }" @input="clearError('h1')"/>
+    <InputText id="h1" v-model="h1" :class="{ 'input-error': errors.h1 }" @input="clearError('h1')" />
     <p v-if="errors.h1" class="error">{{ errors.h1 }}</p>
     <Divider />
 
     <label for="title">Title</label>
-    <InputText id="title" v-model="title" :class="{ 'input-error': errors.title }" @input="clearError('title')"/>
+    <InputText id="title" v-model="title" :class="{ 'input-error': errors.title }" @input="clearError('title')" />
     <p v-if="errors.title" class="error">{{ errors.title }}</p>
     <Divider />
 
-    <label for="description">Description</label> 
-    <InputText id="description" v-model="description" :class="{ 'input-error': errors.description }" @input="clearError('description')"/>
+    <label for="description">Description</label>
+    <InputText id="description" v-model="description" :class="{ 'input-error': errors.description }" @input="clearError('description')" />
     <p v-if="errors.description" class="error">{{ errors.description }}</p>
     <Divider />
 
     <label for="name">Название</label>
-    <InputText id="name" v-model="name" :class="{ 'input-error': errors.name }" @input="clearError('name')"/>
+    <InputText id="name" v-model="name" :class="{ 'input-error': errors.name }" @input="clearError('name')" />
     <p v-if="errors.name" class="error">{{ errors.name }}</p>
     <Divider />
 
@@ -45,14 +45,17 @@
       <div ref="editorContainer" class="content-editor"></div>
     </div>
 
-    <Button label="Сохранить" class="p-button" @click="save" ></Button>
-    <p v-if="saveSuccess" class="success-message">Данные успешно сохранены!</p>
-    <p v-if="globalError" class="global-error">{{ globalError }}</p>
+    <div class="button-container">
+      <Button label="Сохранить" :class="{ 'p-button-error': globalError }" @click="save" />
+      <p v-if="saveSuccess" class="success-message">Данные успешно сохранены!</p>
+      <p v-if="globalError" class="global-error">{{ globalError }}</p>
+    </div>
   </div>
-    </template>
-    
-    <script lang="ts">
-    import { defineComponent, ref, onMounted } from "vue";
+</template>
+
+<script lang="ts">
+import { defineComponent, ref, onMounted, toRefs } from "vue";
+import { useRouter } from "vue-router"; 
 import InputText from "primevue/inputtext";
 import Divider from "primevue/divider";
 import Button from "primevue/button";
@@ -61,82 +64,69 @@ import { ChildService } from "../api/service";
 import { initEditor } from "../editor.js/editor-init";
 
 export default defineComponent({
-  name: "Create",
+  name: "About",
   components: {
     InputText,
     Divider,
     Button,
     FileUpload,
   },
-  setup(props, { emit }) {
+  setup() {
+    const router = useRouter();
+    const id = ref("");
     const h1 = ref("");
     const title = ref("");
     const description = ref("");
     const name = ref("");
     const content = ref("");
-    const src = ref<File | null>(null);
-    const photo = ref<File | null>(null); // Для файла
-    const photoUrl = ref<string | null>(null); // Для привязки к src
-    const editorContainer = ref<HTMLElement | null>(null);
-    const saveSuccess = ref(false);
-
-    
-    const childService = new ChildService();
-
-    const errors = ref({
-      h1: '',
-      title: '',
-      description: '',
-      name: '',
-      image: '',
-    });
+    const photo = ref<File | null>(null);
+    const photoUrl = ref<string | null>(null);
+    const errors = ref({ h1: '', title: '', description: '', name: '', image: '' });
     const globalError = ref("");
+    const childService = new ChildService();
+    const editorContainer = ref<HTMLElement | null>(null);
+    const isDataExisting = ref(false);
+    const saveSuccess = ref(false);
 
     const clearError = (field: keyof typeof errors.value) => {
       errors.value[field] = "";
-      globalError.value = ""; // Убираем глобальную ошибку при изменении любого поля
+      globalError.value = "";
     };
 
-    const onFileSelect = (event: { files: File[] }) => {
-  const file = event.files[0];
+    const fetchData = async () => {
+      try {
+        const data = await childService.getByName("test/categories", "About");
+        if (data.length > 0) {
+          const item = data[0]; // Assuming you want the first item
+          id.value = item.id || "";
+          h1.value = item.h1 || "";
+          title.value = item.title || "";
+          description.value = item.description || "";
+          name.value = item.name || "";
+          content.value = item.content || ""; // Set content here
+          if (item.photo) {
+            photoUrl.value = `${childService.baseUrl}${item.photo}`;
+          }
+          isDataExisting.value = true; // Data exists
+        } else {
+          resetFields();
+          isDataExisting.value = false; // No data found
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
-  if (file) {
-    // Проверяем формат изображения
-    if (!file.type.startsWith('image/')) {
-      errors.value.image = 'Загрузите изображение в формате PNG, JPEG или GIF.';
-      photo.value = null; // Сбрасываем файл
+    const resetFields = () => {
+      h1.value = "";
+      title.value = "";
+      description.value = "";
+      name.value = "";
+      content.value = "";
       photoUrl.value = null;
-      return;
-    }
-    // Проверяем размер файла
-    if (file.size > 5242880) {
-      errors.value.image = 'Изображение должно весить не более 5 МБ.';
-      photo.value = null; // Сбрасываем файл
-      photoUrl.value = null;
-      return;
-    }
-    // Устанавливаем файл и сбрасываем ошибки
-    photo.value = file;
-    photoUrl.value = URL.createObjectURL(file);
-    errors.value.image = ''; // Сбрасываем ошибку, если файл корректный
-  } else {
-    // Если файл не выбран, устанавливаем ошибку
-    errors.value.image = 'Фото обязательно для загрузки';
-    photo.value = null;
-    photoUrl.value = null;
-  }
-};
+    };
 
-async function onImageRemove() {
-  if (photoUrl.value) {
-    URL.revokeObjectURL(photoUrl.value); // Удаляем объект URL
-    photoUrl.value = null; // Очищаем строку для отображения
-    photo.value = null; // Удаляем объект File
-  }
-}
-
-
-const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕПИСЫВАЛ GPT НО ОН БЫЛ ВЗЯТ У ЯРИКА
+    const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕПИСЫВАЛ GPT НО ОН БЫЛ ВЗЯТ У ЯРИКА
   if (!editorContainer.value) {
     console.error("Editor container is not defined.");
     return;
@@ -153,70 +143,97 @@ const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕ�
   // Загрузка данных в редактор ВТОРАЯ ЧАСТЬ, ЭТОТ БЛОК МБ ДОЛЖЕН НАХОДИТЬСЯ НЕ ЗДЕСЬ Я ХЗ
 };
 
+    const save = async () => {
+      if (!validateAll()) {
+        globalError.value = "Введены некорректные данные.";
+        return;
+      }
+      globalError.value = ""; // Reset error on successful validation
+
+
+      if (window.processPendingDeletions) {
+          await window.processPendingDeletions('delete');
+        }
+      try {
+        const editorData = window.editorInstance ? await window.editorInstance.save().then((data: any) => JSON.stringify(data)) : "";
+
+        const formData = new FormData();
+        formData.append("h1", h1.value);
+        formData.append("title", title.value || "");
+        formData.append("description", description.value || "");
+        formData.append("name", name.value || "");
+        formData.append("content", editorData);
+
+        formData.append("type", JSON.stringify({ category: "About" }));
+
+        if (photo.value) {
+          formData.append("photo", photo.value);
+        }
+
+        // Log FormData contents
+        for (const [key, value] of formData.entries()) {
+          console.log(key, value);
+        }
+
+        if (isDataExisting.value) {
+          await childService.update(id.value, formData, "test/categories");
+          console.log("Данные успешно обновлены");
+          saveSuccess.value = true;
+        } else {
+          await childService.create(formData, "test/categories");
+          console.log("Данные успешно созданы");
+          saveSuccess.value = true;
+        }
+      } catch (error) {
+        console.error("Ошибка при сохранении данных:", error);
+      }
+    };
+
     const validateAll = (): boolean => {
-      errors.value.h1 =
-        h1.value.length >= 10 && h1.value.length <= 60
-          ? ''
-          : 'H1 должно быть от 10 до 60 символов';
-      errors.value.title =
-        title.value.length >= 30 && title.value.length <= 80
-          ? ''
-          : 'Title должно быть от 30 до 80 символов';
-      errors.value.description =
-        description.value.length >= 80 && description.value.length <= 160
-          ? ''
-          : 'Description должно быть от 80 до 160 символов';
+      errors.value.h1 = h1.value.length >= 10 && h1.value.length <= 60 ? '' : 'H1 должно быть от 10 до 60 символов';
+      errors.value.title = title.value.length >= 30 && title.value.length <= 80 ? '' : 'Title должно быть от 30 до 80 символов';
+      errors.value.description = description.value.length >= 80 && description.value.length <= 160 ? '' : 'Description должно быть от 80 до 160 символов';
       errors.value.name = name.value.length > 0 && name.value.length <= 200 ? '' : 'Name обязателен и не должен превышать 200 символов';
       errors.value.image = photoUrl.value ? '' : 'Фото обязательно для загрузки';
-
 
       return Object.values(errors.value).every((error) => !error);
     };
 
-    const save = async () => {
-  saveSuccess.value = false; // Сбрасываем успех перед валидацией
-  if (!validateAll()) {
-    globalError.value = "Введены некорректные данные";
-    return;
-  }
-  globalError.value = ""; // Сбрасываем ошибку при успешной валидации
+    const onFileSelect = (event: { files: File[] }) => {
+      const file = event.files[0];
+      if (file) {
+        if (!file.type.startsWith('image/')) {
+          errors.value.image = 'Загрузите изображение в формате PNG, JPEG или GIF.';
+          photo.value = null;
+          photoUrl.value = null;
+          return;
+        }
+        if (file.size > 5242880) {
+          errors.value.image = 'Изображение должно весить не более 5 МБ.';
+          photo.value = null;
+          photoUrl.value = null;
+          return;
+        }
+        photo.value = file;
+        photoUrl.value = URL.createObjectURL(file);
+        errors.value.image = '';
+      } else {
+        errors.value.image = 'Фото обязательно для загрузки';
+        photo.value = null;
+        photoUrl.value = null;
+      }
+    };
 
-  if (window.processPendingDeletions) {
-    await window.processPendingDeletions('delete');
-  }
-  const editorData = window.editorInstance
-    ? await window.editorInstance.save().then((data: any) => JSON.stringify(data))
-    : "";
+    onMounted(async () => {
+      await fetchData(); // Fetch data first
+      initializeEditor(); // Then initialize the editor
 
-  const formData = new FormData();
-  formData.append("h1", h1.value);
-  formData.append("title", title.value || "");
-  formData.append("description", description.value || "");
-  formData.append("name", name.value || "");
-  formData.append("content", editorData);
- 
-  formData.append("type", JSON.stringify({ category: "About" }));
-
-  if (photo.value) {
-    formData.append("photo", photo.value); // Добавляем файл
-  }
-
-  try {
-    const response = await childService.create(formData, "test/categories");
-    console.log("Категория успешно создана с ID:", response.id);
-    saveSuccess.value = true; // Отображаем сообщение об успехе
-    emit("close");
-  } catch (error) {
-    console.error("Ошибка при создании категории:", error);
-    globalError.value = "Ошибка при сохранении данных";
-  }
-};
-
-    onMounted(() => {
-      initializeEditor();
-      if (photoUrl.value) {
-    URL.revokeObjectURL(photoUrl.value);
-  }
+      router.beforeEach((to, from, next) => {
+        if (from.name === 'About' && to.name !== 'About') {
+          window.processPendingDeletions('fulldelite'); // Вызов метода перед переходом
+        }
+        next(); // Продолжить к следующему маршруту
+      })
     });
 
     return {
@@ -224,18 +241,15 @@ const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕ�
       title,
       description,
       name,
-      content,
-      photoUrl,
-      src,
-      onFileSelect,
-      save,
       photo,
+      photoUrl,
       editorContainer,
-      onImageRemove,
-      validateAll,
+      save,
       errors,
       globalError,
       clearError,
+      onFileSelect,
+      isDataExisting,
       saveSuccess
     };
   },
@@ -390,6 +404,6 @@ input.p-inputtext:focus {
 }
 .success-message {
   color: green;
-  margin-top: 10px;
+  margin-top: 8px;
 }
   </style>
