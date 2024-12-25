@@ -46,6 +46,8 @@ const login = async () => {
     });
 
     if (response.data.success) {
+      localStorage.setItem('access_token', response.data.access);
+      localStorage.setItem('refresh_token', response.data.refresh);
       formState.value.successMessage = 'Авторизация успешна!';
       formState.value.errorMessage = '';
       // Перенаправляем на главную

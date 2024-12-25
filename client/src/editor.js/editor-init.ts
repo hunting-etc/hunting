@@ -79,6 +79,7 @@ export const initEditor = (element: HTMLElement, data: any = null) => {
             deleteImage(url); // Используем await, если deleteImage является асинхронной функцией
           }
         }
+        deletedImages.forEach((url) => deleteImage(url))
     
         // deletedImages.forEach((url) => deleteImage(url));
     

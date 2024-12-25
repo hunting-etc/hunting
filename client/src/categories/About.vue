@@ -85,7 +85,7 @@ export default defineComponent({
     const globalError = ref("");
     const childService = new ChildService();
     const editorContainer = ref<HTMLElement | null>(null);
-    const isDataExisting = ref(false);
+    const isDataExisting= ref<boolean> (false);
     const saveSuccess = ref(false);
 
     const clearError = (field: keyof typeof errors.value) => {
@@ -183,7 +183,11 @@ export default defineComponent({
           await childService.create(formData, "test/categories");
           console.log("Данные успешно созданы");
           saveSuccess.value = true;
+          
+          isDataExisting.value=true;
+          await fetchData();
         }
+        
       } catch (error) {
         console.error("Ошибка при сохранении данных:", error);
       }
