@@ -22,7 +22,7 @@ import { jwtDecode } from "jwt-decode";
 export class ApiService<T> {
     baseUrl: string = "http://localhost:8000";
 
-    private isAccessTokenExpired(token: string): boolean {
+    public isAccessTokenExpired(token: string): boolean {
       if (!token) return true;
   
       try {
@@ -36,7 +36,7 @@ export class ApiService<T> {
     }
   
     // Обновление access token
-    private async refreshAccessToken(): Promise<string> {
+    public async refreshAccessToken(): Promise<string> {
       const refreshToken = localStorage.getItem('refresh_token');
       if (!refreshToken) {
         throw new Error('Refresh token отсутствует. Необходима повторная авторизация.');

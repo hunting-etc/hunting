@@ -9,11 +9,13 @@ import Table from '@editorjs/table';
 import MapTool from './tools/map';
 import CardTool, { CardToolData, CardType } from './tools/card';
 import JSCookie from '../common/utils/cookie';
+import {ApiService} from '../api/service';
 
 
 
 
 export const initEditor = (element: HTMLElement, data: any = null) => {
+  const apiService=new ApiService()
   let previousData: any = [];
   let serverImage: string[] = [];
   let serverGallery:string[] = [];
@@ -28,8 +30,12 @@ export const initEditor = (element: HTMLElement, data: any = null) => {
   
   // const pxroxyurl=uselessurl.forEach(url=>deleteImage(url))
   const pendingDeletions: string[] = [];
-  const deleteImage = (fileUrl: string) => {
-
+  const deleteImage = async (fileUrl: string) => {
+    let accessToken = localStorage.getItem('access_token');
+    if (!accessToken || apiService.isAccessTokenExpired(accessToken)) {
+      console.log('Access token истёк. Обновляем токен...');
+      accessToken = await apiService.refreshAccessToken();
+    }
     
     console.log('Удаление изображения:', fileUrl);
     const imageName = fileUrl.split('/').pop(); // например, если fileUrl = 'http://localhost:8000/uploads/myimage.jpg', то imageName будет 'myimage.jpg'
@@ -37,7 +43,9 @@ export const initEditor = (element: HTMLElement, data: any = null) => {
     return fetch(`http://127.0.0.1:8000/test/image/${imageName}`, {
       method: 'DELETE',
       headers: {
+        Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
+
       },
       body: JSON.stringify({ file_url: fileUrl })
     }).then((response) => {
@@ -109,16 +117,21 @@ export const initEditor = (element: HTMLElement, data: any = null) => {
     } // Очистка массива после обработки
   };
   
-
-
-  
-  const uploadImage = (image: File) => {
+  const uploadImage = async (image: File) => {
+    let accessToken = localStorage.getItem('access_token');
+    if (!accessToken || apiService.isAccessTokenExpired(accessToken)) {
+      console.log('Access token истёк. Обновляем токен...');
+      accessToken = await apiService.refreshAccessToken();
+    }
     const formData = new FormData();
     formData.append('image', image);
     formData.append('csrfmiddlewaretoken', JSCookie.get('csrftoken')!);
 
     return fetch('http://127.0.0.1:8000/test/image', {
         method: 'post',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
         body: formData
     }).then((response) => {
         if (!response.ok) {
