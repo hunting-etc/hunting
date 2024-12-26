@@ -4,7 +4,7 @@ from rest_framework import status
 from .serializers import LoginSerializer, RegistrationSerializer
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 
@@ -74,3 +74,34 @@ class RegistrationView(APIView):
 
         # Возвращаем ошибки валидации
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class RefreshTokenView(APIView):
+    def post(self, request):
+        # Получение refresh token из тела запроса
+        refresh_token = request.data.get('refresh')
+
+        if not refresh_token:
+            return Response({
+                "success": False,
+                "message": "Refresh token обязателен."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Проверка и декодирование refresh token
+            refresh = RefreshToken(refresh_token)
+
+            # Генерация нового access token
+            access_token = refresh.access_token
+
+            return Response({
+                "success": True,
+                "access": str(access_token),
+            }, status=status.HTTP_200_OK)
+
+        except TokenError as e:
+            return Response({
+                "success": False,
+                "message": "Неверный или истёкший refresh token."
+            }, status=status.HTTP_401_UNAUTHORIZED)

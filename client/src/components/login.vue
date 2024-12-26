@@ -7,6 +7,7 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { onMounted } from 'vue';
 
+
 const router = useRouter();
 
 const formState = ref({
@@ -46,8 +47,13 @@ const login = async () => {
     });
 
     if (response.data.success) {
-      localStorage.setItem('access_token', response.data.access);
-      localStorage.setItem('refresh_token', response.data.refresh);
+      const { access, refresh } = response.data;
+      
+
+      // Сохраняем access и refresh токены, а также время истечения access токена
+      localStorage.setItem('access_token', access);
+      localStorage.setItem('refresh_token', refresh);
+       
       formState.value.successMessage = 'Авторизация успешна!';
       formState.value.errorMessage = '';
       // Перенаправляем на главную

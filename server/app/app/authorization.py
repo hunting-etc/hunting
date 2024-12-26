@@ -9,7 +9,7 @@ class AuthorizationMiddleware:
 
     def __call__(self, request):
 
-        if request.method == 'POST' and request.path == '/test/login' or request.method == 'POST' and request.path == '/test/registration':
+        if request.method == 'POST' and request.path == '/test/login':
             return self.get_response(request)
         # Проверяем, относится ли путь к /test
         if request.path.startswith('/test'):
