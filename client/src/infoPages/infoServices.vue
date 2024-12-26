@@ -84,7 +84,7 @@ export default defineComponent({
     const fetchData = async () => {
     try {
         const infoService = new ServService(); // Создаём экземпляр InfoService
-        infoList.value = await infoService.getByName('test/services', 'Services');
+        infoList.value = await infoService.getByName('admin/services', 'Services');
         infoList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
     } catch (error) {
         console.error("Ошибка при получении данных:", error);
@@ -98,7 +98,7 @@ export default defineComponent({
 
     const loadDataAndOpenDialog = async (id: string) => {
       try {
-        const data: Service | Service[] = await infoService.getAll('test/services', { id, category: "Services" });
+        const data: Service | Service[] = await infoService.getAll('admin/services', { id, category: "Services" });
         if (Array.isArray(data)) {
           if (data.length > 0) {
             selectedItem.value = data[0];
@@ -143,7 +143,7 @@ const onDialogHide = async () => {
       const confirmDelete = confirm("Вы уверены, что хотите удалить этот элемент?");
       if (confirmDelete) {
         try {
-          await infoService.delete('test/services', id, '');
+          await infoService.delete('admin/services', id, '');
           fetchData();
         } catch (error) {
           console.error("Ошибка при удалении данных:", error);

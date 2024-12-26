@@ -95,7 +95,7 @@ export default defineComponent({
 
     const fetchData = async () => {
       try {
-        const data = await childService.getByName("test/categories", "About");
+        const data = await childService.getByName("admin/categories", "About");
         if (data.length > 0) {
           const item = data[0]; // Assuming you want the first item
           id.value = item.id || "";
@@ -176,11 +176,11 @@ export default defineComponent({
         }
 
         if (isDataExisting.value) {
-          await childService.update(id.value, formData, "test/categories");
+          await childService.update(id.value, formData, "admin/categories");
           console.log("Данные успешно обновлены");
           saveSuccess.value = true;
         } else {
-          await childService.create(formData, "test/categories");
+          await childService.create(formData, "admin/categories");
           console.log("Данные успешно созданы");
           saveSuccess.value = true;
           

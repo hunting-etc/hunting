@@ -128,8 +128,8 @@ export default defineComponent({
     const fetchData = async () => {
         try {
           
-          categoryList.value = await childService.getByName('test/categories', category);
-          serviceList.value = await childService.getByName('test/services', 'Services');
+          categoryList.value = await childService.getByName('admin/categories', category);
+          serviceList.value = await childService.getByName('admin/services', 'Services');
           
           categoryList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
           serviceList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
@@ -271,7 +271,7 @@ const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕ�
   }
 
   try {
-    const response = await childService.create(formData, "test/infopages");
+    const response = await childService.create(formData, "admin/infopages");
     console.log("Категория успешно создана с ID:", response.id);
     emit("close");
   } catch (error) {

@@ -146,8 +146,8 @@ export default defineComponent({
 
 const fetchData = async () => {
   try {
-    childList.value = await childService.getByName("test/categories", maincategory);
-    serviceList.value = await childService.getByName('test/services', 'Services');
+    childList.value = await childService.getByName("admin/categories", maincategory);
+    serviceList.value = await childService.getByName('admin/services', 'Services');
     childList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
     serviceList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
    
@@ -318,7 +318,7 @@ const selectedServicesArray = selectedIds.map((service:any) => ({
         }
 
         // Обновление данных через API
-        await childService.update(id.value, formData, "test/infopages");
+        await childService.update(id.value, formData, "admin/infopages");
         console.log("Данные успешно обновлены");
         emit("close");
       } catch (error) {

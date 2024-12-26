@@ -84,7 +84,7 @@
 
       const fetchData = async () => {
         try {
-          childList.value = await childService.getByName('test/infopages', 'Hunting');
+          childList.value = await childService.getByName('admin/infopages', 'Hunting');
           childList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
           // console.log('fewf',childList.value)
         } catch (error) {
@@ -98,7 +98,7 @@
   
       const loadDataAndOpenDialog = async (id: string) => {
         try {
-          const data: Info | Info[] = await childService.getAll('test/infopages', { id, category: "Hunting" });
+          const data: Info | Info[] = await childService.getAll('admin/infopages', { id, category: "Hunting" });
           if (Array.isArray(data)) {
             if (data.length > 0) {
               selectedItem.value = data[0];
@@ -143,7 +143,7 @@
         const confirmDelete = confirm("Вы уверены, что хотите удалить этот элемент?");
         if (confirmDelete) {
           try {
-            await childService.delete('test/infopages', id, '');
+            await childService.delete('admin/infopages', id, '');
             fetchData();
           } catch (error) {
             console.error("Ошибка при удалении данных:", error);

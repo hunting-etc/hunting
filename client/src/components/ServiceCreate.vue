@@ -120,7 +120,7 @@
       const fetchData = async () => {
           try {
             
-            categoryList.value = await childService.getByName('test/categories', category);
+            categoryList.value = await childService.getByName('admin/categories', category);
             
             categoryList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
           } catch (error) {
@@ -251,7 +251,7 @@
     }
   
     try {
-      const response = await childService.create(formData, "test/services");
+      const response = await childService.create(formData, "admin/services");
       console.log("Категория успешно создана с ID:", response.id);
       emit("close");
     } catch (error) {

@@ -121,13 +121,15 @@ const router = createRouter({
   routes,
 });
 
+
+
 // Хук для проверки авторизации
 // router.beforeEach(async (to, from, next) => {
   
 //   if (to.meta.requiresAuth) {
 //     try {
 //       // Проверяем авторизацию на сервере
-//       const response = await axios.get("http://127.0.0.1:8000/test/check-auth", {
+//       const response = await axios.get("http://127.0.0.1:8000/admin/check-auth", {
 //         withCredentials: true,
 //       });
 //       if (response.data.authenticated) {

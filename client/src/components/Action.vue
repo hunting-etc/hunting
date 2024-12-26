@@ -231,7 +231,7 @@ const onFileSelect = (event: { files: File[] }) => {
         }
 
         // Обновление данных через API
-        await childService.update(id.value, formData, "test/categories");
+        await childService.update(id.value, formData, "admin/categories");
         console.log("Данные успешно обновлены");
         emit("close");
       } catch (error) {

@@ -132,7 +132,7 @@
   
   const fetchData = async () => {
     try {
-        InfoList.value = await infoService.getByName("test/categories", maincategory);
+        InfoList.value = await infoService.getByName("admin/categories", maincategory);
       InfoList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
       //бла бла
@@ -285,7 +285,7 @@
           }
   
           // Обновление данных через API
-          await infoService.update(id.value, formData, "test/services");
+          await infoService.update(id.value, formData, "tadminest/services");
           console.log("Данные успешно обновлены");
           emit("close");
         } catch (error) {

@@ -40,7 +40,7 @@ export const initEditor = (element: HTMLElement, data: any = null) => {
     console.log('Удаление изображения:', fileUrl);
     const imageName = fileUrl.split('/').pop(); // например, если fileUrl = 'http://localhost:8000/uploads/myimage.jpg', то imageName будет 'myimage.jpg'
     console.log('Имя файла для удаления:', imageName);
-    return fetch(`http://127.0.0.1:8000/test/image/${imageName}`, {
+    return fetch(`http://127.0.0.1:8000/admin/image/${imageName}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -127,7 +127,7 @@ export const initEditor = (element: HTMLElement, data: any = null) => {
     formData.append('image', image);
     formData.append('csrfmiddlewaretoken', JSCookie.get('csrftoken')!);
 
-    return fetch('http://127.0.0.1:8000/test/image', {
+    return fetch('http://127.0.0.1:8000/admin/image', {
         method: 'post',
         headers: {
           Authorization: `Bearer ${accessToken}`,

@@ -84,7 +84,7 @@ export default defineComponent({
 
     const fetchData = async () => {
       try {
-        childList.value = await childService.getByName('test/infopages', 'ActiveRecreation');
+        childList.value = await childService.getByName('admin/infopages', 'ActiveRecreation');
         childList.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
         // console.log('fewf',childList.value)
       } catch (error) {
@@ -98,7 +98,7 @@ export default defineComponent({
 
     const loadDataAndOpenDialog = async (id: string) => {
       try {
-        const data: Info | Info[] = await childService.getAll('test/infopages', { id, category: "ActiveRecreation" });
+        const data: Info | Info[] = await childService.getAll('admin/infopages', { id, category: "ActiveRecreation" });
         if (Array.isArray(data)) {
           if (data.length > 0) {
             selectedItem.value = data[0];
@@ -143,7 +143,7 @@ const onDialogHide = async () => {
       const confirmDelete = confirm("Вы уверены, что хотите удалить этот элемент?");
       if (confirmDelete) {
         try {
-          await childService.delete('test/infopages', id, '');
+          await childService.delete('admin/infopages', id, '');
           fetchData();
         } catch (error) {
           console.error("Ошибка при удалении данных:", error);

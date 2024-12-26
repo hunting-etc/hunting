@@ -8,17 +8,6 @@ export interface Error {
 
 import { jwtDecode } from "jwt-decode";
 
-
-
-
-
-
-
-
-
-
-
-
 export class ApiService<T> {
     baseUrl: string = "http://localhost:8000";
 
@@ -43,7 +32,7 @@ export class ApiService<T> {
       }
   
       try {
-        const response = await fetch(`${this.baseUrl}/test/refresh`, {
+        const response = await fetch(`${this.baseUrl}/admin/refresh`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ refresh: refreshToken }),
@@ -137,7 +126,7 @@ export class ApiService<T> {
         return jsonData as T;
     }
 
-    async create(data: FormData, endpoint: string = 'test/categories') {
+    async create(data: FormData, endpoint: string = 'admin/categories') {
       let accessToken = localStorage.getItem('access_token');
           if (!accessToken || this.isAccessTokenExpired(accessToken)) {
             console.log('Access token истёк. Обновляем токен...');
@@ -187,7 +176,7 @@ export class ApiService<T> {
   
   
     
-    imageURL: string = "http://localhost:8000/test/image";
+    imageURL: string = "http://localhost:8000/admin/image";
 
     async uploadImage(file: File): Promise<{ url: string }> {
       let accessToken = localStorage.getItem('access_token');

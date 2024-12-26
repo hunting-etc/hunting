@@ -202,7 +202,7 @@ const initializeEditor = () => {//ВТОРУЮ ЧАСТЬ МЕТОДА ПЕРЕ�
   }
 
   try {
-    const response = await childService.create(formData, "test/categories");
+    const response = await childService.create(formData, "admin/categories");
     console.log("Категория успешно создана с ID:", response.id);
     emit("close");
   } catch (error) {
