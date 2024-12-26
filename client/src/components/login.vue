@@ -5,7 +5,7 @@ import Message from 'primevue/message';
 import { ref} from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import { onMounted } from 'vue';
+
 
 
 const router = useRouter();
@@ -32,11 +32,12 @@ const login = async () => {
     if (response.data.success) {
       const { access, refresh } = response.data;
       
-
+      
       // Сохраняем access и refresh токены, а также время истечения access токена
       localStorage.setItem('access_token', access);
       localStorage.setItem('refresh_token', refresh);
-       
+      
+      
       formState.value.successMessage = 'Авторизация успешна!';
       formState.value.errorMessage = '';
       // Перенаправляем на главную
@@ -56,9 +57,7 @@ const login = async () => {
 
 
 
-// onMounted(() => {
-//   checkAuth();
-// });
+
 
 </script>
 

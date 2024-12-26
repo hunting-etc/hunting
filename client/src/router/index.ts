@@ -16,12 +16,12 @@ import InfoEcotourism from "../infoPages/infoEcotourism.vue";
 import InfoService  from "../infoPages/infoServices.vue";
 import InfoNews from "../infoPages/infoNews.vue";
 import axios from "axios";
+import {ApiService} from "../api/service"
+
+const apiService=new ApiService()
 
 const routes = [
-  {
-    path: '/',
-    redirect: '/admin', // Начальный маршрут
-  },
+  
   {
     name: "LoginForm",
     path: "/admin",
@@ -30,86 +30,85 @@ const routes = [
   {
     name: "Home",
     path: "/home",
-    component: Home,
-    meta: { requiresAuth: true }, // Требуется авторизация
+    component: Home, // Требуется авторизация
     children: [
       {
         name: "Hunting",
         path: "hunting",
         component: HuntingPage,
-        meta: { requiresAuth: true },
+
       },
       {
         name: "InfoHunting",
         path: "infopage/infoHunting",
         component: InfoHunting,
-        meta: { requiresAuth: true },
+
       },
       {
         name: "Fishing",
         path: "fishing",
         component: Fishing,
-        meta: { requiresAuth: true },
+
       },
       {
         name: "InfoFishing",
         path: "infopage/infoFishing",
         component: InfoFishing,
-        meta: { requiresAuth: true },
+
       },
       {
         name: "ActiveRecreation",
         path: "activeRecreation",
         component: ActiveRecreation,
-        meta: { requiresAuth: true },
+
       },
       {
         name: "InfoActiveRecreation",
         path: "infopage/infoActiveRecreation",
         component: InfoActiverecreation,
-        meta: { requiresAuth: true },
+
       },
       {
         name: "EcoTourism",
         path: "ecotourism",
         component: Ecotourism,
-        meta: { requiresAuth: true },
+
       },
       {
         name: "InfoEcotourism",
         path: "infopage/infoEcotourism",
         component: InfoEcotourism,
-        meta: { requiresAuth: true },
+
       },
       {
         name: "Services",
         path: "services",
         component: Services,
-        meta: { requiresAuth: true },
+
       },
       {
         name: "InfoServices",
         path: "infopage/infoServices",
         component: InfoService,
-        meta: { requiresAuth: true },
+
       },
       {
         name: "About",
         path: "/about",
         component: About,
-        meta: { requiresAuth: true },
+
       },
       {
         name: "News",
         path: "news",
         component: News,
-        meta: { requiresAuth: true },
+
       },
       {
         name: "InfoNews",
         path: "infopage/infoNews",
         component: InfoNews,
-        meta: { requiresAuth: true },
+
       },
     ],
   },
@@ -124,27 +123,50 @@ const router = createRouter({
 
 
 // Хук для проверки авторизации
-// router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, from, next) => {
+  const refreshToken = localStorage.getItem("refresh_token");
+
+// Проверяем наличие и валидность refresh token
+if (!refreshToken || apiService.isAccessTokenExpired(refreshToken)) {
+  console.log("Refresh token отсутствует или истёк.");
   
-//   if (to.meta.requiresAuth) {
-//     try {
-//       // Проверяем авторизацию на сервере
-//       const response = await axios.get("http://127.0.0.1:8000/admin/check-auth", {
-//         withCredentials: true,
-//       });
-//       if (response.data.authenticated) {
-//         next(); // Пользователь авторизован, продолжаем навигацию
-//       } else {
-//         next({ name: "LoginForm" }); // Неавторизованный пользователь
-//       }
-//     } catch (error) {
-//       console.error("Ошибка при проверке авторизации:", error);
-//       next({ name: "LoginForm" });
-//     }
-//   } else {
-//     next(); // Для маршрутов без авторизации
-//   }
-// });
+  // Избегаем бесконечного редиректа на LoginForm
+  if (to.name !== "LoginForm") {
+    return next({ name: "LoginForm" }); // Перенаправляем на страницу входа
+  } else {
+    return next(); // Если уже на LoginForm, пропускаем
+  }
+}
+
+try {
+  let accessToken = localStorage.getItem("access_token");
+
+  // Проверяем и обновляем access token
+  if (!accessToken || apiService.isAccessTokenExpired(accessToken)) {
+    console.log("Access token истёк. Обновляем токен...");
+    
+    const response = await axios.post("http://127.0.0.1:8000/admin/refresh", {
+      refresh: refreshToken,
+    });
+
+    // Сохраняем новый access token
+    let accessToken = response.data.access;
+    localStorage.setItem("access_token", accessToken);
+  }
+
+  // Токен действителен или успешно обновлён, продолжаем маршрут
+  next();
+} catch (error) {
+  console.error("Ошибка при обновлении токена:", error);
+
+  // Перенаправляем на страницу входа при ошибке
+  if (to.name !== "LoginForm") {
+    return next({ name: "LoginForm" });
+  } else {
+    return next(); // Если уже на LoginForm, пропускаем
+  }
+}
+});
 
 // Экспорт маршрутизатора
 export default router;

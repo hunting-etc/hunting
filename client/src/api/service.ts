@@ -23,77 +23,76 @@ export class ApiService<T> {
         return true;
       }
     }
+    
   
     // Обновление access token
     public async refreshAccessToken(): Promise<string> {
       const refreshToken = localStorage.getItem('refresh_token');
-      if (!refreshToken) {
-        throw new Error('Refresh token отсутствует. Необходима повторная авторизация.');
+    
+      if (!refreshToken || this.isAccessTokenExpired(refreshToken)) {
+        console.log('Refresh token отсутствует или истёк. Необходима повторная авторизация.');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        window.location.href = '/admin'; // Перенаправление на страницу входа
+        throw new Error('Refresh token истёк или отсутствует.');
       }
-  
+    
       try {
         const response = await fetch(`${this.baseUrl}/admin/refresh`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ refresh: refreshToken }),
         });
-  
+    
         if (!response.ok) {
           throw new Error(`Ошибка при обновлении токена: ${response.statusText}`);
         }
-  
+    
         const data = await response.json();
         const newAccessToken = data.access;
+    
+        // Сохраняем новый токен
         localStorage.setItem('access_token', newAccessToken);
         return newAccessToken;
       } catch (error) {
         console.error('Ошибка при обновлении токена:', error);
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        window.location.href = '/admin'; // Перенаправление на страницу входа
         throw new Error('Не удалось обновить токен.');
       }
     }
 
 
-
-
-
-
-
-        public async getAll(prefix: string, options: { category?: string; id?: string }): Promise<T[] | T> {
-          let accessToken = localStorage.getItem('access_token');
-          if (!accessToken || this.isAccessTokenExpired(accessToken)) {
-            console.log('Access token истёк. Обновляем токен...');
-            accessToken = await this.refreshAccessToken();
-          }
-
-            let url = `${this.baseUrl}/${prefix}`;
-        
-            if (options.id) {
-                url += `/${options.id}`;
-            } else if (options.category) {
-                url += `?category=${options.category}`;
-            }
-        
-            const response = await fetch(url,{
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-              
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Ошибка при получении данных: ${response.statusText}`);
-            }
-        
-            const jsonData = await response.json();
-            return options.id ? (jsonData as T) : (jsonData as T[]);
+    public async getAll(prefix: string, options: { category?: string; id?: string }): Promise<T[] | T> {
+      let accessToken = localStorage.getItem('access_token');
+      // Проверка истечения access token
+        let url = `${this.baseUrl}/${prefix}`;
+    
+        if (options.id) {
+            url += `/${options.id}`;
+        } else if (options.category) {
+            url += `?category=${options.category}`;
         }
+    
+        const response = await fetch(url,{
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Ошибка при получении данных: ${response.statusText}`);
+        }
+    
+        const jsonData = await response.json();
+        return options.id ? (jsonData as T) : (jsonData as T[]);
+    }
 
     public async getByName(prefix: string, category: string): Promise<T[]> {
       let accessToken = localStorage.getItem('access_token');
-          if (!accessToken || this.isAccessTokenExpired(accessToken)) {
-            console.log('Access token истёк. Обновляем токен...');
-            accessToken = await this.refreshAccessToken();
-          }
+          
         const response = await fetch(`${this.baseUrl}/${prefix}?category=${category}`,{
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -109,10 +108,7 @@ export class ApiService<T> {
 
     public async getById(prefix: string, id: string): Promise<T> {
       let accessToken = localStorage.getItem('access_token');
-          if (!accessToken || this.isAccessTokenExpired(accessToken)) {
-            console.log('Access token истёк. Обновляем токен...');
-            accessToken = await this.refreshAccessToken();
-          }
+          
         const response = await fetch(`${this.baseUrl}/${prefix}/${id}`,{
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -128,10 +124,7 @@ export class ApiService<T> {
 
     async create(data: FormData, endpoint: string = 'admin/categories') {
       let accessToken = localStorage.getItem('access_token');
-          if (!accessToken || this.isAccessTokenExpired(accessToken)) {
-            console.log('Access token истёк. Обновляем токен...');
-            accessToken = await this.refreshAccessToken();
-          }
+         
       try {
         const response = await fetch(`${this.baseUrl}/${endpoint}`, {
           method: "POST",
@@ -155,10 +148,7 @@ export class ApiService<T> {
 
     async update(id: string, newData: FormData, endpoint: string) {
       let accessToken = localStorage.getItem('access_token');
-          if (!accessToken || this.isAccessTokenExpired(accessToken)) {
-            console.log('Access token истёк. Обновляем токен...');
-            accessToken = await this.refreshAccessToken();
-          }
+         
       const response = await fetch(`${this.baseUrl}/${endpoint}/${id}`, {
           method: 'PATCH',
           headers: {
@@ -180,10 +170,7 @@ export class ApiService<T> {
 
     async uploadImage(file: File): Promise<{ url: string }> {
       let accessToken = localStorage.getItem('access_token');
-          if (!accessToken || this.isAccessTokenExpired(accessToken)) {
-            console.log('Access token истёк. Обновляем токен...');
-            accessToken = await this.refreshAccessToken();
-          }
+          
         const formData = new FormData();
         formData.append("image", file);
     
@@ -209,10 +196,7 @@ export class ApiService<T> {
       
       async deleteImage(imageUrl: string): Promise<void> {
         let accessToken = localStorage.getItem('access_token');
-          if (!accessToken || this.isAccessTokenExpired(accessToken)) {
-            console.log('Access token истёк. Обновляем токен...');
-            accessToken = await this.refreshAccessToken();
-          }
+          
         try {
           const response = await fetch(`${this.imageURL}/delete-image`, {
             method: "DELETE",
@@ -236,10 +220,7 @@ export class ApiService<T> {
 
     public async delete(prefix: string, id: string, baseAdmin: string): Promise<void> {
       let accessToken = localStorage.getItem('access_token');
-          if (!accessToken || this.isAccessTokenExpired(accessToken)) {
-            console.log('Access token истёк. Обновляем токен...');
-            accessToken = await this.refreshAccessToken();
-          }
+          
         const response = await fetch(`${this.baseUrl}/${baseAdmin}/${prefix}/${id}`, {
             method: 'DELETE',
             headers: {
