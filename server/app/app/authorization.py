@@ -9,10 +9,10 @@ class AuthorizationMiddleware:
 
     def __call__(self, request):
 
-        if request.method == 'POST' and request.path == '/test/login':
+        if request.method == 'POST' and request.path == '/admin/login' or request.method == 'POST' and request.path == '/admin/refresh':
             return self.get_response(request)
         # Проверяем, относится ли путь к /test
-        if request.path.startswith('/test'):
+        if request.path.startswith('/admin'):
             token = request.headers.get('Authorization')
 
             if not token:
