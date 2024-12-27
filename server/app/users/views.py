@@ -46,11 +46,7 @@ class RegistrationView(APIView):
 
     def post(self, request):
         # Проверяем, авторизован ли пользователь
-        if request.user.is_authenticated:
-            return Response(
-                {"success": False, "message": "Вы уже авторизованы."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+
 
         # Обрабатываем данные для регистрации
         serializer = RegistrationSerializer(data=request.data)
@@ -59,15 +55,12 @@ class RegistrationView(APIView):
             user = serializer.save(password=make_password(serializer.validated_data['password']))
 
             # Генерируем JWT токены
-            refresh = RefreshToken.for_user(user)
-            access_token = refresh.access_token
+
 
             return Response(
                 {
                     "success": True,
                     "message": "Пользователь успешно зарегистрирован.",
-                    "access": str(access_token),
-                    "refresh": str(refresh),
                 },
                 status=status.HTTP_201_CREATED,
             )

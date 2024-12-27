@@ -60,8 +60,11 @@ const dropdownData = [
 ];
 
 const items2 = ref([
+  
   { label: 'Добавить админа', command: () => router.push({ name: 'RegisterAdmin' }) , icon: 'pi pi-user-plus' },
-  { label: 'Теги', icon: 'pi pi-hashtag'}
+  { label: 'Добавить админа', command: () =>{ router.push({ name: 'LoginForm' });  localStorage.removeItem('access_token'); localStorage.removeItem('refresh_token');} , icon:  'pi pi-sign-out' },
+  
+  // { label: 'Теги', icon: 'pi pi-hashtag'}
 ]);
 
 const selectedValues = ref<{ [key: string]: any }>({});
@@ -116,7 +119,7 @@ const handleSelection = (dropdownKey: string, selectedOption: any) => {
       </div>
       <div class="card">
           <div>
-            <SpeedDial :model="items2" direction="up" style="position: absolute; left: calc(2%); bottom: 3%;" />
+            <SpeedDial :model="items2" direction="up" style="position: absolute;  left: calc(2%); bottom: 3%;"/>
           </div>
         </div>
     

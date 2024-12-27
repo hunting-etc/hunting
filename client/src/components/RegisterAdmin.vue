@@ -5,10 +5,10 @@ import Message from 'primevue/message';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import { ApiService } from '../api/service';
+
 
 const router = useRouter();
-const apiService = new ApiService();
+
 
 const formState = ref({
   login: '',
@@ -24,10 +24,6 @@ const register = async () => {
 
   try {
     let accessToken = localStorage.getItem('access_token');
-          if (!accessToken || apiService.isAccessTokenExpired(accessToken)) {
-            console.log('Access token истёк. Обновляем токен...');
-            accessToken = await apiService.refreshAccessToken();
-          }
 
     const response = await axios.post('http://127.0.0.1:8000/admin/registration', {
       login: formState.value.login,

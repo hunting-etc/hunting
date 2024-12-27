@@ -17,6 +17,7 @@ import InfoService  from "../infoPages/infoServices.vue";
 import InfoNews from "../infoPages/infoNews.vue";
 import axios from "axios";
 import {ApiService} from "../api/service"
+import RegisterAdmin from "../components/RegisterAdmin.vue";
 
 const apiService=new ApiService()
 
@@ -26,6 +27,11 @@ const routes = [
     name: "LoginForm",
     path: "/admin",
     component: LoginForm,
+  },
+  {
+    name:"RegisterAdmin",
+    path: "/registr",
+    component:RegisterAdmin,
   },
   {
     name: "Home",
@@ -155,6 +161,9 @@ try {
   }
 
   // Токен действителен или успешно обновлён, продолжаем маршрут
+  if(to.path === '/'){
+    next({ name: "Home" });
+  }
   next();
 } catch (error) {
   console.error("Ошибка при обновлении токена:", error);

@@ -128,6 +128,7 @@ const onDialogHide = async () => {
  
 
     const handleCreateDialogClose = () => {
+      isManuallyClosed = true;
       createDialogVisible.value = false;
       fetchData();
     };
