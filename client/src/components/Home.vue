@@ -3,6 +3,9 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import Button from "primevue/button";
 import Dropdown from "primevue/dropdown";
+import { SpeedDial } from "primevue";
+
+const router = useRouter();
 
 // Опции для направлений
 const dropdownData = [
@@ -56,6 +59,11 @@ const dropdownData = [
   }
 ];
 
+const items2 = ref([
+  { label: 'Добавить админа', command: () => router.push({ name: 'RegisterAdmin' }) , icon: 'pi pi-user-plus' },
+  { label: 'Теги', icon: 'pi pi-hashtag'}
+]);
+
 const selectedValues = ref<{ [key: string]: any }>({});
 
 dropdownData.forEach((dropdown) => {
@@ -70,8 +78,6 @@ const resetOtherDropdowns = (currentKey: string) => {
   }
 };
 
-// Управление маршрутизацией
-const router = useRouter();
 const handleSelection = (dropdownKey: string, selectedOption: any) => {
   selectedValues.value[dropdownKey] = selectedOption;
   resetOtherDropdowns(dropdownKey);
@@ -108,6 +114,11 @@ const handleSelection = (dropdownKey: string, selectedOption: any) => {
           <Button label="О компании" class="p-button-success" />
         </RouterLink>
       </div>
+      <div class="card">
+          <div>
+            <SpeedDial :model="items2" direction="up" style="position: absolute; left: calc(2%); bottom: 3%;" />
+          </div>
+        </div>
     
       <!-- Правая панель -->
       <div class="content">
@@ -187,4 +198,7 @@ const handleSelection = (dropdownKey: string, selectedOption: any) => {
   overflow-y: auto; /* Скроллинг, если контент слишком длинный */
   background-color: #fff;
 }
+.pi {
+    color: black !important;
+  }
 </style>
