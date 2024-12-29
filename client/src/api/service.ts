@@ -243,7 +243,7 @@ export class ApiService<T> {
         console.log('Access token истёк. Обновляем токен...');
         accessToken = await this.refreshAccessToken();
       }
-        const response = await fetch(`${this.baseUrl}/${baseAdmin}/${prefix}/${id}`, {
+        const response = await fetch(`${this.baseUrl}/${prefix}/${id}`, {
             method: 'DELETE',
             headers: {
               Authorization: `Bearer ${accessToken}`,

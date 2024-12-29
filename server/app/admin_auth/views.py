@@ -6,6 +6,7 @@ from .models import InformationPageStore, CategoriesStore, ServiceStore
 from .service  import CategoryValidationSchema,InformationPageValidationSchema,ServiceValidationSchema
 from django.http import JsonResponse
 import os
+from django.conf import settings
 
 
 class AllCategoryView(APIView):
@@ -75,6 +76,26 @@ class AllCategoryView(APIView):
             instance = CategoriesStore.objects.get(pk=pk)
         except CategoriesStore.DoesNotExist:
             return Response({"error": "Объект не найден"}, status=status.HTTP_404_NOT_FOUND)
+
+        content = instance.content  # Поле, где хранятся данные (JSON)
+        image_dir = os.path.join(settings.BASE_DIR, 'static/images')  # Полный путь к папке с изображениями
+        if content and isinstance(content, dict):  # Проверяем, что это словарь
+            # Ищем пути изображений
+            for block in content.get('blocks', []):
+                if block['type'] in ['image', 'gallery']:
+                    files = (
+                        block['data'].get('files', [])
+                        if block['type'] == 'gallery'
+                        else [block['data'].get('file')]
+                    )
+                    for file_data in files:
+                        if file_data:
+                            file_url = file_data.get('url')  # URL картинки
+                            if file_url and 'static/images/' in file_url:  # Убеждаемся, что файл в нужной директории
+                                file_name = file_url.split('static/images/')[-1]  # Извлекаем имя файла
+                                file_path = os.path.join(image_dir, file_name)  # Полный путь к файлу
+                                if os.path.exists(file_path):
+                                    os.remove(file_path)  # Удаляем файл
 
         # Удаляем объект
         instance.delete()
@@ -205,6 +226,26 @@ class InformationPageStoreView(APIView):
         except InformationPageStore.DoesNotExist:
             return Response({"error": "Объект не найден"}, status=status.HTTP_404_NOT_FOUND)
 
+        content = instance.content  # Поле, где хранятся данные (JSON)
+        image_dir = os.path.join(settings.BASE_DIR, 'static/images')  # Полный путь к папке с изображениями
+        if content and isinstance(content, dict):  # Проверяем, что это словарь
+            # Ищем пути изображений
+            for block in content.get('blocks', []):
+                if block['type'] in ['image', 'gallery']:
+                    files = (
+                        block['data'].get('files', [])
+                        if block['type'] == 'gallery'
+                        else [block['data'].get('file')]
+                    )
+                    for file_data in files:
+                        if file_data:
+                            file_url = file_data.get('url')  # URL картинки
+                            if file_url and 'static/images/' in file_url:  # Убеждаемся, что файл в нужной директории
+                                file_name = file_url.split('static/images/')[-1]  # Извлекаем имя файла
+                                file_path = os.path.join(image_dir, file_name)  # Полный путь к файлу
+                                if os.path.exists(file_path):
+                                    os.remove(file_path)  # Удаляем файл
+
         # Удаляем объект
         instance.delete()
         return Response({"message": "Объект успешно удален"}, status=status.HTTP_204_NO_CONTENT)
@@ -275,6 +316,26 @@ class ServiceStoreView(APIView):
             instance = ServiceStore.objects.get(pk=pk)
         except ServiceStore.DoesNotExist:
             return Response({"error": "Объект не найден"}, status=status.HTTP_404_NOT_FOUND)
+
+        content = instance.content  # Поле, где хранятся данные (JSON)
+        image_dir = os.path.join(settings.BASE_DIR, 'static/images')  # Полный путь к папке с изображениями
+        if content and isinstance(content, dict):  # Проверяем, что это словарь
+            # Ищем пути изображений
+            for block in content.get('blocks', []):
+                if block['type'] in ['image', 'gallery']:
+                    files = (
+                        block['data'].get('files', [])
+                        if block['type'] == 'gallery'
+                        else [block['data'].get('file')]
+                    )
+                    for file_data in files:
+                        if file_data:
+                            file_url = file_data.get('url')  # URL картинки
+                            if file_url and 'static/images/' in file_url:  # Убеждаемся, что файл в нужной директории
+                                file_name = file_url.split('static/images/')[-1]  # Извлекаем имя файла
+                                file_path = os.path.join(image_dir, file_name)  # Полный путь к файлу
+                                if os.path.exists(file_path):
+                                    os.remove(file_path)  # Удаляем файл
 
         # Удаляем объект
         instance.delete()

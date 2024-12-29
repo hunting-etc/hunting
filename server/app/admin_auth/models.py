@@ -56,7 +56,6 @@ class BaseCategory(BaseUUID):
 
     # Название - до 200 символов
     name = models.CharField(
-        unique=True,
         max_length=200,
         help_text="Введите название (до 200 символов)."
     )
