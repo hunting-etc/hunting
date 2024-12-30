@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from PIL import Image
 import uuid
 import os
+from django.db.models import ProtectedError
 
 
 # Утилита для обработки изображений
@@ -93,10 +94,22 @@ class BaseCategory(BaseUUID):
             compress_image(image_path)
 
     def delete(self, *args, **kwargs):
-        # Удаляем файл перед удалением объекта
-        if self.photo and os.path.isfile(self.photo.path):
-            os.remove(self.photo.path)
-        super().delete(*args, **kwargs)
+        # Сохраняем путь к фото
+        photo_path = self.photo.path if self.photo else None
+
+        try:
+            # Пытаемся удалить объект
+            super().delete(*args, **kwargs)
+
+            # Если удаление объекта успешно, удаляем фото
+            if photo_path and os.path.isfile(photo_path):
+                os.remove(photo_path)
+        except ProtectedError:
+            # Обработка ошибки: объект не может быть удалён
+            raise  # Пробрасываем ошибку, чтобы её можно было обработать на уровне API
+        except Exception as e:
+            # Логика обработки других ошибок, если требуется
+            raise e
 
     def __str__(self):
         return self.name

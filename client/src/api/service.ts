@@ -6,14 +6,13 @@ export interface Error {
     error: string;
 }
 
-import { useToast } from "primevue/usetoast"; 
 import { jwtDecode } from "jwt-decode";
 import { emitter } from '../api/emmiter';
 
 
 
 export class ApiService<T> {
-  
+    
     baseUrl: string = "http://localhost:8000";
 
     public isAccessTokenExpired(token: string): boolean {
@@ -50,6 +49,15 @@ export class ApiService<T> {
         });
     
         if (!response.ok) {
+          const errorData = await response.json();
+              
+              emitter.emit('toast', {
+                severity: 'error',
+                summary: 'Ошибка',
+                detail: JSON.stringify(errorData) || 'Неизвестная ошибка',
+                group: 'bl',
+                life: 3000,
+              });
           throw new Error(`Ошибка при обновлении токена: ${response.statusText}`);
         }
     
@@ -89,6 +97,15 @@ export class ApiService<T> {
         });
         
         if (!response.ok) {
+          const errorData = await response.json();
+              
+              emitter.emit('toast', {
+                severity: 'error',
+                summary: 'Ошибка',
+                detail: JSON.stringify(errorData) || 'Неизвестная ошибка',
+                group: 'bl',
+                life: 3000,
+              });
             throw new Error(`Ошибка при получении данных: ${response.statusText}`);
         }
     
@@ -109,6 +126,15 @@ export class ApiService<T> {
           
         });
         if (!response.ok) {
+          const errorData = await response.json();
+              
+              emitter.emit('toast', {
+                severity: 'error',
+                summary: 'Ошибка',
+                detail: JSON.stringify(errorData) || 'Неизвестная ошибка',
+                group: 'bl',
+                life: 3000,
+              });
             throw new Error(`Ошибка при получении данных: ${response.statusText}`);
         }
         const jsonData = await response.json();
@@ -128,6 +154,15 @@ export class ApiService<T> {
           
         });
         if (!response.ok) {
+          const errorData = await response.json();
+              
+              emitter.emit('toast', {
+                severity: 'error',
+                summary: 'Ошибка',
+                detail: JSON.stringify(errorData) || 'Неизвестная ошибка',
+                group: 'bl',
+                life: 3000,
+              });
             throw new Error(`Ошибка при получении данных: ${response.statusText}`);
         }
         const jsonData = await response.json();
@@ -150,6 +185,15 @@ export class ApiService<T> {
         });
     
         if (!response.ok) {
+          const errorData = await response.json();
+              
+              emitter.emit('toast', {
+                severity: 'error',
+                summary: 'Ошибка',
+                detail: JSON.stringify(errorData) || 'Неизвестная ошибка',
+                group: 'bl',
+                life: 3000,
+              });
           throw new Error(`Ошибка HTTP: ${response.status}`);
         }
     
@@ -176,6 +220,15 @@ export class ApiService<T> {
       });
   
       if (!response.ok) {
+        const errorData = await response.json();
+              
+              emitter.emit('toast', {
+                severity: 'error',
+                summary: 'Ошибка',
+                detail: JSON.stringify(errorData) || 'Неизвестная ошибка',
+                group: 'bl',
+                life: 3000,
+              });
           throw new Error(`Ошибка: ${response.statusText}`);
       }
   
@@ -205,6 +258,15 @@ export class ApiService<T> {
           });
     
           if (!response.ok) {
+            const errorData = await response.json();
+              
+              emitter.emit('toast', {
+                severity: 'error',
+                summary: 'Ошибка',
+                detail: JSON.stringify(errorData) || 'Неизвестная ошибка',
+                group: 'bl',
+                life: 3000,
+              });
             throw new Error(`Ошибка загрузки изображения: ${response.statusText}`);
           }
     
@@ -232,6 +294,16 @@ export class ApiService<T> {
           });
     
           if (!response.ok) {
+            const errorData = await response.json();
+              
+              emitter.emit('toast', {
+                severity: 'error',
+                summary: 'Ошибка',
+                detail: JSON.stringify(errorData) || 'Неизвестная ошибка',
+                group: 'bl',
+                life: 3000,
+              });
+
             throw new Error(`Ошибка удаления изображения: ${response.statusText}`);
           }
     
@@ -267,6 +339,7 @@ export class ApiService<T> {
             group: 'bl',
             life: 3000,
           });
+
           // Отправляем ошибку в Toast
           
 
