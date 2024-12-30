@@ -7,6 +7,7 @@ from .service  import CategoryValidationSchema,InformationPageValidationSchema,S
 from django.http import JsonResponse
 import os
 from django.conf import settings
+from django.db.models import ProtectedError
 
 
 class AllCategoryView(APIView):
@@ -79,27 +80,53 @@ class AllCategoryView(APIView):
 
         content = instance.content  # Поле, где хранятся данные (JSON)
         image_dir = os.path.join(settings.BASE_DIR, 'static/images')  # Полный путь к папке с изображениями
-        if content and isinstance(content, dict):  # Проверяем, что это словарь
-            # Ищем пути изображений
-            for block in content.get('blocks', []):
-                if block['type'] in ['image', 'gallery']:
-                    files = (
-                        block['data'].get('files', [])
-                        if block['type'] == 'gallery'
-                        else [block['data'].get('file')]
-                    )
-                    for file_data in files:
-                        if file_data:
-                            file_url = file_data.get('url')  # URL картинки
-                            if file_url and 'static/images/' in file_url:  # Убеждаемся, что файл в нужной директории
-                                file_name = file_url.split('static/images/')[-1]  # Извлекаем имя файла
-                                file_path = os.path.join(image_dir, file_name)  # Полный путь к файлу
-                                if os.path.exists(file_path):
-                                    os.remove(file_path)  # Удаляем файл
 
-        # Удаляем объект
-        instance.delete()
-        return Response({"message": "Объект успешно удален"}, status=status.HTTP_204_NO_CONTENT)
+        try:
+            if content and isinstance(content, dict):  # Проверяем, что это словарь
+                # Ищем пути изображений
+                for block in content.get('blocks', []):
+                    if block['type'] in ['image', 'gallery']:
+                        files = (
+                            block['data'].get('files', [])
+                            if block['type'] == 'gallery'
+                            else [block['data'].get('file')]
+                        )
+                        for file_data in files:
+                            if file_data:
+                                file_url = file_data.get('url')  # URL картинки
+                                if file_url and 'static/images/' in file_url:  # Убеждаемся, что файл в нужной директории
+                                    file_name = file_url.split('static/images/')[-1]  # Извлекаем имя файла
+                                    file_path = os.path.join(image_dir, file_name)  # Полный путь к файлу
+                                    if os.path.exists(file_path):
+                                        os.remove(file_path)  # Удаляем файл
+                                    else:
+                                        raise FileNotFoundError(f"Файл {file_name} не найден по пути {file_path}")
+            else:
+                raise ValueError("Неверный формат содержимого в поле 'content'.")
+
+            # Пытаемся удалить объект
+            instance.delete()
+            return Response({"message": "Объект успешно удален"}, status=status.HTTP_204_NO_CONTENT)
+
+        except FileNotFoundError as e:
+            # Ошибка при удалении файла
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        except ValueError as e:
+            # Ошибка с содержимым JSON
+            return Response({"error": f"Ошибка при обработке содержимого: {str(e)}"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        except ProtectedError as e:
+            # Ошибка защиты от удаления (если объект используется где-то еще)
+            return Response({"error": "Невозможно удалить объект, так как он используется в других местах."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            # Ловим все остальные ошибки
+            return Response({"error": f"Произошла ошибка: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 class ImageView(APIView):
     def get(self, request, pk=None):

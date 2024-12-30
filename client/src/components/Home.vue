@@ -4,9 +4,17 @@ import { useRouter } from "vue-router";
 import Button from "primevue/button";
 import Dropdown from "primevue/dropdown";
 import { SpeedDial } from "primevue";
+import { useToast } from "primevue/usetoast";
+import { emitter } from '../api/emmiter';
 
-const router = useRouter();
 
+
+const router = useRouter(); 
+let toast = useToast();
+emitter.on('toast', (data:any) => {
+  console.log('Received toast data:', data);
+      toast.add(data);
+    });
 // Опции для направлений
 const dropdownData = [
   {
@@ -67,6 +75,9 @@ const items2 = ref([
   // { label: 'Теги', icon: 'pi pi-hashtag'}
 ]);
 
+
+
+
 const selectedValues = ref<{ [key: string]: any }>({});
 
 dropdownData.forEach((dropdown) => {
@@ -93,6 +104,8 @@ const handleSelection = (dropdownKey: string, selectedOption: any) => {
 </script>
 
 <template>
+  
+  
   <div class="main__menu">
     <div class="container">
       <!-- Левая панель -->
@@ -110,8 +123,8 @@ const handleSelection = (dropdownKey: string, selectedOption: any) => {
     class="dropdown" 
   />
 </div>
-
-
+<Toast position="bottom-left" group="bl" />
+ 
         <!-- Пример дополнительной кнопки -->
         <RouterLink to="/about">
           <Button label="О компании" class="p-button-success" />
@@ -129,6 +142,7 @@ const handleSelection = (dropdownKey: string, selectedOption: any) => {
       </div>
     </div>
   </div>
+  
 </template>
 
 <style scoped>

@@ -88,9 +88,10 @@ export const initEditor = (element: HTMLElement, data: any = null) => {
           }
         }
         deletedImages.forEach((url) => deleteImage(url))
-    
+        
+        
         // deletedImages.forEach((url) => deleteImage(url));
-    
+        
         // Обработка блоков типа 'gallery'
         const currentGalleryUrls = currentData.blocks
           .filter((block) => block.type === 'gallery')

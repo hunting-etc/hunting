@@ -6,8 +6,12 @@ import App from './App.vue'
 import router from "./router/index";
 import 'primeicons/primeicons.css';
 import { definePreset } from '@primevue/themes';
+import ToastService from 'primevue/toastservice';
+import Toast from 'primevue/toast';
 //
 const app = createApp(App)
+app.use(ToastService);
+app.component('Toast', Toast);
 app.use(router)
 const MyPreset = definePreset(Aura, {
     semantic: {

@@ -6,9 +6,14 @@ export interface Error {
     error: string;
 }
 
+import { useToast } from "primevue/usetoast"; 
 import { jwtDecode } from "jwt-decode";
+import { emitter } from '../api/emmiter';
+
+
 
 export class ApiService<T> {
+  
     baseUrl: string = "http://localhost:8000";
 
     public isAccessTokenExpired(token: string): boolean {
@@ -238,6 +243,7 @@ export class ApiService<T> {
       }
 
     public async delete(prefix: string, id: string, baseAdmin: string): Promise<void> {
+    
       let accessToken = localStorage.getItem('access_token');
       if (!accessToken || this.isAccessTokenExpired(accessToken)) {
         console.log('Access token истёк. Обновляем токен...');
@@ -250,10 +256,21 @@ export class ApiService<T> {
                 'Content-Type': 'application/json',
             },
         });
-
+       
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Ошибка при удалении данных');
+          const errorData = await response.json();
+          
+          emitter.emit('toast', {
+            severity: 'error',
+            summary: 'Ошибка',
+            detail: JSON.stringify(errorData) || 'Неизвестная ошибка',
+            group: 'bl',
+            life: 3000,
+          });
+          // Отправляем ошибку в Toast
+          
+
+          throw new Error(errorData.message || 'Ошибка при удалении данных');
         }
     }
 }
